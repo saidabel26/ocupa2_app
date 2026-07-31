@@ -24,16 +24,21 @@ class _VideosScreenState extends State<VideosScreen> {
 
   Future<void> _openVideo(VideoModel video) async {
     if (video.url.isEmpty) return;
-    final uri = Uri.tryParse(video.url);
+    String finalUrl = video.url;
+    if (!finalUrl.startsWith('http')) {
+      finalUrl = 'https://$finalUrl';
+    }
+    
+    final uri = Uri.tryParse(finalUrl);
     if (uri == null) return;
 
-    if (await canLaunchUrl(uri)) {
+    try {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
+    } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('No se pudo abrir el video.'),
+            content: Text('No se pudo abrir el video. Asegúrate de tener un navegador o YouTube instalado.'),
             backgroundColor: AppColors.surface,
           ),
         );
