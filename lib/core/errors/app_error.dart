@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 /// Tipos de error de la aplicación
 enum AppErrorType {
   network,
@@ -91,11 +93,15 @@ class AppError implements Exception {
   static String? _parseMessage(String? body) {
     if (body == null || body.isEmpty) return null;
     try {
-      // Intentar extraer el campo "message" del JSON de error
-      final match = RegExp(r'"message"\s*:\s*"([^"]+)"').firstMatch(body);
-      return match?.group(1);
+      final json = jsonDecode(body);
+      return json['message']?.toString();
     } catch (_) {
-      return null;
+      try {
+        final match = RegExp(r'"message"\s*:\s*"([^"]+)"').firstMatch(body);
+        return match?.group(1);
+      } catch (_) {
+        return null;
+      }
     }
   }
 

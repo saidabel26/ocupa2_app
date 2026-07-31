@@ -89,6 +89,7 @@ GoRouter buildRouter(AuthProvider authProvider) {
           title: 'Completar Perfil',
           icon: Icons.person_outline,
           description: 'Esta pantalla será implementada en la Parte 2.',
+          showLogout: true,
         ),
       ),
 
