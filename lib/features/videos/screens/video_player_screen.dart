@@ -24,31 +24,46 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   @override
   void initState() {
     super.initState();
-    final videoId = YoutubePlayer.convertUrlToId(widget.videoUrl);
+    final videoId = _extractYoutubeId(widget.videoUrl);
     
     if (videoId == null) {
       _isError = true;
     } else {
-      _controller = YoutubePlayerController(
-        initialVideoId: videoId,
-        flags: const YoutubePlayerFlags(
-          autoPlay: true,
+      _controller = YoutubePlayerController.fromVideoId(
+        videoId: videoId,
+        autoPlay: true,
+        params: const YoutubePlayerParams(
+          showControls: true,
+          showFullscreenButton: true,
           mute: false,
-          enableCaption: true,
         ),
       );
     }
   }
 
+  String? _extractYoutubeId(String url) {
+    final RegExp regex = RegExp(
+      r'.*(?:youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*',
+      caseSensitive: false,
+      multiLine: false,
+    );
+    final match = regex.firstMatch(url);
+    if (match != null && match.groupCount >= 1) {
+      final id = match.group(1);
+      if (id != null && id.length == 11) return id;
+    }
+    return null;
+  }
+
   @override
   void deactivate() {
-    if (!_isError) _controller.pause();
+    if (!_isError) _controller.pauseVideo();
     super.deactivate();
   }
 
   @override
   void dispose() {
-    if (!_isError) _controller.dispose();
+    if (!_isError) _controller.close();
     SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     super.dispose();
   }
@@ -67,33 +82,20 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
       );
     }
 
-    return YoutubePlayerBuilder(
-      onExitFullScreen: () {
-        SystemChrome.setPreferredOrientations(DeviceOrientation.values);
-      },
-      player: YoutubePlayer(
-        controller: _controller,
-        showVideoProgressIndicator: true,
-        progressIndicatorColor: AppColors.primary,
-        progressColors: const ProgressBarColors(
-          playedColor: AppColors.primary,
-          handleColor: AppColors.primary,
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        title: Text(widget.title, style: const TextStyle(fontSize: 14)),
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
+        elevation: 0,
+      ),
+      body: Center(
+        child: YoutubePlayer(
+          controller: _controller,
+          aspectRatio: 16 / 9,
         ),
       ),
-      builder: (context, player) {
-        return Scaffold(
-          backgroundColor: Colors.black,
-          appBar: AppBar(
-            title: Text(widget.title, style: const TextStyle(fontSize: 14)),
-            backgroundColor: Colors.black,
-            foregroundColor: Colors.white,
-            elevation: 0,
-          ),
-          body: Center(
-            child: player,
-          ),
-        );
-      },
     );
   }
 }
