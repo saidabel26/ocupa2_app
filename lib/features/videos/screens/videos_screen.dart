@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:go_router/go_router.dart';
+import '../../../app/router.dart';
 import '../../../app/theme.dart';
 import '../models/video_model.dart';
 import '../providers/video_provider.dart';
@@ -22,28 +23,20 @@ class _VideosScreenState extends State<VideosScreen> {
     });
   }
 
-  Future<void> _openVideo(VideoModel video) async {
+  void _openVideo(VideoModel video) {
     if (video.url.isEmpty) return;
     String finalUrl = video.url;
     if (!finalUrl.startsWith('http')) {
       finalUrl = 'https://$finalUrl';
     }
     
-    final uri = Uri.tryParse(finalUrl);
-    if (uri == null) return;
-
-    try {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('No se pudo abrir el video. Asegúrate de tener un navegador o YouTube instalado.'),
-            backgroundColor: AppColors.surface,
-          ),
-        );
-      }
-    }
+    context.push(
+      AppRoutes.videoPlayer,
+      extra: {
+        'url': finalUrl,
+        'title': video.title,
+      },
+    );
   }
 
   @override

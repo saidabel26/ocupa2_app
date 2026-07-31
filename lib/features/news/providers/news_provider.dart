@@ -43,28 +43,15 @@ class NewsProvider extends ChangeNotifier {
   /// Intenta primero buscarlo en la lista ya cargada; si no lo encuentra
   /// hace GET /news/{id}.
   Future<void> loadNewsDetail(String id) async {
-    // Intentar desde caché primero
     final cached = _newsList.where((n) => n.id == id).toList();
     if (cached.isNotEmpty) {
       _selectedNews = cached.first;
-      notifyListeners();
-      return;
+      _error = null;
+    } else {
+      _selectedNews = null;
+      _error = 'Detalle de noticia no encontrado.';
     }
-
-    _isLoadingDetail = true;
-    _error = null;
     notifyListeners();
-
-    try {
-      _selectedNews = await _service.getNewsDetail(id);
-    } on AppError catch (e) {
-      _error = e.message;
-    } catch (_) {
-      _error = 'Error al cargar el detalle de la noticia.';
-    } finally {
-      _isLoadingDetail = false;
-      notifyListeners();
-    }
   }
 
   void clearSelected() {

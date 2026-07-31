@@ -9,6 +9,7 @@ import '../features/home/screens/home_screen.dart';
 import '../features/news/screens/news_list_screen.dart';
 import '../features/news/screens/news_detail_screen.dart';
 import '../features/videos/screens/videos_screen.dart';
+import '../features/videos/screens/video_player_screen.dart';
 import '../shared/screens/main_shell_screen.dart';
 import '../shared/screens/placeholder_screen.dart';
 
@@ -33,6 +34,7 @@ class AppRoutes {
   static const String news = '/news';
   static const String newsDetail = '/news/:id';
   static const String videos = '/videos';
+  static const String videoPlayer = '/video-player';
   static const String about = '/about';
   static const String changePassword = '/change-password';
 }
@@ -100,6 +102,18 @@ GoRouter buildRouter(AuthProvider authProvider) {
         builder: (context, state) {
           final id = state.pathParameters['id'] ?? '';
           return NewsDetailScreen(newsId: id);
+        },
+      ),
+
+      // ── Reproductor de Video (sin shell) ────────────────────────────
+      GoRoute(
+        path: AppRoutes.videoPlayer,
+        builder: (context, state) {
+          final data = state.extra as Map<String, dynamic>? ?? {};
+          return VideoPlayerScreen(
+            videoUrl: data['url'] ?? '',
+            title: data['title'] ?? 'Video',
+          );
         },
       ),
 
