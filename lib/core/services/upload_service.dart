@@ -60,7 +60,8 @@ class UploadService {
   Future<UploadResult> _upload(String dataUri, {String? filename}) async {
     final body = <String, dynamic>{
       'image': dataUri,
-      ?'filename': filename,
+      // ignore: use_null_aware_elements
+      if (filename != null) 'filename': filename,
     };
 
     final response = await _client.post(

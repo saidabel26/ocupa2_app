@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_initializing_formals
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/http/api_client.dart';

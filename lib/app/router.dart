@@ -4,6 +4,11 @@ import '../features/auth/providers/auth_provider.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/register_screen.dart';
 import '../features/auth/screens/forgot_password_screen.dart';
+import '../features/profile/screens/complete_profile_screen.dart';
+import '../features/home/screens/home_screen.dart';
+import '../features/news/screens/news_list_screen.dart';
+import '../features/news/screens/news_detail_screen.dart';
+import '../features/videos/screens/videos_screen.dart';
 import '../shared/screens/main_shell_screen.dart';
 import '../shared/screens/placeholder_screen.dart';
 
@@ -26,6 +31,7 @@ class AppRoutes {
   static const String experiences = '/experiences';
   static const String payments = '/payments';
   static const String news = '/news';
+  static const String newsDetail = '/news/:id';
   static const String videos = '/videos';
   static const String about = '/about';
   static const String changePassword = '/change-password';
@@ -85,12 +91,29 @@ GoRouter buildRouter(AuthProvider authProvider) {
       // ── Completar perfil (parte 2) ───────────────────────────────────
       GoRoute(
         path: AppRoutes.completeProfile,
-        builder: (context, state) => const PlaceholderScreen(
-          title: 'Completar Perfil',
-          icon: Icons.person_outline,
-          description: 'Esta pantalla será implementada en la Parte 2.',
-          showLogout: true,
-        ),
+        builder: (context, state) => const CompleteProfileScreen(),
+      ),
+
+      // ── Detalle de noticia (sin shell) ──────────────────────────────
+      GoRoute(
+        path: AppRoutes.newsDetail,
+        builder: (context, state) {
+          final id = state.pathParameters['id'] ?? '';
+          return NewsDetailScreen(newsId: id);
+        },
+      ),
+
+      // ── Detalle de oferta (sin shell) ───────────────────────────────
+      GoRoute(
+        path: AppRoutes.offerDetail,
+        builder: (context, state) {
+          final id = state.pathParameters['id'] ?? '';
+          return PlaceholderScreen(
+            title: 'Detalle de Oferta',
+            icon: Icons.work_outline,
+            description: 'Detalle de oferta $id. Parte 3 y 5.',
+          );
+        },
       ),
 
       // ── Shell con navegación inferior ───────────────────────────────
@@ -99,11 +122,7 @@ GoRouter buildRouter(AuthProvider authProvider) {
         routes: [
           GoRoute(
             path: AppRoutes.home,
-            builder: (context, state) => const PlaceholderScreen(
-              title: 'Inicio',
-              icon: Icons.home_outlined,
-              description: 'Slider de bienvenida. Será implementado en la Parte 2.',
-            ),
+            builder: (context, state) => const HomeScreen(),
           ),
           GoRoute(
             path: AppRoutes.offers,
@@ -155,19 +174,11 @@ GoRouter buildRouter(AuthProvider authProvider) {
           ),
           GoRoute(
             path: AppRoutes.news,
-            builder: (context, state) => const PlaceholderScreen(
-              title: 'Noticias',
-              icon: Icons.newspaper_outlined,
-              description: 'Noticias de empleo. Parte 2.',
-            ),
+            builder: (context, state) => const NewsListScreen(),
           ),
           GoRoute(
             path: AppRoutes.videos,
-            builder: (context, state) => const PlaceholderScreen(
-              title: 'Videos',
-              icon: Icons.play_circle_outline,
-              description: 'Videos educativos. Parte 2.',
-            ),
+            builder: (context, state) => const VideosScreen(),
           ),
           GoRoute(
             path: AppRoutes.about,
@@ -186,19 +197,6 @@ GoRouter buildRouter(AuthProvider authProvider) {
             ),
           ),
         ],
-      ),
-
-      // ── Detalle de oferta (sin shell) ───────────────────────────────
-      GoRoute(
-        path: AppRoutes.offerDetail,
-        builder: (context, state) {
-          final id = state.pathParameters['id'] ?? '';
-          return PlaceholderScreen(
-            title: 'Detalle de Oferta',
-            icon: Icons.work_outline,
-            description: 'Detalle de oferta $id. Parte 3 y 5.',
-          );
-        },
       ),
     ],
     errorBuilder: (context, state) => Scaffold(
