@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 /// Modelo de noticia del API de Ocupa2.
 class NewsModel {
   final String id;
@@ -20,7 +22,7 @@ class NewsModel {
 
   factory NewsModel.fromJson(Map<String, dynamic> json) {
     return NewsModel(
-      id: json['id']?.toString() ?? json['url']?.toString() ?? json['title']?.toString() ?? '',
+      id: json['id']?.toString() ?? (json['title']?.hashCode ?? json['url']?.hashCode ?? UniqueKey().hashCode).toString(),
       title: json['title'] as String? ?? '',
       body: json['summary'] as String? ?? json['body'] as String? ?? json['content'] as String? ?? '',
       imageUrl: json['image'] as String? ?? json['imageUrl'] as String?,

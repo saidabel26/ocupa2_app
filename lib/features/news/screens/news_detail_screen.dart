@@ -185,65 +185,6 @@ class _NewsDetailScreenState extends State<NewsDetailScreen> {
                             height: 1.75,
                           ),
                         ),
-                        
-                        // Fuente y Botón Leer más
-                        if (news.url != null && news.url!.isNotEmpty) ...[
-                          const SizedBox(height: 32),
-                          if (news.source != null && news.source!.isNotEmpty)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 12),
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.language, size: 16, color: AppColors.textSecondary),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    'Fuente: ${news.source}',
-                                    style: const TextStyle(
-                                      color: AppColors.textSecondary,
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton.icon(
-                              onPressed: () async {
-                                String finalUrl = news.url!;
-                                if (!finalUrl.startsWith('http')) {
-                                  finalUrl = 'https://$finalUrl';
-                                }
-                                final uri = Uri.tryParse(finalUrl);
-                                if (uri != null) {
-                                  try {
-                                    await launchUrl(uri, mode: LaunchMode.inAppWebView);
-                                  } catch (_) {
-                                    if (context.mounted) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(content: Text('No se pudo abrir el enlace.')),
-                                      );
-                                    }
-                                  }
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.primary,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                              ),
-                              icon: const Icon(Icons.open_in_new),
-                              label: const Text(
-                                'Leer artículo completo',
-                                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          ),
-                        ],
                       ],
                     ),
                   ),
