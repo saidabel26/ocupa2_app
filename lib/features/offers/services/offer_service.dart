@@ -17,6 +17,7 @@ class OfferService {
     final queryParams = <String, dynamic>{};
     if (jobTypeKey != null && jobTypeKey.isNotEmpty) {
       queryParams['jobTypeKey'] = jobTypeKey;
+      queryParams['jobType'] = jobTypeKey;
     }
     if (contractType != null && contractType.isNotEmpty) {
       queryParams['contractType'] = contractType;

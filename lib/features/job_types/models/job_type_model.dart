@@ -20,7 +20,7 @@ class JobTypeModel {
   factory JobTypeModel.fromJson(Map<String, dynamic> json) {
     final rawFields = json['customFields'] as List<dynamic>?;
     return JobTypeModel(
-      id: json['id'] as String? ?? '',
+      id: json['id']?.toString() ?? json['key']?.toString() ?? json['_id']?.toString() ?? '',
       name: json['name'] as String? ?? '',
       description: json['description'] as String?,
       icon: json['icon'] as String?,
