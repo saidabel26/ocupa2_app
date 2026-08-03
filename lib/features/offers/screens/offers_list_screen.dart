@@ -152,8 +152,7 @@ class _OffersListScreenState extends State<OffersListScreen> {
               ),
               const SizedBox(height: 20),
               ElevatedButton.icon(
-                onPressed: () =>
-                    provider.loadOffers(jobTypeKey: provider.selectedJobTypeKey),
+                onPressed: () => provider.loadOffers(),
                 icon: const Icon(Icons.refresh),
                 label: const Text('Reintentar'),
               ),
@@ -186,8 +185,7 @@ class _OffersListScreenState extends State<OffersListScreen> {
     }
 
     return RefreshIndicator(
-      onRefresh: () =>
-          provider.loadOffers(jobTypeKey: provider.selectedJobTypeKey),
+      onRefresh: () => provider.loadOffers(),
       color: AppColors.primary,
       backgroundColor: AppColors.surface,
       child: ListView.separated(

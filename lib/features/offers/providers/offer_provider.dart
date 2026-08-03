@@ -7,7 +7,7 @@ import '../services/offer_service.dart';
 class OfferProvider extends ChangeNotifier {
   final OfferService _service;
 
-  List<OfferModel> _offers = [];
+  List<OfferModel> _allOffers = [];
   OfferModel? _selectedOffer;
   bool _isLoading = false;
   bool _isLoadingDetail = false;
@@ -16,25 +16,34 @@ class OfferProvider extends ChangeNotifier {
 
   OfferProvider(this._service);
 
-  List<OfferModel> get offers => _offers;
+  /// Lista de ofertas filtrada por el tipo de empleo seleccionado.
+  List<OfferModel> get offers {
+    if (_selectedJobTypeKey == null || _selectedJobTypeKey!.isEmpty) {
+      return _allOffers;
+    }
+    return _allOffers
+        .where((o) => o.jobTypeKey == _selectedJobTypeKey || o.jobTypeName == _selectedJobTypeKey)
+        .toList();
+  }
+
   OfferModel? get selectedOffer => _selectedOffer;
   bool get isLoading => _isLoading;
   bool get isLoadingDetail => _isLoadingDetail;
   String? get error => _error;
   String? get selectedJobTypeKey => _selectedJobTypeKey;
 
-  /// Ofertas que tienen coordenadas válidas (para el mapa).
+  /// Ofertas que tienen coordenadas válidas (para el mapa), respetando el filtro actual.
   List<OfferModel> get offersWithLocation =>
-      _offers.where((o) => o.hasLocation).toList();
+      offers.where((o) => o.hasLocation).toList();
 
-  /// Carga el listado de ofertas con filtro opcional por tipo de empleo.
-  Future<void> loadOffers({String? jobTypeKey}) async {
+  /// Carga todas las ofertas desde el API.
+  Future<void> loadOffers() async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      _offers = await _service.getOffers(jobTypeKey: jobTypeKey);
+      _allOffers = await _service.getOffers();
     } on AppError catch (e) {
       _error = e.message;
     } catch (_) {
@@ -45,17 +54,15 @@ class OfferProvider extends ChangeNotifier {
     }
   }
 
-  /// Cambia el filtro de tipo de empleo y recarga la lista.
-  Future<void> setFilter(String? jobTypeKey) async {
+  /// Cambia el filtro de tipo de empleo y notifica a la UI.
+  void setFilter(String? jobTypeKey) {
     _selectedJobTypeKey = jobTypeKey;
-    await loadOffers(jobTypeKey: jobTypeKey);
+    notifyListeners();
   }
 
   /// Carga el detalle de una oferta.
-  /// Busca primero en la lista ya cargada; si no está, consulta el API.
   Future<void> loadOfferDetail(String id) async {
-    // Buscar en caché local
-    final cached = _offers.where((o) => o.id == id).toList();
+    final cached = _allOffers.where((o) => o.id == id).toList();
     if (cached.isNotEmpty) {
       _selectedOffer = cached.first;
       _error = null;
