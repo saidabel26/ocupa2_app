@@ -13,6 +13,8 @@ import 'features/news/providers/news_provider.dart';
 import 'features/news/services/news_service.dart';
 import 'features/videos/providers/video_provider.dart';
 import 'features/videos/services/video_service.dart';
+import 'features/offers/providers/offer_provider.dart';
+import 'features/offers/services/offer_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -60,6 +62,11 @@ void main() async {
         // Parte 2 – Videos
         ChangeNotifierProvider<VideoProvider>(
           create: (_) => VideoProvider(VideoService(apiClient)),
+        ),
+
+        // Parte 3 – Ofertas
+        ChangeNotifierProvider<OfferProvider>(
+          create: (_) => OfferProvider(OfferService(apiClient)),
         ),
       ],
       child: const Ocupa2App(),
