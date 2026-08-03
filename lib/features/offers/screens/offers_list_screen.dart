@@ -119,8 +119,8 @@ class _OffersListScreenState extends State<OffersListScreen> {
                   padding: const EdgeInsets.only(right: 8),
                   child: _FilterChip(
                     label: jt.name,
-                    isSelected: selectedKey == jt.id,
-                    onTap: () => offerProvider.setFilter(jt.id),
+                    isSelected: selectedKey == jt.key,
+                    onTap: () => offerProvider.setFilter(jt.key),
                   ),
                 )),
         ],

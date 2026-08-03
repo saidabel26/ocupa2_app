@@ -21,9 +21,11 @@ class OfferProvider extends ChangeNotifier {
     if (_selectedJobTypeKey == null || _selectedJobTypeKey!.isEmpty) {
       return _allOffers;
     }
-    return _allOffers
-        .where((o) => o.jobTypeKey == _selectedJobTypeKey || o.jobTypeName == _selectedJobTypeKey)
-        .toList();
+    final filterKey = _selectedJobTypeKey!.toLowerCase();
+    return _allOffers.where((o) {
+      return o.jobTypeKey.toLowerCase() == filterKey ||
+          (o.jobTypeName?.toLowerCase() == filterKey);
+    }).toList();
   }
 
   OfferModel? get selectedOffer => _selectedOffer;
