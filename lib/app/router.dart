@@ -13,6 +13,9 @@ import '../features/videos/screens/video_player_screen.dart';
 import '../features/offers/screens/offers_list_screen.dart';
 import '../features/offers/screens/offer_detail_screen.dart';
 import '../features/offers/screens/offers_map_screen.dart';
+import '../features/offers/screens/my_offers_screen.dart';
+import '../features/offers/screens/create_offer_screen.dart';
+import '../features/offers/screens/offer_applicants_screen.dart';
 import '../shared/screens/main_shell_screen.dart';
 import '../shared/screens/placeholder_screen.dart';
 
@@ -31,6 +34,8 @@ class AppRoutes {
   static const String offerDetail = '/offers/:id';
   static const String map = '/map';
   static const String myOffers = '/my-offers';
+  static const String createOffer = '/create-offer';
+  static const String offerApplicants = '/offer-applicants/:id';
   static const String applications = '/applications';
   static const String experiences = '/experiences';
   static const String payments = '/payments';
@@ -129,6 +134,21 @@ GoRouter buildRouter(AuthProvider authProvider) {
         },
       ),
 
+      // ── Publicar oferta (sin shell) ─────────────────────────────────────
+      GoRoute(
+        path: AppRoutes.createOffer,
+        builder: (context, state) => const CreateOfferScreen(),
+      ),
+
+      // ── Aplicantes de mi oferta (sin shell) ────────────────────────────
+      GoRoute(
+        path: AppRoutes.offerApplicants,
+        builder: (context, state) {
+          final id = state.pathParameters['id'] ?? '';
+          return OfferApplicantsScreen(offerId: id);
+        },
+      ),
+
       // ── Shell con navegación inferior ───────────────────────────────
       ShellRoute(
         builder: (context, state, child) => MainShellScreen(child: child),
@@ -147,11 +167,7 @@ GoRouter buildRouter(AuthProvider authProvider) {
           ),
           GoRoute(
             path: AppRoutes.myOffers,
-            builder: (context, state) => const PlaceholderScreen(
-              title: 'Mis Ofertas',
-              icon: Icons.business_center_outlined,
-              description: 'Mis ofertas publicadas. Parte 4.',
-            ),
+            builder: (context, state) => const MyOffersScreen(),
           ),
           GoRoute(
             path: AppRoutes.applications,
