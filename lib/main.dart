@@ -13,6 +13,12 @@ import 'features/news/providers/news_provider.dart';
 import 'features/news/services/news_service.dart';
 import 'features/videos/providers/video_provider.dart';
 import 'features/videos/services/video_service.dart';
+import 'features/offers/providers/offer_provider.dart';
+import 'features/offers/services/offer_service.dart';
+import 'features/offers/providers/my_offers_provider.dart';
+import 'features/offers/services/application_service.dart';
+import 'features/payments/providers/payment_provider.dart';
+import 'features/payments/services/payment_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -60,6 +66,24 @@ void main() async {
         // Parte 2 – Videos
         ChangeNotifierProvider<VideoProvider>(
           create: (_) => VideoProvider(VideoService(apiClient)),
+        ),
+
+        // Parte 3 – Ofertas
+        ChangeNotifierProvider<OfferProvider>(
+          create: (_) => OfferProvider(OfferService(apiClient)),
+        ),
+
+        // Parte 4 – Pago de publicación
+        ChangeNotifierProvider<PaymentProvider>(
+          create: (_) => PaymentProvider(PaymentService(apiClient)),
+        ),
+
+        // Parte 4 – Mis ofertas publicadas + aplicantes
+        ChangeNotifierProvider<MyOffersProvider>(
+          create: (_) => MyOffersProvider(
+            offerService: OfferService(apiClient),
+            applicationService: ApplicationService(apiClient),
+          ),
         ),
       ],
       child: const Ocupa2App(),

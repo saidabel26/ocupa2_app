@@ -30,6 +30,7 @@ class ApiConstants {
 
   // Aplicaciones
   static const String meApplications = '/me/applications';
+  static const String applications = '/applications';
 
   // Pagos
   static const String payments = '/payments';
