@@ -29,6 +29,7 @@ class MyOffersProvider extends ChangeNotifier {
   String? _applicationsError;
   String? _patchError;
 
+  // ignore: prefer_initializing_formals
   MyOffersProvider({
     required OfferService offerService,
     required ApplicationService applicationService,

@@ -43,7 +43,6 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
   String? _selectedJobTypeKey;
   String _contractType = 'temporal';
   String _currency = 'DOP';
-  XFile? _photoFile;
   String? _uploadedPhotoUrl;
   bool _isUploadingPhoto = false;
 
@@ -55,7 +54,6 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
   // Preguntas adicionales del publicante
   final List<Map<String, dynamic>> _questions = [];
   final List<TextEditingController> _qLabelControllers = [];
-  String _newQType = 'text';
 
   // Opciones de preguntas select
   final List<List<String>> _qOptions = [];
@@ -119,7 +117,6 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
     if (xFile == null || !mounted) return;
 
     setState(() {
-      _photoFile = xFile;
       _isUploadingPhoto = true;
     });
 
@@ -130,7 +127,6 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
     } catch (e) {
       if (!mounted) return;
       _showError('Error al subir la foto. Intenta nuevamente.');
-      setState(() => _photoFile = null);
     } finally {
       if (mounted) setState(() => _isUploadingPhoto = false);
     }
@@ -867,7 +863,7 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
                         child: Image.network(
                           _uploadedPhotoUrl!,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => const Icon(
+                          errorBuilder: (context, error, stackTrace) => const Icon(
                             Icons.image,
                             color: AppColors.textSecondary,
                             size: 48,

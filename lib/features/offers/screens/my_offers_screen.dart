@@ -229,9 +229,11 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
   }
 
   Widget _buildOfferCard(OfferModel offer) {
-    final isActive = offer.status == null ||
-        offer.status == 'active' ||
-        offer.status == 'open';
+    final stat = offer.status?.toLowerCase();
+    final isActive = stat == null ||
+        stat == 'active' ||
+        stat == 'open' ||
+        stat == 'published';
 
     final statusColor = isActive ? AppColors.success : AppColors.textHint;
     final statusLabel = isActive ? 'Activa' : 'Inactiva';
@@ -256,7 +258,7 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
                 width: double.infinity,
                 height: 140,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
+                errorBuilder: (context, error, stackTrace) => Container(
                   height: 60,
                   color: AppColors.surfaceVariant,
                   child: const Icon(Icons.image_not_supported,

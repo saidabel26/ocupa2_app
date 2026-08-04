@@ -10,7 +10,7 @@ class NewsProvider extends ChangeNotifier {
   List<NewsModel> _newsList = [];
   NewsModel? _selectedNews;
   bool _isLoading = false;
-  bool _isLoadingDetail = false;
+  final bool _isLoadingDetail = false;
   String? _error;
 
   NewsProvider(this._service);
