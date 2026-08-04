@@ -181,8 +181,16 @@ class MyOffersProvider extends ChangeNotifier {
   Future<bool> deactivateOffer(String offerId) async {
     try {
       await _offerService.deactivateOffer(offerId);
-      // Recargar la lista para reflejar el cambio de estado
-      await loadMyOffers();
+      // Actualizar el estado localmente en memoria para evitar
+      // hacer un re-fetch completo (que causaba un crash de pantalla negra
+      // al llamar notifyListeners dentro del flujo del diálogo).
+      final idx = _myOffers.indexWhere((o) => o.id == offerId);
+      if (idx != -1) {
+        final updated = _myOffers[idx].copyWith(status: 'inactive');
+        _myOffers = List<OfferModel>.from(_myOffers)..[idx] = updated;
+      }
+      _offersError = null;
+      notifyListeners();
       return true;
     } on AppError catch (e) {
       _offersError = e.message;

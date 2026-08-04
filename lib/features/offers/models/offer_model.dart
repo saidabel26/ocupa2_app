@@ -127,4 +127,47 @@ class OfferModel {
           [],
     );
   }
+
+  /// Crea una copia del modelo con los campos especificados reemplazados.
+  OfferModel copyWith({
+    String? id,
+    String? jobTypeKey,
+    String? jobTypeName,
+    String? contractType,
+    String? description,
+    String? address,
+    String? photo,
+    double? locationLat,
+    double? locationLng,
+    double? paymentAmount,
+    String? paymentCurrency,
+    DateTime? deadline,
+    String? status,
+    DateTime? createdAt,
+    int? likesCount,
+    bool? liked,
+    Map<String, dynamic>? customAnswers,
+    List<OfferQuestionModel>? questions,
+  }) {
+    return OfferModel(
+      id: id ?? this.id,
+      jobTypeKey: jobTypeKey ?? this.jobTypeKey,
+      jobTypeName: jobTypeName ?? this.jobTypeName,
+      contractType: contractType ?? this.contractType,
+      description: description ?? this.description,
+      address: address ?? this.address,
+      photo: photo ?? this.photo,
+      locationLat: locationLat ?? this.locationLat,
+      locationLng: locationLng ?? this.locationLng,
+      paymentAmount: paymentAmount ?? this.paymentAmount,
+      paymentCurrency: paymentCurrency ?? this.paymentCurrency,
+      deadline: deadline ?? this.deadline,
+      status: status ?? this.status,
+      createdAt: createdAt ?? this.createdAt,
+      likesCount: likesCount ?? this.likesCount,
+      liked: liked ?? this.liked,
+      customAnswers: customAnswers ?? this.customAnswers,
+      questions: questions ?? this.questions,
+    );
+  }
 }
