@@ -27,7 +27,7 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
   Future<void> _confirmDeactivate(OfferModel offer) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         backgroundColor: AppColors.surface,
         shape:
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -41,13 +41,13 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, false),
+            onPressed: () => Navigator.pop(dialogContext, false),
             child: const Text('Cancelar'),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.error),
-            onPressed: () => Navigator.pop(context, true),
+            onPressed: () => Navigator.pop(dialogContext, true),
             child: const Text('Desactivar'),
           ),
         ],
