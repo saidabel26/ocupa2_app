@@ -40,14 +40,13 @@ class _ExperiencesScreenState extends State<ExperiencesScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Mi Perfil / Experiencias'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add_circle_outline_rounded),
-            tooltip: 'Agregar experiencia',
-            onPressed: _showAddSheet,
+        title: const Text('Experiencias'),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => Scaffold.of(context).openDrawer(),
           ),
-        ],
+        ),
       ),
       body: Consumer<ExperienceProvider>(
         builder: (context, provider, _) {

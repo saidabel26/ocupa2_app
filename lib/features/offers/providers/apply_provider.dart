@@ -60,7 +60,10 @@ class ApplyProvider extends ChangeNotifier {
   String _extractMessage(Object e) {
     final str = e.toString();
     if (str.contains('409') || str.contains('Ya aplicaste')) {
-      return 'Ya enviaste una aplicación a esta oferta.';
+      return 'Ya tienes una aplicación en revisión para esta oferta.';
+    }
+    if (str.contains('403') || str.contains('propia')) {
+      return 'No puedes aplicar a tu propia oferta.';
     }
     if (str.contains('network') || str.contains('SocketException')) {
       return 'Sin conexión. Verifica tu red.';

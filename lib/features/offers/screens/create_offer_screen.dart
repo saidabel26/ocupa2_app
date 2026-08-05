@@ -143,6 +143,12 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
       _showError('Selecciona el tipo de empleo.');
       return;
     }
+    
+    final amount = double.tryParse(_amountCtrl.text.trim());
+    if (amount == null || amount <= 0) {
+      _showError('La paga de la oferta debe ser mayor a 0.');
+      return;
+    }
 
     final payProvider = context.read<PaymentProvider>();
     final myOffersProvider = context.read<MyOffersProvider>();

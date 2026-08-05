@@ -5,6 +5,7 @@ import '../../job_types/providers/job_type_provider.dart';
 import '../models/offer_model.dart';
 import '../providers/offer_provider.dart';
 import '../providers/apply_provider.dart';
+import '../providers/my_offers_provider.dart';
 import 'apply_bottom_sheet.dart';
 
 /// Pantalla de detalle de una oferta.
@@ -218,10 +219,17 @@ class _OfferDetailScreenState extends State<OfferDetailScreen> {
               final alreadyApplied =
                   applyProvider.status == ApplyStatus.success;
 
+              final now = DateTime.now();
+              final isExpired = offer.deadline != null && offer.deadline!.isBefore(now);
+              
+              // Verificar si es la propia oferta usando MyOffersProvider
+              final myOffers = context.read<MyOffersProvider>().myOffers;
+              final isOwnOffer = myOffers.any((o) => o.id == offer.id);
+
               return SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed: alreadyApplied
+                  onPressed: (alreadyApplied || isExpired || isOwnOffer)
                       ? null
                       : () async {
                           final sent = await ApplyBottomSheet.show(
@@ -244,10 +252,16 @@ class _OfferDetailScreenState extends State<OfferDetailScreen> {
                         },
                   icon: Icon(alreadyApplied
                       ? Icons.check_circle_rounded
-                      : Icons.send_rounded),
-                  label: Text(alreadyApplied
-                      ? 'Aplicación enviada'
-                      : 'Aplicar a esta oferta'),
+                      : isExpired
+                          ? Icons.timer_off_outlined
+                          : Icons.send_rounded),
+                  label: Text(isOwnOffer
+                      ? 'No puedes aplicar a tu propia oferta'
+                      : alreadyApplied
+                          ? 'Aplicación enviada'
+                          : isExpired
+                              ? 'Fecha límite alcanzada'
+                              : 'Aplicar a esta oferta'),
                   style: alreadyApplied
                       ? ElevatedButton.styleFrom(
                           backgroundColor: AppColors.success,

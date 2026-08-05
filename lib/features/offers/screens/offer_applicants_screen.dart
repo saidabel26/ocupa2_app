@@ -227,6 +227,8 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
     final discarded = provider.selectedApplications
         .where((a) => a.status == 'discarded')
         .toList();
+        
+    final hasWinner = winners.isNotEmpty;
 
     return RefreshIndicator(
       color: AppColors.primary,
@@ -243,25 +245,25 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
 
           if (winners.isNotEmpty) ...[
             _buildGroupHeader('🏆 Ganador', AppColors.warning, winners.length),
-            ...winners.map((a) => _buildApplicantCard(a)),
+            ...winners.map((a) => _buildApplicantCard(a, hasWinner: hasWinner)),
             const SizedBox(height: 8),
           ],
           if (finalists.isNotEmpty) ...[
             _buildGroupHeader(
                 '⭐ Finalistas', AppColors.primary, finalists.length),
-            ...finalists.map((a) => _buildApplicantCard(a)),
+            ...finalists.map((a) => _buildApplicantCard(a, hasWinner: hasWinner)),
             const SizedBox(height: 8),
           ],
           if (inReview.isNotEmpty) ...[
             _buildGroupHeader(
                 '👁️ En revisión', AppColors.accent, inReview.length),
-            ...inReview.map((a) => _buildApplicantCard(a)),
+            ...inReview.map((a) => _buildApplicantCard(a, hasWinner: hasWinner)),
             const SizedBox(height: 8),
           ],
           if (discarded.isNotEmpty) ...[
             _buildGroupHeader(
                 '❌ Descartados', AppColors.textSecondary, discarded.length),
-            ...discarded.map((a) => _buildApplicantCard(a)),
+            ...discarded.map((a) => _buildApplicantCard(a, hasWinner: hasWinner)),
           ],
         ],
       ),
@@ -329,10 +331,12 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
     );
   }
 
-  Widget _buildApplicantCard(ApplicationModel app) {
+  Widget _buildApplicantCard(ApplicationModel app, {bool hasWinner = false}) {
     final isWinner = app.status == 'winner';
     final isDiscarded = app.status == 'discarded';
     final isFinalist = app.status == 'finalist';
+    
+    final String displayName = isWinner ? (app.applicant?.nombre ?? 'Aplicante') : 'Aplicante anónimo';
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -368,7 +372,7 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
                       ? AppColors.warning.withAlpha(40)
                       : AppColors.surfaceVariant,
                   child: Text(
-                    _initials(app.applicant?.nombre ?? '?'),
+                    _initials(displayName),
                     style: TextStyle(
                       color: isWinner ? AppColors.warning : AppColors.textPrimary,
                       fontWeight: FontWeight.w700,
@@ -382,7 +386,7 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        app.applicant?.nombre ?? 'Aplicante anónimo',
+                        displayName,
                         style: TextStyle(
                           color: isWinner
                               ? AppColors.warning
@@ -391,7 +395,7 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      if (app.applicant?.email != null)
+                      if (isWinner && app.applicant?.email != null)
                         Text(
                           app.applicant!.email!,
                           style: const TextStyle(
@@ -449,7 +453,7 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
               ),
 
             // Acciones (no mostrar si ya hay ganador)
-            if (!isWinner) _buildActions(app, isDiscarded, isFinalist),
+            if (!isWinner) _buildActions(app, isDiscarded, isFinalist, hasWinner),
           ],
         ),
       ),
@@ -496,7 +500,7 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
   }
 
   Widget _buildActions(
-      ApplicationModel app, bool isDiscarded, bool isFinalist) {
+      ApplicationModel app, bool isDiscarded, bool isFinalist, bool hasWinner) {
     final provider = context.watch<MyOffersProvider>();
     final isBusy = provider.isPatching;
 
@@ -504,15 +508,15 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
       spacing: 8,
       runSpacing: 8,
       children: [
-        if (!isFinalist && !isDiscarded)
+        if (!isFinalist && !isDiscarded && !hasWinner)
           _actionButton(
             label: 'Finalista',
             icon: Icons.star_outline,
             color: AppColors.primary,
             isLoading: isBusy,
-            onPressed: () => _setStatus(app, 'finalist'),
+            onPressed: () => _confirmFinalistOrWinner(app),
           ),
-        if (isFinalist)
+        if (isFinalist && !hasWinner)
           _actionButton(
             label: 'Ganador 🏆',
             icon: Icons.emoji_events,
@@ -538,6 +542,38 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
           ),
       ],
     );
+  }
+
+  Future<void> _confirmFinalistOrWinner(ApplicationModel app) async {
+    final result = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: const Text('¿Elegir como ganador?', style: TextStyle(color: AppColors.textPrimary)),
+        content: const Text('Puedes marcar a este aplicante como finalista para evaluarlo más tarde, o elegirlo directamente como el ganador de la oferta.', style: TextStyle(color: AppColors.textSecondary)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, 'cancel'),
+            child: const Text('Cancelar', style: TextStyle(color: AppColors.textHint)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, 'finalist'),
+            child: const Text('Solo Finalista', style: TextStyle(color: AppColors.primary)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.warning, foregroundColor: Colors.white),
+            onPressed: () => Navigator.pop(ctx, 'winner'),
+            child: const Text('Elegir Ganador 🏆'),
+          ),
+        ],
+      ),
+    );
+    
+    if (result == 'finalist') {
+      _setStatus(app, 'finalist');
+    } else if (result == 'winner') {
+      _setStatus(app, 'winner');
+    }
   }
 
   Widget _actionButton({
