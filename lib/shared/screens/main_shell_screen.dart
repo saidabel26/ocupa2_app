@@ -109,7 +109,7 @@ class MainShellScreen extends StatelessWidget {
                   _drawerItem(context, Icons.map_outlined, 'Mapa', AppRoutes.map),
                   _drawerItem(context, Icons.business_center_outlined, 'Mis Ofertas', AppRoutes.myOffers),
                   _drawerItem(context, Icons.assignment_outlined, 'Mis Aplicaciones', AppRoutes.applications),
-                  _drawerItem(context, Icons.school_outlined, 'Perfil / Experiencias', AppRoutes.experiences),
+                  _drawerItem(context, Icons.school_outlined, 'Experiencias', AppRoutes.experiences),
                   _drawerItem(context, Icons.receipt_long_outlined, 'Mis Pagos', AppRoutes.payments),
                   const Divider(color: AppColors.border),
                   _drawerItem(context, Icons.newspaper_outlined, 'Noticias', AppRoutes.news),

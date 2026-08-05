@@ -41,11 +41,9 @@ class _ExperiencesScreenState extends State<ExperiencesScreen> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('Experiencias'),
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-          ),
+        leading: IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () => Scaffold.of(context).openDrawer(),
         ),
       ),
       body: Consumer<ExperienceProvider>(
