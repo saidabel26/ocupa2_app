@@ -4,6 +4,8 @@ import '../../../app/theme.dart';
 import '../../job_types/providers/job_type_provider.dart';
 import '../models/offer_model.dart';
 import '../providers/offer_provider.dart';
+import '../providers/apply_provider.dart';
+import 'apply_bottom_sheet.dart';
 
 /// Pantalla de detalle de una oferta.
 /// Muestra toda la información de la oferta sin el formulario de aplicación
@@ -23,6 +25,8 @@ class _OfferDetailScreenState extends State<OfferDetailScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<OfferProvider>().loadOfferDetail(widget.offerId);
+      // Reiniciar estado de aplicación cada vez que se abre el detalle
+      context.read<ApplyProvider>().reset();
     });
   }
 
@@ -208,29 +212,54 @@ class _OfferDetailScreenState extends State<OfferDetailScreen> {
             const SizedBox(height: 24),
           ],
 
-          // Botón placeholder de aplicar (Parte 5)
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: null, // Se habilita en Parte 5
-              icon: const Icon(Icons.send_outlined),
-              label: const Text('Aplicar a esta oferta'),
-              style: ElevatedButton.styleFrom(
-                disabledBackgroundColor: AppColors.surfaceVariant,
-                disabledForegroundColor: AppColors.textHint,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          const Center(
-            child: Text(
-              'Funcionalidad próximamente',
-              style: TextStyle(
-                fontSize: 12,
-                color: AppColors.textHint,
-              ),
-            ),
+          // Botón para aplicar a la oferta (Parte 5)
+          Consumer<ApplyProvider>(
+            builder: (consumerContext, applyProvider, child) {
+              final alreadyApplied =
+                  applyProvider.status == ApplyStatus.success;
+
+              return SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: alreadyApplied
+                      ? null
+                      : () async {
+                          final sent = await ApplyBottomSheet.show(
+                              consumerContext, offer);
+                          if (!consumerContext.mounted) return;
+                          if (sent == true) {
+                            ScaffoldMessenger.of(consumerContext).showSnackBar(
+                              SnackBar(
+                                content: const Text(
+                                  '¡Aplicación enviada! Te notificaremos el resultado.',
+                                ),
+                                backgroundColor: AppColors.success,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                  icon: Icon(alreadyApplied
+                      ? Icons.check_circle_rounded
+                      : Icons.send_rounded),
+                  label: Text(alreadyApplied
+                      ? 'Aplicación enviada'
+                      : 'Aplicar a esta oferta'),
+                  style: alreadyApplied
+                      ? ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.success,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        )
+                      : ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        ),
+                ),
+              );
+            },
           ),
           const SizedBox(height: 32),
         ],

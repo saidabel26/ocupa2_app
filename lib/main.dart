@@ -7,6 +7,8 @@ import 'features/auth/providers/auth_provider.dart';
 import 'features/auth/services/auth_service.dart';
 import 'features/profile/providers/profile_provider.dart';
 import 'features/profile/services/profile_service.dart';
+import 'features/profile/providers/experience_provider.dart';
+import 'features/profile/services/experience_service.dart';
 import 'features/job_types/providers/job_type_provider.dart';
 import 'features/job_types/services/job_type_service.dart';
 import 'features/news/providers/news_provider.dart';
@@ -16,6 +18,7 @@ import 'features/videos/services/video_service.dart';
 import 'features/offers/providers/offer_provider.dart';
 import 'features/offers/services/offer_service.dart';
 import 'features/offers/providers/my_offers_provider.dart';
+import 'features/offers/providers/apply_provider.dart';
 import 'features/offers/services/application_service.dart';
 import 'features/payments/providers/payment_provider.dart';
 import 'features/payments/services/payment_service.dart';
@@ -84,6 +87,16 @@ void main() async {
             offerService: OfferService(apiClient),
             applicationService: ApplicationService(apiClient),
           ),
+        ),
+
+        // Parte 5 – Experiencias del usuario
+        ChangeNotifierProvider<ExperienceProvider>(
+          create: (_) => ExperienceProvider(ExperienceService(apiClient)),
+        ),
+
+        // Parte 5 – Aplicar a oferta (se resetea en cada apertura del detalle)
+        ChangeNotifierProvider<ApplyProvider>(
+          create: (_) => ApplyProvider(ApplicationService(apiClient)),
         ),
       ],
       child: const Ocupa2App(),

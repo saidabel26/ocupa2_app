@@ -5,6 +5,7 @@ import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/register_screen.dart';
 import '../features/auth/screens/forgot_password_screen.dart';
 import '../features/profile/screens/complete_profile_screen.dart';
+import '../features/profile/screens/experiences_screen.dart';
 import '../features/home/screens/home_screen.dart';
 import '../features/news/screens/news_list_screen.dart';
 import '../features/news/screens/news_detail_screen.dart';
@@ -125,7 +126,7 @@ GoRouter buildRouter(AuthProvider authProvider) {
         },
       ),
 
-      // ── Detalle de oferta (sin shell) ───────────────────────────────
+      // ── Detalle de oferta (sin shell) ──────────────────────────────────────
       GoRoute(
         path: AppRoutes.offerDetail,
         builder: (context, state) {
@@ -179,11 +180,7 @@ GoRouter buildRouter(AuthProvider authProvider) {
           ),
           GoRoute(
             path: AppRoutes.experiences,
-            builder: (context, state) => const PlaceholderScreen(
-              title: 'Mi Perfil / Experiencias',
-              icon: Icons.school_outlined,
-              description: 'Perfil y experiencias laborales. Parte 5.',
-            ),
+            builder: (context, state) => const ExperiencesScreen(),
           ),
           GoRoute(
             path: AppRoutes.payments,
