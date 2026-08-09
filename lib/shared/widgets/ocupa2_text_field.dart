@@ -20,6 +20,7 @@ class Ocupa2TextField extends StatefulWidget {
   final void Function(String)? onFieldSubmitted;
   final FocusNode? focusNode;
   final String? initialValue;
+  final bool readOnly;
 
   const Ocupa2TextField({
     super.key,
@@ -40,6 +41,7 @@ class Ocupa2TextField extends StatefulWidget {
     this.onFieldSubmitted,
     this.focusNode,
     this.initialValue,
+    this.readOnly = false,
   });
 
   @override
@@ -62,6 +64,7 @@ class _Ocupa2TextFieldState extends State<Ocupa2TextField> {
       initialValue: widget.controller == null ? widget.initialValue : null,
       keyboardType: widget.keyboardType,
       obscureText: _obscure,
+      readOnly: widget.readOnly,
       validator: widget.validator,
       onChanged: widget.onChanged,
       maxLines: _obscure ? 1 : widget.maxLines,
