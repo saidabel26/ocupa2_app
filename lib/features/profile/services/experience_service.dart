@@ -36,10 +36,7 @@ class ExperienceService {
         'certificateImage': certificateImage,
     };
 
-    final response = await _client.post(
-      ApiConstants.meExperiences,
-      body: body,
-    );
+    final response = await _client.post(ApiConstants.meExperiences, body: body);
 
     final data = response['data'];
     if (data is Map<String, dynamic>) {

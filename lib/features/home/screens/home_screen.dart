@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../app/router.dart';
 import '../../../app/theme.dart';
+import '../../../shared/widgets/drawer_menu_button.dart';
 import '../../../features/auth/providers/auth_provider.dart';
 import '../widgets/welcome_slider.dart';
 
@@ -27,26 +28,16 @@ class HomeScreen extends StatelessWidget {
             children: [
               // AppBar custom
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
                 child: Row(
                   children: [
                     Expanded(
                       child: Row(
                         children: [
-                          GestureDetector(
-                            onTap: () => Scaffold.of(context).openDrawer(),
-                            child: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: AppColors.surface,
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(color: AppColors.border),
-                              ),
-                              child: const Icon(Icons.menu,
-                                  color: AppColors.textPrimary, size: 22),
-                            ),
-                          ),
+                          const DrawerMenuButton(),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Column(
@@ -84,17 +75,26 @@ class HomeScreen extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: AppColors.primary.withAlpha(40),
                           borderRadius: BorderRadius.circular(22),
-                          border: Border.all(color: AppColors.primary, width: 2),
+                          border: Border.all(
+                            color: AppColors.primary,
+                            width: 2,
+                          ),
                         ),
                         child: ClipOval(
-                          child: (user?.photo != null && user!.photo!.isNotEmpty)
+                          child:
+                              (user?.photo != null && user!.photo!.isNotEmpty)
                               ? Image.network(
                                   user.photo!,
                                   fit: BoxFit.cover,
                                   errorBuilder: (_, __, ___) => const Icon(
-                                      Icons.person, color: AppColors.primary),
+                                    Icons.person,
+                                    color: AppColors.primary,
+                                  ),
                                 )
-                              : const Icon(Icons.person, color: AppColors.primary),
+                              : const Icon(
+                                  Icons.person,
+                                  color: AppColors.primary,
+                                ),
                         ),
                       ),
                     ),
@@ -103,10 +103,7 @@ class HomeScreen extends StatelessWidget {
               ),
 
               // Slider
-              const Expanded(
-                flex: 5,
-                child: WelcomeSlider(),
-              ),
+              const Expanded(flex: 5, child: WelcomeSlider()),
 
               // Accesos rápidos
               Padding(

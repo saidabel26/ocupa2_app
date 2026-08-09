@@ -31,10 +31,10 @@ class ExperienceModel {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'title': title,
-        'description': description,
-        if (jobTypeKey != null) 'jobTypeKey': jobTypeKey,
-        if (certificateImage != null) 'certificateImage': certificateImage,
-      };
+    'id': id,
+    'title': title,
+    'description': description,
+    if (jobTypeKey != null) 'jobTypeKey': jobTypeKey,
+    if (certificateImage != null) 'certificateImage': certificateImage,
+  };
 }

@@ -32,8 +32,8 @@ class MyOffersProvider extends ChangeNotifier {
   MyOffersProvider({
     required OfferService offerService,
     required ApplicationService applicationService,
-  })  : _offerService = offerService,
-        _applicationService = applicationService;
+  }) : _offerService = offerService,
+       _applicationService = applicationService;
 
   // ── Getters ──────────────────────────────────────────────────────────────
 
@@ -158,7 +158,9 @@ class MyOffersProvider extends ChangeNotifier {
         rating: rating,
       );
       // Actualizar en la lista local
-      final idx = _selectedApplications.indexWhere((a) => a.id == applicationId);
+      final idx = _selectedApplications.indexWhere(
+        (a) => a.id == applicationId,
+      );
       if (idx != -1) {
         _selectedApplications = List.from(_selectedApplications)
           ..[idx] = updated;

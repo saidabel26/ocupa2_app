@@ -18,7 +18,7 @@ class _Ocupa2AppState extends State<Ocupa2App> {
   @override
   void initState() {
     super.initState();
-    // Instanciar el router una sola vez para que no se reinicie el estado 
+    // Instanciar el router una sola vez para que no se reinicie el estado
     // de la pantalla al cambiar el Provider
     final authProvider = context.read<AuthProvider>();
     _router = buildRouter(authProvider);

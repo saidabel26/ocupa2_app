@@ -107,8 +107,11 @@ class _ApplyBottomSheetState extends State<ApplyBottomSheet> {
                   gradient: AppColors.primaryGradient,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.send_rounded,
-                    color: Colors.white, size: 20),
+                child: const Icon(
+                  Icons.send_rounded,
+                  color: Colors.white,
+                  size: 20,
+                ),
               ),
               const SizedBox(width: 12),
               const Expanded(
@@ -189,9 +192,8 @@ class _ApplyBottomSheetState extends State<ApplyBottomSheet> {
                       ),
                       const SizedBox(height: 14),
                       ...widget.offer.questions.asMap().entries.map(
-                            (entry) => _buildQuestionField(
-                                entry.key, entry.value),
-                          ),
+                        (entry) => _buildQuestionField(entry.key, entry.value),
+                      ),
                     ],
 
                     const SizedBox(height: 8),
@@ -208,19 +210,24 @@ class _ApplyBottomSheetState extends State<ApplyBottomSheet> {
                               color: AppColors.error.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(10),
                               border: Border.all(
-                                  color:
-                                      AppColors.error.withValues(alpha: 0.4)),
+                                color: AppColors.error.withValues(alpha: 0.4),
+                              ),
                             ),
                             child: Row(
                               children: [
-                                const Icon(Icons.error_outline,
-                                    color: AppColors.error, size: 18),
+                                const Icon(
+                                  Icons.error_outline,
+                                  color: AppColors.error,
+                                  size: 18,
+                                ),
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
                                     provider.error!,
                                     style: const TextStyle(
-                                        color: AppColors.error, fontSize: 13),
+                                      color: AppColors.error,
+                                      fontSize: 13,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -237,8 +244,7 @@ class _ApplyBottomSheetState extends State<ApplyBottomSheet> {
                         return SizedBox(
                           width: double.infinity,
                           child: ElevatedButton.icon(
-                            onPressed:
-                                provider.isSubmitting ? null : _submit,
+                            onPressed: provider.isSubmitting ? null : _submit,
                             icon: provider.isSubmitting
                                 ? const SizedBox(
                                     width: 18,
@@ -255,8 +261,7 @@ class _ApplyBottomSheetState extends State<ApplyBottomSheet> {
                                   : 'Enviar aplicación',
                             ),
                             style: ElevatedButton.styleFrom(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 16),
+                              padding: const EdgeInsets.symmetric(vertical: 16),
                             ),
                           ),
                         );
@@ -298,18 +303,13 @@ class _ApplyBottomSheetState extends State<ApplyBottomSheet> {
           initialValue: _answers[index] as String?,
           dropdownColor: AppColors.surface,
           style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
-          decoration: const InputDecoration(
-            hintText: 'Selecciona una opción',
-          ),
+          decoration: const InputDecoration(hintText: 'Selecciona una opción'),
           items: q.options
-              .map((opt) => DropdownMenuItem(
-                    value: opt,
-                    child: Text(opt),
-                  ))
+              .map((opt) => DropdownMenuItem(value: opt, child: Text(opt)))
               .toList(),
           validator: q.required
               ? (v) =>
-                  (v == null || v.isEmpty) ? 'Este campo es requerido.' : null
+                    (v == null || v.isEmpty) ? 'Este campo es requerido.' : null
               : null,
           onChanged: (val) => setState(() => _answers[index] = val),
         );
@@ -360,13 +360,16 @@ class _ApplyBottomSheetState extends State<ApplyBottomSheet> {
               readOnly: true,
               decoration: InputDecoration(
                 hintText: 'Selecciona una fecha',
-                suffixIcon: const Icon(Icons.calendar_today_outlined,
-                    color: AppColors.primaryLight, size: 18),
+                suffixIcon: const Icon(
+                  Icons.calendar_today_outlined,
+                  color: AppColors.primaryLight,
+                  size: 18,
+                ),
               ),
               validator: q.required
                   ? (v) => (v == null || v.isEmpty)
-                      ? 'Este campo es requerido.'
-                      : null
+                        ? 'Este campo es requerido.'
+                        : null
                   : null,
             ),
           ),
@@ -375,13 +378,11 @@ class _ApplyBottomSheetState extends State<ApplyBottomSheet> {
       default: // text
         return TextFormField(
           initialValue: _answers[index] as String?,
-          decoration: const InputDecoration(
-            hintText: 'Tu respuesta...',
-          ),
+          decoration: const InputDecoration(hintText: 'Tu respuesta...'),
           validator: q.required
               ? (v) => (v == null || v.trim().isEmpty)
-                  ? 'Este campo es requerido.'
-                  : null
+                    ? 'Este campo es requerido.'
+                    : null
               : null,
           onChanged: (val) => setState(() => _answers[index] = val),
         );

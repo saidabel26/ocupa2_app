@@ -107,10 +107,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
             const SizedBox(height: 10),
             const Text(
               'Tu contraseña ha sido cambiada exitosamente.',
-              style: TextStyle(
-                color: AppColors.textSecondary,
-                fontSize: 14,
-              ),
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -120,7 +117,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                 onPressed: () {
                   context.pop(); // cerrar el diálogo
                   context.pop(); // volver a la pantalla anterior (Perfil)
-                  
+
                   // Limpiar campos
                   _newPassCtrl.clear();
                   _confirmCtrl.clear();
@@ -294,9 +291,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
             child: Row(
               children: [
                 Icon(
-                  check.$2
-                      ? Icons.check_circle
-                      : Icons.radio_button_unchecked,
+                  check.$2 ? Icons.check_circle : Icons.radio_button_unchecked,
                   size: 16,
                   color: check.$2 ? AppColors.success : AppColors.textHint,
                 ),

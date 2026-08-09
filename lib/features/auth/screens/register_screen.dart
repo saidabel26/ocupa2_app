@@ -104,8 +104,10 @@ class _RegisterScreenState extends State<RegisterScreen>
                     Row(
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.arrow_back_ios_new,
-                              color: AppColors.textSecondary),
+                          icon: const Icon(
+                            Icons.arrow_back_ios_new,
+                            color: AppColors.textSecondary,
+                          ),
                           onPressed: () => context.go(AppRoutes.login),
                         ),
                       ],
@@ -122,8 +124,11 @@ class _RegisterScreenState extends State<RegisterScreen>
                             gradient: AppColors.primaryGradient,
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: const Icon(Icons.work_outline,
-                              color: Colors.white, size: 24),
+                          child: const Icon(
+                            Icons.work_outline,
+                            color: Colors.white,
+                            size: 24,
+                          ),
                         ),
                         const SizedBox(width: 12),
                         ShaderMask(
@@ -154,7 +159,9 @@ class _RegisterScreenState extends State<RegisterScreen>
                     const Text(
                       'Solo estudiantes válidos del ITLA',
                       style: TextStyle(
-                          fontSize: 13, color: AppColors.textSecondary),
+                        fontSize: 13,
+                        color: AppColors.textSecondary,
+                      ),
                     ),
                     const SizedBox(height: 28),
 
@@ -176,8 +183,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                                   label: 'Nombre',
                                   controller: _firstNameCtrl,
                                   prefixIcon: Icons.person_outline,
-                                  textCapitalization:
-                                      TextCapitalization.words,
+                                  textCapitalization: TextCapitalization.words,
                                   validator: (v) {
                                     if (v == null || v.trim().length < 2) {
                                       return 'Mín. 2 caracteres';
@@ -191,8 +197,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                                 child: Ocupa2TextField(
                                   label: 'Apellido',
                                   controller: _lastNameCtrl,
-                                  textCapitalization:
-                                      TextCapitalization.words,
+                                  textCapitalization: TextCapitalization.words,
                                   validator: (v) {
                                     if (v == null || v.trim().length < 2) {
                                       return 'Mín. 2 caracteres';
@@ -216,8 +221,9 @@ class _RegisterScreenState extends State<RegisterScreen>
                               if (v == null || v.trim().isEmpty) {
                                 return 'Ingresa tu correo';
                               }
-                              if (!RegExp(r'^[^@]+@[^@]+\.[^@]+')
-                                  .hasMatch(v.trim())) {
+                              if (!RegExp(
+                                r'^[^@]+@[^@]+\.[^@]+',
+                              ).hasMatch(v.trim())) {
                                 return 'Correo no válido';
                               }
                               return null;

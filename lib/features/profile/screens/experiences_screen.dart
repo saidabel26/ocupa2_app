@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../app/theme.dart';
 import '../../../core/services/upload_service.dart';
+import '../../../shared/widgets/drawer_menu_button.dart';
 import '../../job_types/providers/job_type_provider.dart';
 import '../models/experience_model.dart';
 import '../providers/experience_provider.dart';
@@ -42,21 +43,7 @@ class _ExperiencesScreenState extends State<ExperiencesScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 16, top: 8, bottom: 8),
-          child: GestureDetector(
-            onTap: () => Scaffold.of(context).openDrawer(),
-            child: Container(
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppColors.border),
-              ),
-              child: const Icon(Icons.menu,
-                  color: AppColors.textPrimary, size: 22),
-            ),
-          ),
-        ),
+        leading: const DrawerMenuButton(),
         title: const Text(
           'Experiencias',
           style: TextStyle(
@@ -152,9 +139,11 @@ class _ExperiencesScreenState extends State<ExperiencesScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(ok
-              ? 'Experiencia eliminada.'
-              : provider.error ?? 'No se pudo eliminar.'),
+          content: Text(
+            ok
+                ? 'Experiencia eliminada.'
+                : provider.error ?? 'No se pudo eliminar.',
+          ),
           backgroundColor: ok ? AppColors.success : AppColors.error,
         ),
       );
@@ -169,10 +158,7 @@ class _ExperienceCard extends StatelessWidget {
   final ExperienceModel experience;
   final VoidCallback onDelete;
 
-  const _ExperienceCard({
-    required this.experience,
-    required this.onDelete,
-  });
+  const _ExperienceCard({required this.experience, required this.onDelete});
 
   @override
   Widget build(BuildContext context) {
@@ -195,8 +181,9 @@ class _ExperienceCard extends StatelessWidget {
           if (experience.certificateImage != null &&
               experience.certificateImage!.isNotEmpty)
             ClipRRect(
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(16)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(16),
+              ),
               child: Image.network(
                 experience.certificateImage!,
                 height: 160,
@@ -206,8 +193,11 @@ class _ExperienceCard extends StatelessWidget {
                   height: 100,
                   color: AppColors.surfaceVariant,
                   child: const Center(
-                    child: Icon(Icons.broken_image_outlined,
-                        color: AppColors.textHint, size: 40),
+                    child: Icon(
+                      Icons.broken_image_outlined,
+                      color: AppColors.textHint,
+                      size: 40,
+                    ),
                   ),
                 ),
               ),
@@ -228,8 +218,11 @@ class _ExperienceCard extends StatelessWidget {
                         gradient: AppColors.primaryGradient,
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(Icons.work_history_rounded,
-                          color: Colors.white, size: 18),
+                      child: const Icon(
+                        Icons.work_history_rounded,
+                        color: Colors.white,
+                        size: 18,
+                      ),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
@@ -248,9 +241,13 @@ class _ExperienceCard extends StatelessWidget {
                             const SizedBox(height: 3),
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 3),
+                                horizontal: 8,
+                                vertical: 3,
+                              ),
                               decoration: BoxDecoration(
-                                color: AppColors.primary.withValues(alpha: 0.15),
+                                color: AppColors.primary.withValues(
+                                  alpha: 0.15,
+                                ),
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
@@ -267,8 +264,11 @@ class _ExperienceCard extends StatelessWidget {
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.delete_outline_rounded,
-                          color: AppColors.error, size: 20),
+                      icon: const Icon(
+                        Icons.delete_outline_rounded,
+                        color: AppColors.error,
+                        size: 20,
+                      ),
                       tooltip: 'Eliminar',
                       onPressed: onDelete,
                     ),
@@ -291,8 +291,11 @@ class _ExperienceCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(Icons.access_time_rounded,
-                          size: 13, color: AppColors.textHint),
+                      const Icon(
+                        Icons.access_time_rounded,
+                        size: 13,
+                        color: AppColors.textHint,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         _formatDate(experience.createdAt!),
@@ -314,8 +317,18 @@ class _ExperienceCard extends StatelessWidget {
 
   String _formatDate(DateTime d) {
     const months = [
-      'ene', 'feb', 'mar', 'abr', 'may', 'jun',
-      'jul', 'ago', 'sep', 'oct', 'nov', 'dic',
+      'ene',
+      'feb',
+      'mar',
+      'abr',
+      'may',
+      'jun',
+      'jul',
+      'ago',
+      'sep',
+      'oct',
+      'nov',
+      'dic',
     ];
     return '${d.day} ${months[d.month - 1]} ${d.year}';
   }
@@ -395,8 +408,9 @@ class _AddExperienceSheetState extends State<_AddExperienceSheet> {
           content: const Text('Experiencia agregada exitosamente.'),
           backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
       );
     }
@@ -444,8 +458,11 @@ class _AddExperienceSheetState extends State<_AddExperienceSheet> {
                   gradient: AppColors.primaryGradient,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.add_circle_outline_rounded,
-                    color: Colors.white, size: 20),
+                child: const Icon(
+                  Icons.add_circle_outline_rounded,
+                  color: Colors.white,
+                  size: 20,
+                ),
               ),
               const SizedBox(width: 12),
               const Expanded(
@@ -482,8 +499,10 @@ class _AddExperienceSheetState extends State<_AddExperienceSheet> {
                       decoration: const InputDecoration(
                         labelText: 'Título *',
                         hintText: 'Ej. Cuidador de adultos mayores',
-                        prefixIcon: Icon(Icons.title_rounded,
-                            color: AppColors.primaryLight),
+                        prefixIcon: Icon(
+                          Icons.title_rounded,
+                          color: AppColors.primaryLight,
+                        ),
                       ),
                       validator: (v) => (v == null || v.trim().isEmpty)
                           ? 'El título es requerido.'
@@ -497,12 +516,13 @@ class _AddExperienceSheetState extends State<_AddExperienceSheet> {
                       maxLines: 3,
                       decoration: const InputDecoration(
                         labelText: 'Descripción *',
-                        hintText:
-                            'Describe tu experiencia en detalle...',
+                        hintText: 'Describe tu experiencia en detalle...',
                         prefixIcon: Padding(
                           padding: EdgeInsets.only(bottom: 40),
-                          child: Icon(Icons.description_outlined,
-                              color: AppColors.primaryLight),
+                          child: Icon(
+                            Icons.description_outlined,
+                            color: AppColors.primaryLight,
+                          ),
                         ),
                       ),
                       validator: (v) => (v == null || v.trim().length < 10)
@@ -516,22 +536,27 @@ class _AddExperienceSheetState extends State<_AddExperienceSheet> {
                       initialValue: _selectedJobTypeKey,
                       dropdownColor: AppColors.surface,
                       style: const TextStyle(
-                          color: AppColors.textPrimary, fontSize: 14),
+                        color: AppColors.textPrimary,
+                        fontSize: 14,
+                      ),
                       decoration: const InputDecoration(
                         labelText: 'Tipo de empleo (opcional)',
-                        prefixIcon: Icon(Icons.category_outlined,
-                            color: AppColors.primaryLight),
+                        prefixIcon: Icon(
+                          Icons.category_outlined,
+                          color: AppColors.primaryLight,
+                        ),
                       ),
                       items: [
                         const DropdownMenuItem<String>(
                           value: null,
                           child: Text('Seleccionar...'),
                         ),
-                        ...jobTypeProvider.jobTypes.map((jt) =>
-                            DropdownMenuItem(
-                              value: jt.key,
-                              child: Text(jt.name),
-                            )),
+                        ...jobTypeProvider.jobTypes.map(
+                          (jt) => DropdownMenuItem(
+                            value: jt.key,
+                            child: Text(jt.name),
+                          ),
+                        ),
                       ],
                       onChanged: (val) =>
                           setState(() => _selectedJobTypeKey = val),
@@ -569,46 +594,51 @@ class _AddExperienceSheetState extends State<_AddExperienceSheet> {
                                 ),
                               )
                             : _certificateImageUrl != null
-                                ? ClipRRect(
-                                    borderRadius: BorderRadius.circular(12),
-                                    child: Image.network(
-                                      _certificateImageUrl!,
-                                      fit: BoxFit.cover,
-                                      width: double.infinity,
-                                    ),
-                                  )
-                                : Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      const Icon(
-                                        Icons.add_photo_alternate_outlined,
-                                        color: AppColors.textHint,
-                                        size: 36,
-                                      ),
-                                      const SizedBox(height: 6),
-                                      const Text(
-                                        'Toca para adjuntar certificado',
-                                        style: TextStyle(
-                                          color: AppColors.textHint,
-                                          fontSize: 13,
-                                        ),
-                                      ),
-                                    ],
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Image.network(
+                                  _certificateImageUrl!,
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                ),
+                              )
+                            : Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.add_photo_alternate_outlined,
+                                    color: AppColors.textHint,
+                                    size: 36,
                                   ),
+                                  const SizedBox(height: 6),
+                                  const Text(
+                                    'Toca para adjuntar certificado',
+                                    style: TextStyle(
+                                      color: AppColors.textHint,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ],
+                              ),
                       ),
                     ),
                     if (_certificateImageUrl != null) ...[
                       const SizedBox(height: 6),
                       Row(
                         children: [
-                          const Icon(Icons.check_circle_rounded,
-                              color: AppColors.success, size: 14),
+                          const Icon(
+                            Icons.check_circle_rounded,
+                            color: AppColors.success,
+                            size: 14,
+                          ),
                           const SizedBox(width: 4),
                           const Expanded(
                             child: Text(
                               'Certificado cargado exitosamente.',
                               style: TextStyle(
-                                  color: AppColors.success, fontSize: 12),
+                                color: AppColors.success,
+                                fontSize: 12,
+                              ),
                             ),
                           ),
                           TextButton(
@@ -618,9 +648,14 @@ class _AddExperienceSheetState extends State<_AddExperienceSheet> {
                               foregroundColor: AppColors.error,
                               minimumSize: Size.zero,
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 4),
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
                             ),
-                            child: const Text('Quitar', style: TextStyle(fontSize: 12)),
+                            child: const Text(
+                              'Quitar',
+                              style: TextStyle(fontSize: 12),
+                            ),
                           ),
                         ],
                       ),
@@ -638,13 +673,15 @@ class _AddExperienceSheetState extends State<_AddExperienceSheet> {
                               color: AppColors.error.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(10),
                               border: Border.all(
-                                  color:
-                                      AppColors.error.withValues(alpha: 0.4)),
+                                color: AppColors.error.withValues(alpha: 0.4),
+                              ),
                             ),
                             child: Text(
                               provider.error!,
                               style: const TextStyle(
-                                  color: AppColors.error, fontSize: 13),
+                                color: AppColors.error,
+                                fontSize: 13,
+                              ),
                             ),
                           );
                         }
@@ -668,9 +705,11 @@ class _AddExperienceSheetState extends State<_AddExperienceSheet> {
                                   ),
                                 )
                               : const Icon(Icons.save_rounded),
-                          label: Text(provider.isSubmitting
-                              ? 'Guardando...'
-                              : 'Guardar experiencia'),
+                          label: Text(
+                            provider.isSubmitting
+                                ? 'Guardando...'
+                                : 'Guardar experiencia',
+                          ),
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 16),
                           ),
@@ -709,8 +748,11 @@ class _EmptyView extends StatelessWidget {
                 gradient: AppColors.primaryGradient,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.work_history_rounded,
-                  color: Colors.white, size: 48),
+              child: const Icon(
+                Icons.work_history_rounded,
+                color: Colors.white,
+                size: 48,
+              ),
             ),
             const SizedBox(height: 24),
             const Text(
@@ -753,8 +795,11 @@ class _ErrorView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline,
-                color: AppColors.textSecondary, size: 56),
+            const Icon(
+              Icons.error_outline,
+              color: AppColors.textSecondary,
+              size: 56,
+            ),
             const SizedBox(height: 16),
             Text(
               message,

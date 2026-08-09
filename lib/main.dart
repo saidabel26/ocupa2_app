@@ -48,14 +48,12 @@ void main() async {
       providers: [
         // Exponer el ApiClient a toda la app (partes futuras lo pueden usar)
         Provider<ApiClient>.value(value: apiClient),
-        
+
         // Exponer AuthService
         Provider<AuthService>.value(value: authService),
 
         // Exponer el UploadService a toda la app
-        Provider<UploadService>(
-          create: (_) => UploadService(apiClient),
-        ),
+        Provider<UploadService>(create: (_) => UploadService(apiClient)),
 
         // Estado de autenticación
         ChangeNotifierProvider<AuthProvider>.value(value: authProvider),
@@ -110,7 +108,8 @@ void main() async {
 
         // Parte 6 – Mis aplicaciones (estado de postulaciones propias)
         ChangeNotifierProvider<MyApplicationsProvider>(
-          create: (_) => MyApplicationsProvider(MyApplicationsService(apiClient)),
+          create: (_) =>
+              MyApplicationsProvider(MyApplicationsService(apiClient)),
         ),
 
         // Parte 6 – Historial de pagos propios

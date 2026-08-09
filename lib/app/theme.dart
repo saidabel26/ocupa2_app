@@ -5,21 +5,21 @@ class AppColors {
   AppColors._();
 
   // Paleta principal – azul índigo profundo
-  static const Color primary = Color(0xFF4F46E5);        // Indigo 600
-  static const Color primaryDark = Color(0xFF3730A3);    // Indigo 800
-  static const Color primaryLight = Color(0xFF818CF8);   // Indigo 400
-  static const Color accent = Color(0xFF06B6D4);         // Cyan 500
+  static const Color primary = Color(0xFF4F46E5); // Indigo 600
+  static const Color primaryDark = Color(0xFF3730A3); // Indigo 800
+  static const Color primaryLight = Color(0xFF818CF8); // Indigo 400
+  static const Color accent = Color(0xFF06B6D4); // Cyan 500
 
   // Fondos oscuros
-  static const Color background = Color(0xFF0F172A);     // Slate 900
-  static const Color surface = Color(0xFF1E293B);        // Slate 800
+  static const Color background = Color(0xFF0F172A); // Slate 900
+  static const Color surface = Color(0xFF1E293B); // Slate 800
   static const Color surfaceVariant = Color(0xFF334155); // Slate 700
   static const Color card = Color(0xFF1E293B);
 
   // Texto
-  static const Color textPrimary = Color(0xFFF1F5F9);    // Slate 100
-  static const Color textSecondary = Color(0xFF94A3B8);  // Slate 400
-  static const Color textHint = Color(0xFF64748B);       // Slate 500
+  static const Color textPrimary = Color(0xFFF1F5F9); // Slate 100
+  static const Color textSecondary = Color(0xFF94A3B8); // Slate 400
+  static const Color textHint = Color(0xFF64748B); // Slate 500
 
   // Estados
   static const Color success = Color(0xFF10B981);
@@ -91,10 +91,7 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.surface,
-        hintStyle: GoogleFonts.poppins(
-          color: AppColors.textHint,
-          fontSize: 14,
-        ),
+        hintStyle: GoogleFonts.poppins(color: AppColors.textHint, fontSize: 14),
         labelStyle: GoogleFonts.poppins(
           color: AppColors.textSecondary,
           fontSize: 14,
@@ -109,8 +106,7 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide:
-              const BorderSide(color: AppColors.borderFocus, width: 2),
+          borderSide: const BorderSide(color: AppColors.borderFocus, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -120,8 +116,10 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.error, width: 2),
         ),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -154,9 +152,7 @@ class AppTheme {
           fontSize: 14,
         ),
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       dividerTheme: const DividerThemeData(
         color: AppColors.border,

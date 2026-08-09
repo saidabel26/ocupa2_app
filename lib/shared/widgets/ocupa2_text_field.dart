@@ -80,7 +80,9 @@ class _Ocupa2TextFieldState extends State<Ocupa2TextField> {
         suffixIcon: widget.isPassword
             ? IconButton(
                 icon: Icon(
-                  _obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                  _obscure
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
                   color: AppColors.textSecondary,
                   size: 20,
                 ),

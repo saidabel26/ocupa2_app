@@ -53,8 +53,8 @@ class ApplicationModel {
     String? offerTitle;
     final rawOffer = json['offer'];
     if (rawOffer is Map<String, dynamic>) {
-      offerTitle = rawOffer['title'] as String? ??
-          rawOffer['description'] as String?;
+      offerTitle =
+          rawOffer['title'] as String? ?? rawOffer['description'] as String?;
     }
     offerTitle ??= json['offerTitle'] as String?;
 
@@ -69,9 +69,11 @@ class ApplicationModel {
           ? DateTime.tryParse(json['createdAt'].toString())
           : null,
       applicant: applicant,
-      answers: rawAnswers
-              ?.map((e) =>
-                  ApplicationAnswer.fromJson(e as Map<String, dynamic>))
+      answers:
+          rawAnswers
+              ?.map(
+                (e) => ApplicationAnswer.fromJson(e as Map<String, dynamic>),
+              )
               .toList() ??
           [],
     );
@@ -84,16 +86,13 @@ class ApplicantInfo {
   final String nombre;
   final String? email;
 
-  const ApplicantInfo({
-    required this.id,
-    required this.nombre,
-    this.email,
-  });
+  const ApplicantInfo({required this.id, required this.nombre, this.email});
 
   factory ApplicantInfo.fromJson(Map<String, dynamic> json) {
     return ApplicantInfo(
       id: json['id']?.toString() ?? json['_id']?.toString() ?? '',
-      nombre: json['nombre'] as String? ??
+      nombre:
+          json['nombre'] as String? ??
           '${json['firstName'] ?? ''} ${json['lastName'] ?? ''}'.trim(),
       email: json['email'] as String?,
     );

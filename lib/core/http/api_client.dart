@@ -36,8 +36,7 @@ class ApiClient {
     final uri = Uri.parse('$baseUrl$path');
     if (queryParams != null && queryParams.isNotEmpty) {
       return uri.replace(
-        queryParameters:
-            queryParams.map((k, v) => MapEntry(k, v.toString())),
+        queryParameters: queryParams.map((k, v) => MapEntry(k, v.toString())),
       );
     }
     return uri;

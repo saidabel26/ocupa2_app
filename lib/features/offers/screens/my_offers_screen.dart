@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../app/router.dart';
 import '../../../app/theme.dart';
+import '../../../shared/widgets/drawer_menu_button.dart';
 import '../models/offer_model.dart';
 import '../providers/my_offers_provider.dart';
 
@@ -29,8 +30,7 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: AppColors.surface,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text(
           '¿Desactivar oferta?',
           style: TextStyle(color: AppColors.textPrimary),
@@ -45,8 +45,7 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
             child: const Text('Cancelar'),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.error),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
             onPressed: () => Navigator.pop(dialogContext, true),
             child: const Text('Desactivar'),
           ),
@@ -55,15 +54,16 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
     );
 
     if (confirmed != true || !mounted) return;
-    final ok =
-        await context.read<MyOffersProvider>().deactivateOffer(offer.id);
+    final ok = await context.read<MyOffersProvider>().deactivateOffer(offer.id);
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(ok
-            ? '✅ Oferta desactivada correctamente.'
-            : context.read<MyOffersProvider>().offersError ??
-                'Error al desactivar.'),
+        content: Text(
+          ok
+              ? '✅ Oferta desactivada correctamente.'
+              : context.read<MyOffersProvider>().offersError ??
+                    'Error al desactivar.',
+        ),
         backgroundColor: ok ? null : AppColors.error,
       ),
     );
@@ -79,13 +79,14 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add),
-        label: const Text('Publicar oferta',
-            style: TextStyle(fontWeight: FontWeight.w600)),
+        label: const Text(
+          'Publicar oferta',
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
         onPressed: () => context.push(AppRoutes.createOffer),
       ),
       body: Container(
-        decoration:
-            const BoxDecoration(gradient: AppColors.backgroundGradient),
+        decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
         child: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -107,19 +108,7 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
         children: [
           Row(
             children: [
-              GestureDetector(
-                onTap: () => Scaffold.of(context).openDrawer(),
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: AppColors.border),
-                  ),
-                  child: const Icon(Icons.menu,
-                      color: AppColors.textPrimary, size: 22),
-                ),
-              ),
+              const DrawerMenuButton(),
               const SizedBox(width: 12),
               ShaderMask(
                 shaderCallback: (b) =>
@@ -158,8 +147,7 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline,
-                color: AppColors.error, size: 48),
+            const Icon(Icons.error_outline, color: AppColors.error, size: 48),
             const SizedBox(height: 12),
             Text(
               provider.offersError!,
@@ -168,8 +156,7 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () =>
-                  context.read<MyOffersProvider>().loadMyOffers(),
+              onPressed: () => context.read<MyOffersProvider>().loadMyOffers(),
               child: const Text('Reintentar'),
             ),
           ],
@@ -199,15 +186,15 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
             const Text(
               'No has publicado ofertas aún',
               style: TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600),
+                color: AppColors.textPrimary,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
             ),
             const SizedBox(height: 8),
             const Text(
               'Toca el botón "+" para publicar tu primera oferta.',
-              style:
-                  TextStyle(color: AppColors.textSecondary, fontSize: 14),
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
               textAlign: TextAlign.center,
             ),
           ],
@@ -222,15 +209,15 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
       child: ListView.builder(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
         itemCount: provider.myOffers.length,
-        itemBuilder: (context, i) =>
-            _buildOfferCard(provider.myOffers[i]),
+        itemBuilder: (context, i) => _buildOfferCard(provider.myOffers[i]),
       ),
     );
   }
 
   Widget _buildOfferCard(OfferModel offer) {
     final stat = offer.status?.toLowerCase();
-    final isActive = stat == null ||
+    final isActive =
+        stat == null ||
         stat == 'active' ||
         stat == 'open' ||
         stat == 'published';
@@ -251,8 +238,9 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
           // Foto de la oferta si existe
           if (offer.photo != null)
             ClipRRect(
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(16)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(16),
+              ),
               child: Image.network(
                 offer.photo!,
                 width: double.infinity,
@@ -261,8 +249,10 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
                 errorBuilder: (context, error, stackTrace) => Container(
                   height: 60,
                   color: AppColors.surfaceVariant,
-                  child: const Icon(Icons.image_not_supported,
-                      color: AppColors.textHint),
+                  child: const Icon(
+                    Icons.image_not_supported,
+                    color: AppColors.textHint,
+                  ),
                 ),
               ),
             ),
@@ -276,16 +266,18 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
                 Row(
                   children: [
                     _buildBadge(
-                        label: statusLabel,
-                        color: statusColor,
-                        icon: isActive
-                            ? Icons.check_circle_outline
-                            : Icons.pause_circle_outline),
+                      label: statusLabel,
+                      color: statusColor,
+                      icon: isActive
+                          ? Icons.check_circle_outline
+                          : Icons.pause_circle_outline,
+                    ),
                     const SizedBox(width: 8),
                     _buildBadge(
-                        label: offer.contractTypeLabel,
-                        color: AppColors.accent,
-                        icon: Icons.schedule),
+                      label: offer.contractTypeLabel,
+                      color: AppColors.accent,
+                      icon: Icons.schedule,
+                    ),
                   ],
                 ),
                 const SizedBox(height: 10),
@@ -296,17 +288,21 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                      color: AppColors.textPrimary,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600),
+                    color: AppColors.textPrimary,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 6),
 
                 // Dirección
                 Row(
                   children: [
-                    const Icon(Icons.location_on_outlined,
-                        color: AppColors.textSecondary, size: 14),
+                    const Icon(
+                      Icons.location_on_outlined,
+                      color: AppColors.textSecondary,
+                      size: 14,
+                    ),
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
@@ -314,7 +310,9 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                            color: AppColors.textSecondary, fontSize: 13),
+                          color: AppColors.textSecondary,
+                          fontSize: 13,
+                        ),
                       ),
                     ),
                   ],
@@ -326,13 +324,18 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
                     padding: const EdgeInsets.only(top: 4),
                     child: Row(
                       children: [
-                        const Icon(Icons.calendar_today_outlined,
-                            color: AppColors.textSecondary, size: 14),
+                        const Icon(
+                          Icons.calendar_today_outlined,
+                          color: AppColors.textSecondary,
+                          size: 14,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           'Fecha límite: ${_formatDate(offer.deadline!)}',
                           style: const TextStyle(
-                              color: AppColors.textSecondary, fontSize: 12),
+                            color: AppColors.textSecondary,
+                            fontSize: 12,
+                          ),
                         ),
                       ],
                     ),
@@ -346,17 +349,21 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
                       child: OutlinedButton.icon(
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AppColors.primaryLight,
-                          side: const BorderSide(
-                              color: AppColors.primaryLight),
+                          side: const BorderSide(color: AppColors.primaryLight),
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                         ),
                         icon: const Icon(Icons.people_outline, size: 18),
-                        label: const Text('Ver aplicantes',
-                            style: TextStyle(fontSize: 13)),
+                        label: const Text(
+                          'Ver aplicantes',
+                          style: TextStyle(fontSize: 13),
+                        ),
                         onPressed: () => context.push(
-                          AppRoutes.offerApplicants
-                              .replaceFirst(':id', offer.id),
+                          AppRoutes.offerApplicants.replaceFirst(
+                            ':id',
+                            offer.id,
+                          ),
                         ),
                       ),
                     ),
@@ -367,12 +374,14 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
                           foregroundColor: AppColors.error,
                           side: const BorderSide(color: AppColors.error),
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                         ),
-                        icon:
-                            const Icon(Icons.pause_circle_outline, size: 18),
-                        label: const Text('Desactivar',
-                            style: TextStyle(fontSize: 13)),
+                        icon: const Icon(Icons.pause_circle_outline, size: 18),
+                        label: const Text(
+                          'Desactivar',
+                          style: TextStyle(fontSize: 13),
+                        ),
                         onPressed: () => _confirmDeactivate(offer),
                       ),
                     ],
@@ -392,8 +401,7 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
     required IconData icon,
   }) {
     return Container(
-      padding:
-          const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: color.withAlpha(30),
         borderRadius: BorderRadius.circular(20),
@@ -404,11 +412,14 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
         children: [
           Icon(icon, color: color, size: 12),
           const SizedBox(width: 4),
-          Text(label,
-              style: TextStyle(
-                  color: color,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600)),
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ],
       ),
     );
@@ -416,8 +427,18 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
 
   String _formatDate(DateTime date) {
     const months = [
-      'ene', 'feb', 'mar', 'abr', 'may', 'jun',
-      'jul', 'ago', 'sep', 'oct', 'nov', 'dic',
+      'ene',
+      'feb',
+      'mar',
+      'abr',
+      'may',
+      'jun',
+      'jul',
+      'ago',
+      'sep',
+      'oct',
+      'nov',
+      'dic',
     ];
     return '${date.day} ${months[date.month - 1]} ${date.year}';
   }

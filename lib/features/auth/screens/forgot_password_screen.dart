@@ -90,8 +90,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
         decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
         child: SafeArea(
           child: SingleChildScrollView(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
+            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
             child: FadeTransition(
               opacity: _fadeAnim,
               child: Column(
@@ -99,8 +98,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                 children: [
                   // Back
                   IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new,
-                        color: AppColors.textSecondary),
+                    icon: const Icon(
+                      Icons.arrow_back_ios_new,
+                      color: AppColors.textSecondary,
+                    ),
                     onPressed: () => context.go(AppRoutes.login),
                     alignment: Alignment.centerLeft,
                     padding: EdgeInsets.zero,
@@ -117,8 +118,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(color: AppColors.border),
                       ),
-                      child: const Icon(Icons.lock_reset,
-                          size: 36, color: AppColors.primaryLight),
+                      child: const Icon(
+                        Icons.lock_reset,
+                        size: 36,
+                        color: AppColors.primaryLight,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -136,7 +140,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                   const Text(
                     'Ingresa tu correo y matrícula de referido.\nSi los datos coinciden, recibirás una contraseña temporal.',
                     style: TextStyle(
-                        fontSize: 13, color: AppColors.textSecondary),
+                      fontSize: 13,
+                      color: AppColors.textSecondary,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 32),
@@ -171,8 +177,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                                 if (v == null || v.trim().isEmpty) {
                                   return 'Ingresa tu correo';
                                 }
-                                if (!RegExp(r'^[^@]+@[^@]+\.[^@]+')
-                                    .hasMatch(v.trim())) {
+                                if (!RegExp(
+                                  r'^[^@]+@[^@]+\.[^@]+',
+                                ).hasMatch(v.trim())) {
                                   return 'Correo no válido';
                                 }
                                 return null;
@@ -227,13 +234,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
       decoration: BoxDecoration(
         color: AppColors.success.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
-        border:
-            Border.all(color: AppColors.success.withValues(alpha: 0.4)),
+        border: Border.all(color: AppColors.success.withValues(alpha: 0.4)),
       ),
       child: const Column(
         children: [
-          Icon(Icons.check_circle_outline,
-              color: AppColors.success, size: 48),
+          Icon(Icons.check_circle_outline, color: AppColors.success, size: 48),
           SizedBox(height: 12),
           Text(
             '¡Enviado!',

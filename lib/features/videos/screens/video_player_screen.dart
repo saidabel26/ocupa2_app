@@ -25,7 +25,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   void initState() {
     super.initState();
     final videoId = _extractYoutubeId(widget.videoUrl);
-    
+
     if (videoId == null) {
       _isError = true;
     } else {
@@ -76,9 +76,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
           title: const Text('Error'),
           backgroundColor: AppColors.background,
         ),
-        body: const Center(
-          child: Text('URL de video no válida.'),
-        ),
+        body: const Center(child: Text('URL de video no válida.')),
       );
     }
 
@@ -91,10 +89,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         elevation: 0,
       ),
       body: Center(
-        child: YoutubePlayer(
-          controller: _controller,
-          aspectRatio: 16 / 9,
-        ),
+        child: YoutubePlayer(controller: _controller, aspectRatio: 16 / 9),
       ),
     );
   }

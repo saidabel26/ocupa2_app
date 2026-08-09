@@ -200,7 +200,11 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen>
               ),
             ],
           ),
-          child: const Icon(Icons.person_outline, color: Colors.white, size: 36),
+          child: const Icon(
+            Icons.person_outline,
+            color: Colors.white,
+            size: 36,
+          ),
         ),
         const SizedBox(height: 16),
         ShaderMask(
@@ -218,10 +222,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen>
         const SizedBox(height: 6),
         const Text(
           'Necesitamos algunos datos antes de empezar',
-          style: TextStyle(
-            fontSize: 13,
-            color: AppColors.textSecondary,
-          ),
+          style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
           textAlign: TextAlign.center,
         ),
       ],
@@ -291,8 +292,10 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen>
             initialValue: _gender,
             decoration: InputDecoration(
               labelText: 'Género',
-              prefixIcon: const Icon(Icons.wc_outlined,
-                  color: AppColors.textSecondary),
+              prefixIcon: const Icon(
+                Icons.wc_outlined,
+                color: AppColors.textSecondary,
+              ),
               filled: true,
               fillColor: AppColors.surface,
               border: OutlineInputBorder(
@@ -305,17 +308,21 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen>
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide:
-                    const BorderSide(color: AppColors.borderFocus, width: 2),
+                borderSide: const BorderSide(
+                  color: AppColors.borderFocus,
+                  width: 2,
+                ),
               ),
             ),
             dropdownColor: AppColors.surface,
             style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
             items: _genderOptions
-                .map((g) => DropdownMenuItem(
-                      value: g['value'],
-                      child: Text(g['label']!),
-                    ))
+                .map(
+                  (g) => DropdownMenuItem(
+                    value: g['value'],
+                    child: Text(g['label']!),
+                  ),
+                )
                 .toList(),
             onChanged: (v) {
               if (v != null) setState(() => _gender = v);
@@ -330,8 +337,10 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen>
             child: InputDecorator(
               decoration: InputDecoration(
                 labelText: 'Fecha de nacimiento',
-                prefixIcon: const Icon(Icons.calendar_today_outlined,
-                    color: AppColors.textSecondary),
+                prefixIcon: const Icon(
+                  Icons.calendar_today_outlined,
+                  color: AppColors.textSecondary,
+                ),
                 filled: true,
                 fillColor: AppColors.surface,
                 border: OutlineInputBorder(
@@ -342,8 +351,10 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen>
                   borderRadius: BorderRadius.circular(12),
                   borderSide: const BorderSide(color: AppColors.border),
                 ),
-                suffixIcon: const Icon(Icons.arrow_drop_down,
-                    color: AppColors.textSecondary),
+                suffixIcon: const Icon(
+                  Icons.arrow_drop_down,
+                  color: AppColors.textSecondary,
+                ),
               ),
               child: Text(
                 _birthDate != null
@@ -377,7 +388,11 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen>
         onPressed: () async {
           await context.read<AuthProvider>().logout();
         },
-        icon: const Icon(Icons.logout, size: 16, color: AppColors.textSecondary),
+        icon: const Icon(
+          Icons.logout,
+          size: 16,
+          color: AppColors.textSecondary,
+        ),
         label: const Text(
           'Cerrar sesión',
           style: TextStyle(color: AppColors.textSecondary, fontSize: 13),

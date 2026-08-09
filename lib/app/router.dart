@@ -24,7 +24,6 @@ import '../features/about/screens/about_screen.dart';
 import '../features/profile/screens/profile_screen.dart';
 import '../shared/screens/main_shell_screen.dart';
 
-
 /// Rutas de la aplicación
 class AppRoutes {
   AppRoutes._();
@@ -65,7 +64,8 @@ GoRouter buildRouter(AuthProvider authProvider) {
       // Aún inicializando → no redirigir
       if (status == AuthStatus.unknown) return null;
 
-      final isPublicRoute = location == AppRoutes.login ||
+      final isPublicRoute =
+          location == AppRoutes.login ||
           location == AppRoutes.register ||
           location == AppRoutes.forgotPassword;
 
@@ -212,9 +212,7 @@ GoRouter buildRouter(AuthProvider authProvider) {
       ),
     ],
     errorBuilder: (context, state) => Scaffold(
-      body: Center(
-        child: Text('Página no encontrada: ${state.uri}'),
-      ),
+      body: Center(child: Text('Página no encontrada: ${state.uri}')),
     ),
   );
 }

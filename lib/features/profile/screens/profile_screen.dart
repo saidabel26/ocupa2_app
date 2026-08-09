@@ -1,13 +1,11 @@
-import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../../../app/router.dart';
 import '../../../app/theme.dart';
 import '../../../features/auth/providers/auth_provider.dart';
 import '../../../features/auth/services/auth_service.dart';
+import '../../../shared/widgets/drawer_menu_button.dart';
 import '../../../shared/widgets/loading_button.dart';
 import '../../../shared/widgets/ocupa2_text_field.dart';
 
@@ -28,7 +26,6 @@ class _ProfileScreenState extends State<ProfileScreen>
   late TextEditingController _emailCtrl;
 
   bool _isLoading = false;
-  bool _isUploadingPhoto = false;
   String? _error;
 
   late AnimationController _animCtrl;
@@ -59,71 +56,6 @@ class _ProfileScreenState extends State<ProfileScreen>
     super.dispose();
   }
 
-  Future<void> _pickAndUploadPhoto() async {
-    final picker = ImagePicker();
-    final picked = await picker.pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 70,
-      maxWidth: 600,
-    );
-    if (picked == null) return;
-    if (!mounted) return;
-
-    // Capturar providers antes de cualquier await posterior
-    final authProvider = context.read<AuthProvider>();
-    final authService = context.read<AuthService>();
-
-    setState(() => _isUploadingPhoto = true);
-
-    try {
-      final bytes = await File(picked.path).readAsBytes();
-      final base64Str = base64Encode(bytes);
-      final ext = picked.path.split('.').last.toLowerCase();
-      final filename = 'profile_${DateTime.now().millisecondsSinceEpoch}.$ext';
-      // El API acepta data URI: data:image/<ext>;base64,<data>
-      final dataUri = 'data:image/$ext;base64,$base64Str';
-      final currentUser = authProvider.user;
-
-      // 1. Subir imagen al bucket
-      final url = await authService.uploadImage(
-        base64Image: dataUri,
-        filename: filename,
-      );
-
-      // 2. Actualizar perfil con la nueva foto (y los campos requeridos existentes)
-      final updatedUser = await authService.updateProfile(
-        firstName: currentUser?.firstName,
-        lastName: currentUser?.lastName,
-        email: currentUser?.email,
-        photoUrl: url,
-        cedula: currentUser?.cedula,
-        gender: currentUser?.gender,
-        birthDate: currentUser?.birthDate,
-      );
-      authProvider.updateUser(updatedUser);
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Foto actualizada correctamente.'),
-            backgroundColor: AppColors.success,
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error al subir la foto: $e'),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isUploadingPhoto = false);
-    }
-  }
-
   Future<void> _saveProfile() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -137,13 +69,10 @@ class _ProfileScreenState extends State<ProfileScreen>
       final authProvider = context.read<AuthProvider>();
       final currentUser = authProvider.user;
 
-      // El API requiere firstName, lastName (y opcionalmente email/photo).
-      // Pasamos los campos existentes junto con los editados.
+      // El API requiere firstName, lastName. Pasamos los campos existentes junto con los editados.
       final updatedUser = await authService.updateProfile(
         firstName: _firstNameCtrl.text.trim(),
         lastName: _lastNameCtrl.text.trim(),
-        email: _emailCtrl.text.trim(),
-        photoUrl: currentUser?.photo,
         cedula: currentUser?.cedula,
         gender: currentUser?.gender,
         birthDate: currentUser?.birthDate,
@@ -159,7 +88,9 @@ class _ProfileScreenState extends State<ProfileScreen>
         );
       }
     } catch (e) {
-      setState(() => _error = 'No se pudo guardar el perfil. Inténtalo de nuevo.');
+      setState(
+        () => _error = 'No se pudo guardar el perfil. Inténtalo de nuevo.',
+      );
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -168,28 +99,15 @@ class _ProfileScreenState extends State<ProfileScreen>
   @override
   Widget build(BuildContext context) {
     final user = context.watch<AuthProvider>().user;
-    final displayName = '${user?.firstName ?? ''} ${user?.lastName ?? ''}'.trim();
+    final displayName = '${user?.firstName ?? ''} ${user?.lastName ?? ''}'
+        .trim();
 
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 16, top: 8, bottom: 8),
-          child: GestureDetector(
-            onTap: () => Scaffold.of(context).openDrawer(),
-            child: Container(
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppColors.border),
-              ),
-              child: const Icon(Icons.menu,
-                  color: AppColors.textPrimary, size: 22),
-            ),
-          ),
-        ),
+        leading: const DrawerMenuButton(),
         title: const Text(
           'Mi Perfil',
           style: TextStyle(
@@ -218,48 +136,23 @@ class _ProfileScreenState extends State<ProfileScreen>
                 child: Column(
                   children: [
                     // Avatar circular con botón de edición
-                    Stack(
-                      alignment: Alignment.bottomRight,
-                      children: [
-                        Container(
-                          width: 100,
-                          height: 100,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: AppColors.primary,
-                              width: 3,
-                            ),
-                          ),
-                          child: ClipOval(
-                            child: _isUploadingPhoto
-                                ? const Center(
-                                    child: CircularProgressIndicator(
-                                        color: AppColors.primary))
-                                : (user?.photo != null && user!.photo!.isNotEmpty)
-                                    ? Image.network(
-                                        user.photo!,
-                                        fit: BoxFit.cover,
-                                        errorBuilder: (_, __, ___) =>
-                                            _defaultAvatar(),
-                                      )
-                                    : _defaultAvatar(),
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: _pickAndUploadPhoto,
-                          child: Container(
-                            width: 30,
-                            height: 30,
-                            decoration: const BoxDecoration(
-                              color: AppColors.primary,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(Icons.camera_alt,
-                                size: 16, color: Colors.white),
-                          ),
-                        ),
-                      ],
+                    // Avatar circular
+                    Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: AppColors.primary, width: 3),
+                      ),
+                      child: ClipOval(
+                        child: (user?.photo != null && user!.photo!.isNotEmpty)
+                            ? Image.network(
+                                user.photo!,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => _defaultAvatar(),
+                              )
+                            : _defaultAvatar(),
+                      ),
                     ),
                     const SizedBox(height: 12),
                     Text(
@@ -307,7 +200,8 @@ class _ProfileScreenState extends State<ProfileScreen>
                         prefixIcon: Icons.person_outline,
                         textCapitalization: TextCapitalization.words,
                         validator: (v) => (v == null || v.trim().isEmpty)
-                            ? 'Ingresa tu nombre.' : null,
+                            ? 'Ingresa tu nombre.'
+                            : null,
                       ),
                       const SizedBox(height: 14),
 
@@ -318,7 +212,8 @@ class _ProfileScreenState extends State<ProfileScreen>
                         prefixIcon: Icons.person_outline,
                         textCapitalization: TextCapitalization.words,
                         validator: (v) => (v == null || v.trim().isEmpty)
-                            ? 'Ingresa tu apellido.' : null,
+                            ? 'Ingresa tu apellido.'
+                            : null,
                       ),
                       const SizedBox(height: 14),
 
@@ -328,15 +223,14 @@ class _ProfileScreenState extends State<ProfileScreen>
                         hint: 'tucorreo@ejemplo.com',
                         prefixIcon: Icons.email_outlined,
                         keyboardType: TextInputType.emailAddress,
-                        validator: (v) {
-                          if (v == null || v.trim().isEmpty) {
-                            return 'Ingresa tu correo.';
-                          }
-                          if (!v.contains('@')) {
-                            return 'Correo inválido.';
-                          }
-                          return null;
-                        },
+                        readOnly: true, // El correo no se puede actualizar
+                      ),
+                      const Padding(
+                        padding: EdgeInsets.only(top: 8.0, left: 4.0),
+                        child: Text(
+                          'El correo electrónico no puede ser modificado.',
+                          style: TextStyle(color: Colors.grey, fontSize: 12),
+                        ),
                       ),
 
                       if (_error != null) ...[
@@ -346,17 +240,26 @@ class _ProfileScreenState extends State<ProfileScreen>
                           decoration: BoxDecoration(
                             color: AppColors.error.withAlpha(20),
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: AppColors.error.withAlpha(60)),
+                            border: Border.all(
+                              color: AppColors.error.withAlpha(60),
+                            ),
                           ),
                           child: Row(
                             children: [
-                              const Icon(Icons.error_outline,
-                                  color: AppColors.error, size: 18),
+                              const Icon(
+                                Icons.error_outline,
+                                color: AppColors.error,
+                                size: 18,
+                              ),
                               const SizedBox(width: 8),
                               Expanded(
-                                child: Text(_error!,
-                                    style: const TextStyle(
-                                        color: AppColors.error, fontSize: 13)),
+                                child: Text(
+                                  _error!,
+                                  style: const TextStyle(
+                                    color: AppColors.error,
+                                    fontSize: 13,
+                                  ),
+                                ),
                               ),
                             ],
                           ),
@@ -382,7 +285,9 @@ class _ProfileScreenState extends State<ProfileScreen>
                         label: const Text('Cambiar Contraseña'),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AppColors.primary,
-                          side: BorderSide(color: AppColors.primary.withAlpha(100)),
+                          side: BorderSide(
+                            color: AppColors.primary.withAlpha(100),
+                          ),
                           minimumSize: const Size(double.infinity, 48),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),

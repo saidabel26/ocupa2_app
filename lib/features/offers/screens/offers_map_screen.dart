@@ -44,7 +44,9 @@ class _OffersMapScreenState extends State<OffersMapScreen> {
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Servicios de ubicación deshabilitados.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Servicios de ubicación deshabilitados.')),
+      );
       return;
     }
 
@@ -53,14 +55,18 @@ class _OffersMapScreenState extends State<OffersMapScreen> {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Permisos de ubicación denegados.')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Permisos de ubicación denegados.')),
+        );
         return;
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Permisos denegados permanentemente.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Permisos denegados permanentemente.')),
+      );
       return;
     }
 
@@ -93,8 +99,11 @@ class _OffersMapScreenState extends State<OffersMapScreen> {
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: AppColors.border),
               ),
-              child: const Icon(Icons.menu,
-                  color: AppColors.textPrimary, size: 22),
+              child: const Icon(
+                Icons.menu,
+                color: AppColors.textPrimary,
+                size: 22,
+              ),
             ),
           ),
         ),
@@ -164,7 +173,11 @@ class _OffersMapScreenState extends State<OffersMapScreen> {
                           if (isSelected)
                             const Positioned(
                               top: 6,
-                              child: Icon(Icons.work, size: 16, color: Colors.white),
+                              child: Icon(
+                                Icons.work,
+                                size: 16,
+                                color: Colors.white,
+                              ),
                             ),
                         ],
                       ),
@@ -185,14 +198,14 @@ class _OffersMapScreenState extends State<OffersMapScreen> {
                           shape: BoxShape.circle,
                           border: Border.all(color: Colors.white, width: 2),
                           boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black38,
-                              blurRadius: 4,
-                            ),
+                            BoxShadow(color: Colors.black38, blurRadius: 4),
                           ],
                         ),
-                        child: const Icon(Icons.my_location,
-                            size: 20, color: Colors.white),
+                        child: const Icon(
+                          Icons.my_location,
+                          size: 20,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ],
@@ -275,8 +288,10 @@ class _OffersMapScreenState extends State<OffersMapScreen> {
                         : null,
                   ),
                   child: offer.photo == null || offer.photo!.isEmpty
-                      ? const Icon(Icons.work_outline,
-                          color: AppColors.textHint)
+                      ? const Icon(
+                          Icons.work_outline,
+                          color: AppColors.textHint,
+                        )
                       : null,
                 ),
                 const SizedBox(width: 16),
@@ -311,7 +326,9 @@ class _OffersMapScreenState extends State<OffersMapScreen> {
                         children: [
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 6, vertical: 2),
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
                               color: AppColors.primary.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(4),
@@ -334,8 +351,11 @@ class _OffersMapScreenState extends State<OffersMapScreen> {
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          const Icon(Icons.arrow_forward_ios,
-                              size: 10, color: AppColors.accent),
+                          const Icon(
+                            Icons.arrow_forward_ios,
+                            size: 10,
+                            color: AppColors.accent,
+                          ),
                         ],
                       ),
                     ],

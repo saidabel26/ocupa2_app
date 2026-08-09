@@ -20,7 +20,8 @@ class NewsService {
     }
     // Algunos endpoints envuelven el listado en data.items o data.results
     if (data is Map<String, dynamic>) {
-      final list = data['items'] as List<dynamic>? ??
+      final list =
+          data['items'] as List<dynamic>? ??
           data['results'] as List<dynamic>? ??
           [];
       return list

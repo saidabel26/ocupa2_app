@@ -21,7 +21,8 @@ class CustomFieldModel {
       name: json['name'] as String? ?? '',
       label: json['label'] as String? ?? '',
       type: json['type'] as String? ?? 'text',
-      options: (json['options'] as List<dynamic>?)
+      options:
+          (json['options'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
           [],

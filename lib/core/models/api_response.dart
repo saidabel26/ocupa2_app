@@ -4,11 +4,7 @@ class ApiResponse<T> {
   final T? data;
   final String? errorMessage;
 
-  const ApiResponse({
-    required this.ok,
-    this.data,
-    this.errorMessage,
-  });
+  const ApiResponse({required this.ok, this.data, this.errorMessage});
 
   bool get isSuccess => ok && data != null;
   bool get isError => !ok || errorMessage != null;

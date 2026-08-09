@@ -38,7 +38,8 @@ class OfferService {
     }
     // Algunos endpoints envuelven el listado en data.items o data.results
     if (data is Map<String, dynamic>) {
-      final list = data['items'] as List<dynamic>? ??
+      final list =
+          data['items'] as List<dynamic>? ??
           data['results'] as List<dynamic>? ??
           [];
       return list
@@ -126,7 +127,8 @@ class OfferService {
           .toList();
     }
     if (data is Map<String, dynamic>) {
-      final list = data['items'] as List<dynamic>? ??
+      final list =
+          data['items'] as List<dynamic>? ??
           data['results'] as List<dynamic>? ??
           [];
       return list
@@ -138,8 +140,9 @@ class OfferService {
 
   /// GET /offers/{id}/applications – aplicantes de mi oferta (solo dueño).
   Future<List<ApplicationModel>> getApplications(String offerId) async {
-    final response =
-        await _client.get('${ApiConstants.offers}/$offerId/applications');
+    final response = await _client.get(
+      '${ApiConstants.offers}/$offerId/applications',
+    );
     final data = response['data'];
     if (data is List) {
       return data
@@ -147,7 +150,8 @@ class OfferService {
           .toList();
     }
     if (data is Map<String, dynamic>) {
-      final list = data['items'] as List<dynamic>? ??
+      final list =
+          data['items'] as List<dynamic>? ??
           data['results'] as List<dynamic>? ??
           [];
       return list
@@ -162,4 +166,3 @@ class OfferService {
     await _client.post('${ApiConstants.offers}/$offerId/deactivate');
   }
 }
-

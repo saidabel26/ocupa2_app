@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../app/theme.dart';
+import '../../../shared/widgets/drawer_menu_button.dart';
 import '../models/news_model.dart';
 import '../providers/news_provider.dart';
 
@@ -50,21 +51,11 @@ class _NewsListScreenState extends State<NewsListScreen> {
         children: [
           Row(
             children: [
-              GestureDetector(
-                onTap: () => Scaffold.of(context).openDrawer(),
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: AppColors.border),
-                  ),
-                  child: const Icon(Icons.menu, color: AppColors.textPrimary, size: 22),
-                ),
-              ),
+              const DrawerMenuButton(),
               const SizedBox(width: 12),
               ShaderMask(
-                shaderCallback: (b) => AppColors.primaryGradient.createShader(b),
+                shaderCallback: (b) =>
+                    AppColors.primaryGradient.createShader(b),
                 child: const Text(
                   'Noticias',
                   style: TextStyle(
@@ -101,8 +92,11 @@ class _NewsListScreenState extends State<NewsListScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.cloud_off_outlined,
-                  color: AppColors.textSecondary, size: 56),
+              const Icon(
+                Icons.cloud_off_outlined,
+                color: AppColors.textSecondary,
+                size: 56,
+              ),
               const SizedBox(height: 16),
               Text(
                 provider.error!,
@@ -126,7 +120,11 @@ class _NewsListScreenState extends State<NewsListScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.newspaper_outlined, color: AppColors.textSecondary, size: 56),
+            Icon(
+              Icons.newspaper_outlined,
+              color: AppColors.textSecondary,
+              size: 56,
+            ),
             SizedBox(height: 12),
             Text(
               'No hay noticias disponibles',
@@ -186,8 +184,11 @@ class _NewsCard extends StatelessWidget {
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) => Container(
                     color: AppColors.surfaceVariant,
-                    child: const Icon(Icons.image_not_supported_outlined,
-                        color: AppColors.textHint, size: 40),
+                    child: const Icon(
+                      Icons.image_not_supported_outlined,
+                      color: AppColors.textHint,
+                      size: 40,
+                    ),
                   ),
                 ),
               )
@@ -199,8 +200,11 @@ class _NewsCard extends StatelessWidget {
                   child: ShaderMask(
                     shaderCallback: (b) =>
                         AppColors.primaryGradient.createShader(b),
-                    child: const Icon(Icons.newspaper_rounded,
-                        size: 44, color: Colors.white),
+                    child: const Icon(
+                      Icons.newspaper_rounded,
+                      size: 44,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
@@ -247,7 +251,9 @@ class _NewsCard extends StatelessWidget {
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 6),
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           gradient: AppColors.primaryGradient,
                           borderRadius: BorderRadius.circular(20),
@@ -264,8 +270,11 @@ class _NewsCard extends StatelessWidget {
                               ),
                             ),
                             SizedBox(width: 4),
-                            Icon(Icons.arrow_forward_rounded,
-                                color: Colors.white, size: 14),
+                            Icon(
+                              Icons.arrow_forward_rounded,
+                              color: Colors.white,
+                              size: 14,
+                            ),
                           ],
                         ),
                       ),
@@ -282,8 +291,18 @@ class _NewsCard extends StatelessWidget {
 
   String _formatDate(DateTime date) {
     const months = [
-      'ene', 'feb', 'mar', 'abr', 'may', 'jun',
-      'jul', 'ago', 'sep', 'oct', 'nov', 'dic'
+      'ene',
+      'feb',
+      'mar',
+      'abr',
+      'may',
+      'jun',
+      'jul',
+      'ago',
+      'sep',
+      'oct',
+      'nov',
+      'dic',
     ];
     return '${date.day} ${months[date.month - 1]} ${date.year}';
   }

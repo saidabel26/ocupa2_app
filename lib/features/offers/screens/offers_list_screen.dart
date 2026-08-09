@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../app/theme.dart';
+import '../../../shared/widgets/drawer_menu_button.dart';
 import '../../job_types/providers/job_type_provider.dart';
 import '../models/offer_model.dart';
 import '../providers/offer_provider.dart';
@@ -55,19 +56,7 @@ class _OffersListScreenState extends State<OffersListScreen> {
         children: [
           Row(
             children: [
-              GestureDetector(
-                onTap: () => Scaffold.of(context).openDrawer(),
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: AppColors.border),
-                  ),
-                  child: const Icon(Icons.menu,
-                      color: AppColors.textPrimary, size: 22),
-                ),
-              ),
+              const DrawerMenuButton(),
               const SizedBox(width: 12),
               ShaderMask(
                 shaderCallback: (b) =>
@@ -115,14 +104,16 @@ class _OffersListScreenState extends State<OffersListScreen> {
           const SizedBox(width: 8),
           // Chips de cada tipo de empleo
           if (jobTypeProvider.loaded)
-            ...jobTypeProvider.jobTypes.map((jt) => Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: _FilterChip(
-                    label: jt.name,
-                    isSelected: selectedKey == jt.key,
-                    onTap: () => offerProvider.setFilter(jt.key),
-                  ),
-                )),
+            ...jobTypeProvider.jobTypes.map(
+              (jt) => Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: _FilterChip(
+                  label: jt.name,
+                  isSelected: selectedKey == jt.key,
+                  onTap: () => offerProvider.setFilter(jt.key),
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -142,8 +133,11 @@ class _OffersListScreenState extends State<OffersListScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.cloud_off_outlined,
-                  color: AppColors.textSecondary, size: 56),
+              const Icon(
+                Icons.cloud_off_outlined,
+                color: AppColors.textSecondary,
+                size: 56,
+              ),
               const SizedBox(height: 16),
               Text(
                 provider.error!,
@@ -167,8 +161,11 @@ class _OffersListScreenState extends State<OffersListScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.work_off_outlined,
-                color: AppColors.textSecondary, size: 56),
+            Icon(
+              Icons.work_off_outlined,
+              color: AppColors.textSecondary,
+              size: 56,
+            ),
             SizedBox(height: 12),
             Text(
               'No hay ofertas disponibles',
@@ -195,8 +192,7 @@ class _OffersListScreenState extends State<OffersListScreen> {
         itemBuilder: (context, index) {
           return _OfferCard(
             offer: provider.offers[index],
-            onTap: () =>
-                context.push('/offers/${provider.offers[index].id}'),
+            onTap: () => context.push('/offers/${provider.offers[index].id}'),
           );
         },
       ),
@@ -280,8 +276,11 @@ class _OfferCard extends StatelessWidget {
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) => Container(
                         color: AppColors.surfaceVariant,
-                        child: const Icon(Icons.image_not_supported_outlined,
-                            color: AppColors.textHint, size: 40),
+                        child: const Icon(
+                          Icons.image_not_supported_outlined,
+                          color: AppColors.textHint,
+                          size: 40,
+                        ),
                       ),
                     ),
                     // Badge de tipo de contrato
@@ -290,7 +289,9 @@ class _OfferCard extends StatelessWidget {
                       right: 10,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 4),
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.background.withValues(alpha: 0.8),
                           borderRadius: BorderRadius.circular(8),
@@ -316,8 +317,11 @@ class _OfferCard extends StatelessWidget {
                   child: ShaderMask(
                     shaderCallback: (b) =>
                         AppColors.primaryGradient.createShader(b),
-                    child: const Icon(Icons.work_rounded,
-                        size: 40, color: Colors.white),
+                    child: const Icon(
+                      Icons.work_rounded,
+                      size: 40,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
@@ -332,7 +336,9 @@ class _OfferCard extends StatelessWidget {
                       offer.jobTypeName!.isNotEmpty)
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
                       margin: const EdgeInsets.only(bottom: 8),
                       decoration: BoxDecoration(
                         color: AppColors.primary.withValues(alpha: 0.15),
@@ -365,8 +371,11 @@ class _OfferCard extends StatelessWidget {
                   // Info row: dirección + pago
                   Row(
                     children: [
-                      const Icon(Icons.location_on_outlined,
-                          size: 14, color: AppColors.textHint),
+                      const Icon(
+                        Icons.location_on_outlined,
+                        size: 14,
+                        color: AppColors.textHint,
+                      ),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
@@ -385,7 +394,9 @@ class _OfferCard extends StatelessWidget {
                         const SizedBox(width: 8),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 3),
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
                           decoration: BoxDecoration(
                             color: AppColors.success.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(6),
@@ -408,8 +419,11 @@ class _OfferCard extends StatelessWidget {
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        const Icon(Icons.schedule_outlined,
-                            size: 14, color: AppColors.textHint),
+                        const Icon(
+                          Icons.schedule_outlined,
+                          size: 14,
+                          color: AppColors.textHint,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           'Hasta ${_formatDate(offer.deadline!)}',
@@ -432,8 +446,18 @@ class _OfferCard extends StatelessWidget {
 
   String _formatDate(DateTime date) {
     const months = [
-      'ene', 'feb', 'mar', 'abr', 'may', 'jun',
-      'jul', 'ago', 'sep', 'oct', 'nov', 'dic',
+      'ene',
+      'feb',
+      'mar',
+      'abr',
+      'may',
+      'jun',
+      'jul',
+      'ago',
+      'sep',
+      'oct',
+      'nov',
+      'dic',
     ];
     return '${date.day} ${months[date.month - 1]} ${date.year}';
   }

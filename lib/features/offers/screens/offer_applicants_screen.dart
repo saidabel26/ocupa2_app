@@ -34,9 +34,10 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
     }
 
     if (!mounted) return;
-    final ok = await context
-        .read<MyOffersProvider>()
-        .patchApplication(app.id, status: status);
+    final ok = await context.read<MyOffersProvider>().patchApplication(
+      app.id,
+      status: status,
+    );
 
     if (!mounted) return;
 
@@ -48,26 +49,30 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
     };
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(ok
-            ? '✅ Aplicante ${labels[status] ?? status}'
-            : context.read<MyOffersProvider>().patchError ??
-                'Error al actualizar.'),
+        content: Text(
+          ok
+              ? '✅ Aplicante ${labels[status] ?? status}'
+              : context.read<MyOffersProvider>().patchError ??
+                    'Error al actualizar.',
+        ),
         backgroundColor: ok ? null : AppColors.error,
       ),
     );
   }
 
   Future<void> _setRating(ApplicationModel app, int rating) async {
-    final ok = await context
-        .read<MyOffersProvider>()
-        .patchApplication(app.id, rating: rating);
+    final ok = await context.read<MyOffersProvider>().patchApplication(
+      app.id,
+      rating: rating,
+    );
     if (!mounted) return;
     if (!ok) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-              context.read<MyOffersProvider>().patchError ??
-                  'Error al calificar.'),
+            context.read<MyOffersProvider>().patchError ??
+                'Error al calificar.',
+          ),
           backgroundColor: AppColors.error,
         ),
       );
@@ -79,8 +84,7 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: AppColors.surface,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Row(
           children: [
             Icon(Icons.emoji_events, color: AppColors.warning),
@@ -125,8 +129,10 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
       appBar: AppBar(
         backgroundColor: AppColors.background,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new,
-              color: AppColors.textPrimary),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: AppColors.textPrimary,
+          ),
           onPressed: () => context.pop(),
         ),
         title: ShaderMask(
@@ -143,15 +149,14 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh, color: AppColors.textSecondary),
-            onPressed: () => context
-                .read<MyOffersProvider>()
-                .loadApplications(widget.offerId),
+            onPressed: () => context.read<MyOffersProvider>().loadApplications(
+              widget.offerId,
+            ),
           ),
         ],
       ),
       body: Container(
-        decoration:
-            const BoxDecoration(gradient: AppColors.backgroundGradient),
+        decoration: const BoxDecoration(gradient: AppColors.backgroundGradient),
         child: _buildBody(provider),
       ),
     );
@@ -193,15 +198,19 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.people_outline,
-                color: AppColors.textSecondary, size: 64),
+            Icon(
+              Icons.people_outline,
+              color: AppColors.textSecondary,
+              size: 64,
+            ),
             SizedBox(height: 16),
             Text(
               'Aún no hay aplicantes',
               style: TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600),
+                color: AppColors.textPrimary,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
             ),
             SizedBox(height: 8),
             Text(
@@ -227,20 +236,22 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
     final discarded = provider.selectedApplications
         .where((a) => a.status == 'discarded')
         .toList();
-        
+
     final hasWinner = winners.isNotEmpty;
 
     return RefreshIndicator(
       color: AppColors.primary,
       backgroundColor: AppColors.surface,
-      onRefresh: () => context
-          .read<MyOffersProvider>()
-          .loadApplications(widget.offerId),
+      onRefresh: () =>
+          context.read<MyOffersProvider>().loadApplications(widget.offerId),
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           // Resumen
-          _buildSummaryBar(provider.selectedApplications.length, winners.length),
+          _buildSummaryBar(
+            provider.selectedApplications.length,
+            winners.length,
+          ),
           const SizedBox(height: 16),
 
           if (winners.isNotEmpty) ...[
@@ -250,20 +261,35 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
           ],
           if (finalists.isNotEmpty) ...[
             _buildGroupHeader(
-                '⭐ Finalistas', AppColors.primary, finalists.length),
-            ...finalists.map((a) => _buildApplicantCard(a, hasWinner: hasWinner)),
+              '⭐ Finalistas',
+              AppColors.primary,
+              finalists.length,
+            ),
+            ...finalists.map(
+              (a) => _buildApplicantCard(a, hasWinner: hasWinner),
+            ),
             const SizedBox(height: 8),
           ],
           if (inReview.isNotEmpty) ...[
             _buildGroupHeader(
-                '👁️ En revisión', AppColors.accent, inReview.length),
-            ...inReview.map((a) => _buildApplicantCard(a, hasWinner: hasWinner)),
+              '👁️ En revisión',
+              AppColors.accent,
+              inReview.length,
+            ),
+            ...inReview.map(
+              (a) => _buildApplicantCard(a, hasWinner: hasWinner),
+            ),
             const SizedBox(height: 8),
           ],
           if (discarded.isNotEmpty) ...[
             _buildGroupHeader(
-                '❌ Descartados', AppColors.textSecondary, discarded.length),
-            ...discarded.map((a) => _buildApplicantCard(a, hasWinner: hasWinner)),
+              '❌ Descartados',
+              AppColors.textSecondary,
+              discarded.length,
+            ),
+            ...discarded.map(
+              (a) => _buildApplicantCard(a, hasWinner: hasWinner),
+            ),
           ],
         ],
       ),
@@ -293,13 +319,18 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
       children: [
         Icon(icon, color: Colors.white70, size: 20),
         const SizedBox(height: 4),
-        Text(value,
-            style: const TextStyle(
-                color: Colors.white,
-                fontSize: 22,
-                fontWeight: FontWeight.w800)),
-        Text(label,
-            style: const TextStyle(color: Colors.white70, fontSize: 12)),
+        Text(
+          value,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 22,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        Text(
+          label,
+          style: const TextStyle(color: Colors.white70, fontSize: 12),
+        ),
       ],
     );
   }
@@ -309,22 +340,29 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         children: [
-          Text(label,
-              style: TextStyle(
-                  color: color,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700)),
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
           const SizedBox(width: 8),
           Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             decoration: BoxDecoration(
               color: color.withAlpha(30),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Text('$count',
-                style:
-                    TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600)),
+            child: Text(
+              '$count',
+              style: TextStyle(
+                color: color,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
         ],
       ),
@@ -335,8 +373,10 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
     final isWinner = app.status == 'winner';
     final isDiscarded = app.status == 'discarded';
     final isFinalist = app.status == 'finalist';
-    
-    final String displayName = isWinner ? (app.applicant?.nombre ?? 'Aplicante') : 'Aplicante anónimo';
+
+    final String displayName = isWinner
+        ? (app.applicant?.nombre ?? 'Aplicante')
+        : 'Aplicante anónimo';
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -344,17 +384,16 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
         color: AppColors.card,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isWinner
-              ? AppColors.warning.withAlpha(100)
-              : AppColors.border,
+          color: isWinner ? AppColors.warning.withAlpha(100) : AppColors.border,
           width: isWinner ? 2 : 1,
         ),
         boxShadow: isWinner
             ? [
                 BoxShadow(
-                    color: AppColors.warning.withAlpha(40),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4))
+                  color: AppColors.warning.withAlpha(40),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
               ]
             : null,
       ),
@@ -374,7 +413,9 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
                   child: Text(
                     _initials(displayName),
                     style: TextStyle(
-                      color: isWinner ? AppColors.warning : AppColors.textPrimary,
+                      color: isWinner
+                          ? AppColors.warning
+                          : AppColors.textPrimary,
                       fontWeight: FontWeight.w700,
                       fontSize: 15,
                     ),
@@ -399,7 +440,9 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
                         Text(
                           app.applicant!.email!,
                           style: const TextStyle(
-                              color: AppColors.textSecondary, fontSize: 12),
+                            color: AppColors.textSecondary,
+                            fontSize: 12,
+                          ),
                         ),
                     ],
                   ),
@@ -426,9 +469,10 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
                 child: Text(
                   '"${app.comment}"',
                   style: const TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 13,
-                      fontStyle: FontStyle.italic),
+                    color: AppColors.textSecondary,
+                    fontSize: 13,
+                    fontStyle: FontStyle.italic,
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
@@ -440,20 +484,26 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
                 padding: const EdgeInsets.only(bottom: 12),
                 child: Row(
                   children: [
-                    const Icon(Icons.access_time,
-                        color: AppColors.textHint, size: 13),
+                    const Icon(
+                      Icons.access_time,
+                      color: AppColors.textHint,
+                      size: 13,
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       'Aplicó el ${_formatDate(app.createdAt!)}',
                       style: const TextStyle(
-                          color: AppColors.textHint, fontSize: 12),
+                        color: AppColors.textHint,
+                        fontSize: 12,
+                      ),
                     ),
                   ],
                 ),
               ),
 
             // Acciones (no mostrar si ya hay ganador)
-            if (!isWinner) _buildActions(app, isDiscarded, isFinalist, hasWinner),
+            if (!isWinner)
+              _buildActions(app, isDiscarded, isFinalist, hasWinner),
           ],
         ),
       ),
@@ -466,15 +516,14 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
 
     return Row(
       children: [
-        const Text('Calificar: ',
-            style: TextStyle(
-                color: AppColors.textSecondary, fontSize: 12)),
+        const Text(
+          'Calificar: ',
+          style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+        ),
         ...List.generate(5, (i) {
           final starVal = i + 1;
           return GestureDetector(
-            onTap: isBusy
-                ? null
-                : () => _setRating(app, starVal),
+            onTap: isBusy ? null : () => _setRating(app, starVal),
             child: Icon(
               starVal <= (app.rating ?? 0)
                   ? Icons.star
@@ -492,7 +541,9 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
             width: 14,
             height: 14,
             child: CircularProgressIndicator(
-                strokeWidth: 2, color: AppColors.primary),
+              strokeWidth: 2,
+              color: AppColors.primary,
+            ),
           ),
         ],
       ],
@@ -500,7 +551,11 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
   }
 
   Widget _buildActions(
-      ApplicationModel app, bool isDiscarded, bool isFinalist, bool hasWinner) {
+    ApplicationModel app,
+    bool isDiscarded,
+    bool isFinalist,
+    bool hasWinner,
+  ) {
     final provider = context.watch<MyOffersProvider>();
     final isBusy = provider.isPatching;
 
@@ -549,26 +604,41 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.surface,
-        title: const Text('¿Elegir como ganador?', style: TextStyle(color: AppColors.textPrimary)),
-        content: const Text('Puedes marcar a este aplicante como finalista para evaluarlo más tarde, o elegirlo directamente como el ganador de la oferta.', style: TextStyle(color: AppColors.textSecondary)),
+        title: const Text(
+          '¿Elegir como ganador?',
+          style: TextStyle(color: AppColors.textPrimary),
+        ),
+        content: const Text(
+          'Puedes marcar a este aplicante como finalista para evaluarlo más tarde, o elegirlo directamente como el ganador de la oferta.',
+          style: TextStyle(color: AppColors.textSecondary),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, 'cancel'),
-            child: const Text('Cancelar', style: TextStyle(color: AppColors.textHint)),
+            child: const Text(
+              'Cancelar',
+              style: TextStyle(color: AppColors.textHint),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, 'finalist'),
-            child: const Text('Solo Finalista', style: TextStyle(color: AppColors.primary)),
+            child: const Text(
+              'Solo Finalista',
+              style: TextStyle(color: AppColors.primary),
+            ),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.warning, foregroundColor: Colors.white),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.warning,
+              foregroundColor: Colors.white,
+            ),
             onPressed: () => Navigator.pop(ctx, 'winner'),
             child: const Text('Elegir Ganador 🏆'),
           ),
         ],
       ),
     );
-    
+
     if (result == 'finalist') {
       _setStatus(app, 'finalist');
     } else if (result == 'winner') {
@@ -588,15 +658,13 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
         foregroundColor: color,
         side: BorderSide(color: color),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
       icon: isLoading
           ? SizedBox(
               width: 14,
               height: 14,
-              child: CircularProgressIndicator(
-                  strokeWidth: 2, color: color),
+              child: CircularProgressIndicator(strokeWidth: 2, color: color),
             )
           : Icon(icon, size: 16),
       label: Text(label, style: const TextStyle(fontSize: 12)),
@@ -613,8 +681,18 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
 
   String _formatDate(DateTime date) {
     const months = [
-      'ene', 'feb', 'mar', 'abr', 'may', 'jun',
-      'jul', 'ago', 'sep', 'oct', 'nov', 'dic'
+      'ene',
+      'feb',
+      'mar',
+      'abr',
+      'may',
+      'jun',
+      'jul',
+      'ago',
+      'sep',
+      'oct',
+      'nov',
+      'dic',
     ];
     return '${date.day} ${months[date.month - 1]} ${date.year}';
   }
