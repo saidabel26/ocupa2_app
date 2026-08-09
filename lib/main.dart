@@ -22,6 +22,12 @@ import 'features/offers/providers/apply_provider.dart';
 import 'features/offers/services/application_service.dart';
 import 'features/payments/providers/payment_provider.dart';
 import 'features/payments/services/payment_service.dart';
+import 'features/payments/providers/my_payments_provider.dart';
+import 'features/payments/services/my_payments_service.dart';
+import 'features/offers/providers/my_applications_provider.dart';
+import 'features/offers/services/my_applications_service.dart';
+import 'features/auth/providers/change_password_provider.dart';
+import 'features/auth/services/password_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -97,6 +103,21 @@ void main() async {
         // Parte 5 – Aplicar a oferta (se resetea en cada apertura del detalle)
         ChangeNotifierProvider<ApplyProvider>(
           create: (_) => ApplyProvider(ApplicationService(apiClient)),
+        ),
+
+        // Parte 6 – Mis aplicaciones (estado de postulaciones propias)
+        ChangeNotifierProvider<MyApplicationsProvider>(
+          create: (_) => MyApplicationsProvider(MyApplicationsService(apiClient)),
+        ),
+
+        // Parte 6 – Historial de pagos propios
+        ChangeNotifierProvider<MyPaymentsProvider>(
+          create: (_) => MyPaymentsProvider(MyPaymentsService(apiClient)),
+        ),
+
+        // Parte 6 – Cambiar contraseña
+        ChangeNotifierProvider<ChangePasswordProvider>(
+          create: (_) => ChangePasswordProvider(PasswordService(apiClient)),
         ),
       ],
       child: const Ocupa2App(),

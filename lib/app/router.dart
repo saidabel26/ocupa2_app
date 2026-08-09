@@ -17,8 +17,12 @@ import '../features/offers/screens/offers_map_screen.dart';
 import '../features/offers/screens/my_offers_screen.dart';
 import '../features/offers/screens/create_offer_screen.dart';
 import '../features/offers/screens/offer_applicants_screen.dart';
+import '../features/offers/screens/my_applications_screen.dart';
+import '../features/payments/screens/my_payments_screen.dart';
+import '../features/auth/screens/change_password_screen.dart';
+import '../features/about/screens/about_screen.dart';
 import '../shared/screens/main_shell_screen.dart';
-import '../shared/screens/placeholder_screen.dart';
+
 
 /// Rutas de la aplicación
 class AppRoutes {
@@ -172,11 +176,7 @@ GoRouter buildRouter(AuthProvider authProvider) {
           ),
           GoRoute(
             path: AppRoutes.applications,
-            builder: (context, state) => const PlaceholderScreen(
-              title: 'Mis Aplicaciones',
-              icon: Icons.assignment_outlined,
-              description: 'Estado de mis postulaciones. Parte 6.',
-            ),
+            builder: (context, state) => const MyApplicationsScreen(),
           ),
           GoRoute(
             path: AppRoutes.experiences,
@@ -184,11 +184,7 @@ GoRouter buildRouter(AuthProvider authProvider) {
           ),
           GoRoute(
             path: AppRoutes.payments,
-            builder: (context, state) => const PlaceholderScreen(
-              title: 'Mis Pagos',
-              icon: Icons.receipt_long_outlined,
-              description: 'Historial de pagos. Parte 6.',
-            ),
+            builder: (context, state) => const MyPaymentsScreen(),
           ),
           GoRoute(
             path: AppRoutes.news,
@@ -200,19 +196,11 @@ GoRouter buildRouter(AuthProvider authProvider) {
           ),
           GoRoute(
             path: AppRoutes.about,
-            builder: (context, state) => const PlaceholderScreen(
-              title: 'Acerca de',
-              icon: Icons.info_outline,
-              description: 'Equipo de desarrollo. Parte 6.',
-            ),
+            builder: (context, state) => const AboutScreen(),
           ),
           GoRoute(
             path: AppRoutes.changePassword,
-            builder: (context, state) => const PlaceholderScreen(
-              title: 'Cambiar Contraseña',
-              icon: Icons.lock_outline,
-              description: 'Cambio de contraseña. Parte 6.',
-            ),
+            builder: (context, state) => const ChangePasswordScreen(),
           ),
         ],
       ),
