@@ -71,4 +71,38 @@ class AuthService {
     final data = response['data'] as Map<String, dynamic>;
     return UserModel.fromJson(data);
   }
+
+  /// PUT /me/profile — actualiza nombre o email del usuario autenticado.
+  Future<UserModel> updateProfile({
+    String? firstName,
+    String? lastName,
+    String? email,
+    String? photoUrl,
+  }) async {
+    final body = <String, dynamic>{};
+    if (firstName != null) body['firstName'] = firstName;
+    if (lastName != null) body['lastName'] = lastName;
+    if (email != null) body['email'] = email;
+    if (photoUrl != null) body['photo'] = photoUrl;
+
+    final response = await _client.put(ApiConstants.meProfile, body: body);
+    final data = response['data'] as Map<String, dynamic>;
+    return UserModel.fromJson(data);
+  }
+
+  /// POST /uploads — sube una imagen en base64 y retorna la URL pública.
+  Future<String> uploadImage({
+    required String base64Image,
+    required String filename,
+  }) async {
+    final response = await _client.post(
+      ApiConstants.uploads,
+      body: {
+        'image': base64Image,
+        'filename': filename,
+      },
+    );
+    final data = response['data'] as Map<String, dynamic>;
+    return data['url'] as String;
+  }
 }

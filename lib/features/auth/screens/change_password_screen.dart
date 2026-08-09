@@ -20,9 +20,6 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
   final _newPassCtrl = TextEditingController();
   final _confirmCtrl = TextEditingController();
 
-  bool _obscureNew = true;
-  bool _obscureConfirm = true;
-
   late AnimationController _animCtrl;
   late Animation<double> _fadeAnim;
 
@@ -120,7 +117,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.of(dialogCtx).pop();
+                  context.pop(); // cerrar el diálogo
+                  context.pop(); // volver a la pantalla anterior (Perfil)
+                  
                   // Limpiar campos
                   _newPassCtrl.clear();
                   _confirmCtrl.clear();

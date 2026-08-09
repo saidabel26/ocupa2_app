@@ -21,6 +21,7 @@ import '../features/offers/screens/my_applications_screen.dart';
 import '../features/payments/screens/my_payments_screen.dart';
 import '../features/auth/screens/change_password_screen.dart';
 import '../features/about/screens/about_screen.dart';
+import '../features/profile/screens/profile_screen.dart';
 import '../shared/screens/main_shell_screen.dart';
 
 
@@ -50,6 +51,7 @@ class AppRoutes {
   static const String videoPlayer = '/video-player';
   static const String about = '/about';
   static const String changePassword = '/change-password';
+  static const String profile = '/profile';
 }
 
 GoRouter buildRouter(AuthProvider authProvider) {
@@ -201,6 +203,10 @@ GoRouter buildRouter(AuthProvider authProvider) {
           GoRoute(
             path: AppRoutes.changePassword,
             builder: (context, state) => const ChangePasswordScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.profile,
+            builder: (context, state) => const ProfileScreen(),
           ),
         ],
       ),

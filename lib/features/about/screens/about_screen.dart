@@ -102,9 +102,18 @@ class _AboutScreenState extends State<AboutScreen>
 
   Future<void> _launchTelegram(String url) async {
     final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
+    try {
+      final launched = await launchUrl(
+        uri,
+        mode: LaunchMode.externalNonBrowserApplication,
+      );
+      if (!launched) {
+        await launchUrl(
+          uri,
+          mode: LaunchMode.externalApplication,
+        );
+      }
+    } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -347,13 +356,48 @@ class _AboutScreenState extends State<AboutScreen>
 
   Widget _buildTechStack() {
     final techs = [
-      ('Flutter', Icons.flutter_dash, AppColors.accent),
-      ('Dart', Icons.code, const Color(0xFF0175C2)),
-      ('Provider', Icons.hub_outlined, AppColors.primary),
-      ('Go Router', Icons.route_outlined, const Color(0xFF10B981)),
-      ('REST API (Http)', Icons.cloud_outlined, const Color(0xFFF59E0B)),
-      ('Shared Prefs', Icons.storage_outlined, const Color(0xFF8B5CF6)),
-      ('MinIO/S3', Icons.folder_shared_outlined, const Color(0xFFEF4444)),
+      (
+        'Flutter',
+        Icons.flutter_dash,
+        AppColors.accent,
+        'Framework principal utilizado para el desarrollo multiplataforma, permitiendo una experiencia nativa fluida.'
+      ),
+      (
+        'Dart',
+        Icons.code,
+        const Color(0xFF0175C2),
+        'Lenguaje de programación base que impulsa toda la lógica y reactividad de la aplicación.'
+      ),
+      (
+        'Provider',
+        Icons.hub_outlined,
+        AppColors.primary,
+        'Gestor de estado elegido por su simplicidad y eficiencia en la propagación de cambios a la UI.'
+      ),
+      (
+        'Go Router',
+        Icons.route_outlined,
+        const Color(0xFF10B981),
+        'Manejo de navegación declarativa y profunda, vital para el ruteo basado en shells y autenticación.'
+      ),
+      (
+        'REST API (Http)',
+        Icons.cloud_outlined,
+        const Color(0xFFF59E0B),
+        'Consumo de servicios backend centralizados que conectan la app con la base de datos principal de Ocupa2.'
+      ),
+      (
+        'Shared Prefs',
+        Icons.storage_outlined,
+        const Color(0xFF8B5CF6),
+        'Almacenamiento persistente ligero usado para guardar el token de sesión y preferencias del usuario.'
+      ),
+      (
+        'MinIO/S3',
+        Icons.folder_shared_outlined,
+        const Color(0xFFEF4444),
+        'Servicio de almacenamiento en la nube compatible con S3, empleado para gestionar las fotos de perfil y adjuntos.'
+      ),
     ];
 
     return Column(
@@ -368,36 +412,100 @@ class _AboutScreenState extends State<AboutScreen>
           ),
         ),
         const SizedBox(height: 12),
-        Wrap(
-          spacing: 10,
-          runSpacing: 10,
-          children: techs.map((t) {
-            return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              decoration: BoxDecoration(
-                color: t.$3.withAlpha(20),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: t.$3.withAlpha(60)),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(t.$2, size: 14, color: t.$3),
-                  const SizedBox(width: 6),
-                  Text(
-                    t.$1,
-                    style: TextStyle(
-                      color: t.$3,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }).toList(),
+        Column(
+          children: techs.map((t) => _TechItem(
+                name: t.$1,
+                icon: t.$2,
+                color: t.$3,
+                description: t.$4,
+              )).toList(),
         ),
       ],
+    );
+  }
+}
+
+class _TechItem extends StatefulWidget {
+  final String name;
+  final IconData icon;
+  final Color color;
+  final String description;
+
+  const _TechItem({
+    required this.name,
+    required this.icon,
+    required this.color,
+    required this.description,
+  });
+
+  @override
+  State<_TechItem> createState() => _TechItemState();
+}
+
+class _TechItemState extends State<_TechItem> {
+  bool _isExpanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: widget.color.withAlpha(15),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: widget.color.withAlpha(40)),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () => setState(() => _isExpanded = !_isExpanded),
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(widget.icon, size: 20, color: widget.color),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        widget.name,
+                        style: TextStyle(
+                          color: widget.color,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    Icon(
+                      _isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                      color: widget.color,
+                    ),
+                  ],
+                ),
+                AnimatedSize(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  child: _isExpanded
+                      ? Padding(
+                          padding: const EdgeInsets.only(top: 10, left: 30),
+                          child: Text(
+                            widget.description,
+                            style: const TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: 13,
+                              height: 1.4,
+                            ),
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

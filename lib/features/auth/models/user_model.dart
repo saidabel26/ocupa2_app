@@ -11,6 +11,7 @@ class UserModel {
   final bool profileCompleted;
   final String? referralMatricula;
   final String role;
+  final String? photo;
   final DateTime? createdAt;
   final DateTime? lastLoginAt;
 
@@ -26,6 +27,7 @@ class UserModel {
     required this.profileCompleted,
     this.referralMatricula,
     required this.role,
+    this.photo,
     this.createdAt,
     this.lastLoginAt,
   });
@@ -45,6 +47,7 @@ class UserModel {
       profileCompleted: json['profileCompleted'] as bool? ?? false,
       referralMatricula: json['referralMatricula'] as String?,
       role: json['role'] as String? ?? '',
+      photo: json['photo'] as String?,
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'] as String)
           : null,
@@ -67,6 +70,7 @@ class UserModel {
       'profileCompleted': profileCompleted,
       'referralMatricula': referralMatricula,
       'role': role,
+      'photo': photo,
       'createdAt': createdAt?.toIso8601String(),
       'lastLoginAt': lastLoginAt?.toIso8601String(),
     };
@@ -84,6 +88,7 @@ class UserModel {
     bool? profileCompleted,
     String? referralMatricula,
     String? role,
+    String? photo,
     DateTime? createdAt,
     DateTime? lastLoginAt,
   }) {
@@ -99,6 +104,7 @@ class UserModel {
       profileCompleted: profileCompleted ?? this.profileCompleted,
       referralMatricula: referralMatricula ?? this.referralMatricula,
       role: role ?? this.role,
+      photo: photo ?? this.photo,
       createdAt: createdAt ?? this.createdAt,
       lastLoginAt: lastLoginAt ?? this.lastLoginAt,
     );

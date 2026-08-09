@@ -63,46 +63,9 @@ class MainShellScreen extends StatelessWidget {
       child: SafeArea(
         child: Column(
           children: [
-            // Header del drawer
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: const BoxDecoration(
-                gradient: AppColors.primaryGradient,
-              ),
-              width: double.infinity,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const CircleAvatar(
-                    radius: 32,
-                    backgroundColor: Colors.white24,
-                    child: Icon(Icons.person, size: 36, color: Colors.white),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    user?.nombre.isNotEmpty == true
-                        ? user!.nombre
-                        : '${user?.firstName ?? ''} ${user?.lastName ?? ''}'.trim(),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    user?.email ?? '',
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 13,
-                    ),
-                  ),
-                ],
-              ),
-            ),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.symmetric(vertical: 8),
+                padding: const EdgeInsets.symmetric(vertical: 24),
                 children: [
                   _drawerItem(context, Icons.home_outlined, 'Inicio', AppRoutes.home),
                   _drawerItem(context, Icons.work_outline, 'Explorar Ofertas', AppRoutes.offers),
@@ -115,7 +78,7 @@ class MainShellScreen extends StatelessWidget {
                   _drawerItem(context, Icons.newspaper_outlined, 'Noticias', AppRoutes.news),
                   _drawerItem(context, Icons.play_circle_outline, 'Videos', AppRoutes.videos),
                   const Divider(color: AppColors.border),
-                  _drawerItem(context, Icons.lock_outline, 'Cambiar Contraseña', AppRoutes.changePassword),
+                  _drawerItem(context, Icons.person_outline, 'Mi Perfil', AppRoutes.profile),
                   _drawerItem(context, Icons.info_outline, 'Acerca de', AppRoutes.about),
                 ],
               ),

@@ -48,6 +48,9 @@ void main() async {
       providers: [
         // Exponer el ApiClient a toda la app (partes futuras lo pueden usar)
         Provider<ApiClient>.value(value: apiClient),
+        
+        // Exponer AuthService
+        Provider<AuthService>.value(value: authService),
 
         // Exponer el UploadService a toda la app
         Provider<UploadService>(

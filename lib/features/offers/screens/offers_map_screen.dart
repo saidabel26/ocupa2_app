@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import '../../../app/theme.dart';
 import '../models/offer_model.dart';
@@ -19,6 +20,7 @@ class OffersMapScreen extends StatefulWidget {
 class _OffersMapScreenState extends State<OffersMapScreen> {
   final MapController _mapController = MapController();
   OfferModel? _selectedOffer;
+  LatLng? _myLocation;
 
   // Centro por defecto: República Dominicana (ITLA)
   final LatLng _defaultCenter = const LatLng(18.4522, -69.6300);
@@ -33,6 +35,42 @@ class _OffersMapScreenState extends State<OffersMapScreen> {
         provider.loadOffers();
       }
     });
+  }
+
+  Future<void> _locateMe() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Servicios de ubicación deshabilitados.')));
+      return;
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Permisos de ubicación denegados.')));
+        return;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Permisos denegados permanentemente.')));
+      return;
+    }
+
+    final pos = await Geolocator.getCurrentPosition();
+    final myLatLng = LatLng(pos.latitude, pos.longitude);
+
+    if (mounted) {
+      setState(() => _myLocation = myLatLng);
+      _mapController.move(myLatLng, 14.0);
+    }
   }
 
   @override
@@ -134,6 +172,31 @@ class _OffersMapScreenState extends State<OffersMapScreen> {
                   );
                 }).toList(),
               ),
+              if (_myLocation != null)
+                MarkerLayer(
+                  markers: [
+                    Marker(
+                      point: _myLocation!,
+                      width: 40,
+                      height: 40,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black38,
+                              blurRadius: 4,
+                            ),
+                          ],
+                        ),
+                        child: const Icon(Icons.my_location,
+                            size: 20, color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
             ],
           ),
 
@@ -157,28 +220,16 @@ class _OffersMapScreenState extends State<OffersMapScreen> {
               child: _buildOfferPopup(_selectedOffer!),
             ),
 
-          // 4. Botón flotante para centrar (si no hay popup visible)
-          if (_selectedOffer == null && offers.isNotEmpty)
+          // 4. Botón flotante para localizarme
+          if (_selectedOffer == null)
             Positioned(
               bottom: 20,
               right: 20,
               child: FloatingActionButton(
                 backgroundColor: AppColors.surface,
-                foregroundColor: AppColors.textPrimary,
-                onPressed: () {
-                  // Centrar el mapa promediando todas las coordenadas
-                  double sumLat = 0;
-                  double sumLng = 0;
-                  for (final o in offers) {
-                    sumLat += o.locationLat!;
-                    sumLng += o.locationLng!;
-                  }
-                  _mapController.move(
-                    LatLng(sumLat / offers.length, sumLng / offers.length),
-                    12.0,
-                  );
-                },
-                child: const Icon(Icons.center_focus_strong),
+                foregroundColor: AppColors.primary,
+                onPressed: _locateMe,
+                child: const Icon(Icons.my_location),
               ),
             ),
         ],

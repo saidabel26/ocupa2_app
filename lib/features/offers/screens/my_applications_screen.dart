@@ -28,13 +28,29 @@ class _MyApplicationsScreenState extends State<MyApplicationsScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Mis Aplicaciones'),
-        backgroundColor: AppColors.background,
-        foregroundColor: AppColors.textPrimary,
-        leading: Builder(
-          builder: (ctx) => IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () => Scaffold.of(ctx).openDrawer(),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 16, top: 8, bottom: 8),
+          child: GestureDetector(
+            onTap: () => Scaffold.of(context).openDrawer(),
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: const Icon(Icons.menu,
+                  color: AppColors.textPrimary, size: 22),
+            ),
+          ),
+        ),
+        title: const Text(
+          'Mis Aplicaciones',
+          style: TextStyle(
+            color: AppColors.textPrimary,
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ),
@@ -336,6 +352,9 @@ class _ApplicationCard extends StatelessWidget {
   }
 
   String _offerLabel() {
+    if (application.offerTitle != null && application.offerTitle!.isNotEmpty) {
+      return application.offerTitle!;
+    }
     if (application.offerId.isNotEmpty) {
       return 'Oferta #${application.offerId.substring(0, application.offerId.length.clamp(0, 8))}...';
     }
