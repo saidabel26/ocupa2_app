@@ -44,7 +44,7 @@ class OfferModel {
   });
 
   /// Indica si la oferta tiene coordenadas válidas para mostrar en mapa.
-  bool get hasLocation => locationLat != null && locationLng != null;
+  bool get hasLocation =>\n      locationLat != null &&\n      locationLng != null &&\n      locationLat != 0.0 &&\n      locationLng != 0.0;
 
   /// Texto legible del tipo de contrato.
   String get contractTypeLabel {

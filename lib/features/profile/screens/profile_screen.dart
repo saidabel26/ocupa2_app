@@ -1,0 +1,389 @@
+import 'dart:convert';
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+import '../../../app/router.dart';
+import '../../../app/theme.dart';
+import '../../../features/auth/providers/auth_provider.dart';
+import '../../../features/auth/services/auth_service.dart';
+import '../../../shared/widgets/loading_button.dart';
+import '../../../shared/widgets/ocupa2_text_field.dart';
+
+/// Pantalla de perfil del usuario.
+/// Permite editar nombre, email, foto de perfil y acceder a cambiar contraseña.
+class ProfileScreen extends StatefulWidget {
+  const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen>
+    with SingleTickerProviderStateMixin {
+  final _formKey = GlobalKey<FormState>();
+  late TextEditingController _firstNameCtrl;
+  late TextEditingController _lastNameCtrl;
+  late TextEditingController _emailCtrl;
+
+  bool _isLoading = false;
+  bool _isUploadingPhoto = false;
+  String? _error;
+
+  late AnimationController _animCtrl;
+  late Animation<double> _fadeAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _animCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _fadeAnim = CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut);
+    _animCtrl.forward();
+
+    final user = context.read<AuthProvider>().user;
+    _firstNameCtrl = TextEditingController(text: user?.firstName ?? '');
+    _lastNameCtrl = TextEditingController(text: user?.lastName ?? '');
+    _emailCtrl = TextEditingController(text: user?.email ?? '');
+  }
+
+  @override
+  void dispose() {
+    _animCtrl.dispose();
+    _firstNameCtrl.dispose();
+    _lastNameCtrl.dispose();
+    _emailCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pickAndUploadPhoto() async {
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 70,
+      maxWidth: 600,
+    );
+    if (picked == null) return;
+    if (!mounted) return;
+
+    setState(() => _isUploadingPhoto = true);
+
+    try {
+      final bytes = await File(picked.path).readAsBytes();
+      final base64Str = base64Encode(bytes);
+      final ext = picked.path.split('.').last.toLowerCase();
+      final filename = 'profile_${DateTime.now().millisecondsSinceEpoch}.$ext';
+
+      final authProvider = context.read<AuthProvider>();
+      final authService = context.read<AuthService>();
+
+      final url = await authService.uploadImage(
+        base64Image: 'data:image/$ext;base64,$base64Str',
+        filename: filename,
+      );
+
+      // Actualizar foto en el perfil
+      final updatedUser = await authService.updateProfile(photoUrl: url);
+      authProvider.updateUser(updatedUser);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Foto actualizada correctamente.'),
+            backgroundColor: AppColors.success,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al subir la foto: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isUploadingPhoto = false);
+    }
+  }
+
+  Future<void> _saveProfile() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    try {
+      final authService = context.read<AuthService>();
+      final authProvider = context.read<AuthProvider>();
+
+      final updatedUser = await authService.updateProfile(
+        firstName: _firstNameCtrl.text.trim(),
+        lastName: _lastNameCtrl.text.trim(),
+        email: _emailCtrl.text.trim(),
+      );
+      authProvider.updateUser(updatedUser);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Perfil actualizado correctamente.'),
+            backgroundColor: AppColors.success,
+          ),
+        );
+      }
+    } catch (e) {
+      setState(() => _error = 'No se pudo guardar el perfil. Inténtalo de nuevo.');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final user = context.watch<AuthProvider>().user;
+    final displayName = '${user?.firstName ?? ''} ${user?.lastName ?? ''}'.trim();
+
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 16, top: 8, bottom: 8),
+          child: GestureDetector(
+            onTap: () => Scaffold.of(context).openDrawer(),
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: const Icon(Icons.menu,
+                  color: AppColors.textPrimary, size: 22),
+            ),
+          ),
+        ),
+        title: const Text(
+          'Mi Perfil',
+          style: TextStyle(
+            color: AppColors.textPrimary,
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
+      body: FadeTransition(
+        opacity: _fadeAnim,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              // Header con foto
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 32),
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF0F172A), Color(0xFF1E1B4B)],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    // Avatar circular con botón de edición
+                    Stack(
+                      alignment: Alignment.bottomRight,
+                      children: [
+                        Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: AppColors.primary,
+                              width: 3,
+                            ),
+                          ),
+                          child: ClipOval(
+                            child: _isUploadingPhoto
+                                ? const Center(
+                                    child: CircularProgressIndicator(
+                                        color: AppColors.primary))
+                                : (user?.photo != null && user!.photo!.isNotEmpty)
+                                    ? Image.network(
+                                        user.photo!,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (_, __, ___) =>
+                                            _defaultAvatar(),
+                                      )
+                                    : _defaultAvatar(),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: _pickAndUploadPhoto,
+                          child: Container(
+                            width: 30,
+                            height: 30,
+                            decoration: const BoxDecoration(
+                              color: AppColors.primary,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.camera_alt,
+                                size: 16, color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      displayName.isNotEmpty ? displayName : 'Estudiante',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      user?.email ?? '',
+                      style: const TextStyle(
+                        color: Colors.white60,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Formulario
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Información personal',
+                        style: TextStyle(
+                          color: AppColors.textPrimary,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      Ocupa2TextField(
+                        controller: _firstNameCtrl,
+                        label: 'Nombre',
+                        hint: 'Tu nombre',
+                        prefixIcon: Icons.person_outline,
+                        textCapitalization: TextCapitalization.words,
+                        validator: (v) => (v == null || v.trim().isEmpty)
+                            ? 'Ingresa tu nombre.' : null,
+                      ),
+                      const SizedBox(height: 14),
+
+                      Ocupa2TextField(
+                        controller: _lastNameCtrl,
+                        label: 'Apellido',
+                        hint: 'Tu apellido',
+                        prefixIcon: Icons.person_outline,
+                        textCapitalization: TextCapitalization.words,
+                        validator: (v) => (v == null || v.trim().isEmpty)
+                            ? 'Ingresa tu apellido.' : null,
+                      ),
+                      const SizedBox(height: 14),
+
+                      Ocupa2TextField(
+                        controller: _emailCtrl,
+                        label: 'Correo electrónico',
+                        hint: 'tucorreo@ejemplo.com',
+                        prefixIcon: Icons.email_outlined,
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (v) {
+                          if (v == null || v.trim().isEmpty) {
+                            return 'Ingresa tu correo.';
+                          }
+                          if (!v.contains('@')) {
+                            return 'Correo inválido.';
+                          }
+                          return null;
+                        },
+                      ),
+
+                      if (_error != null) ...[
+                        const SizedBox(height: 12),
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: AppColors.error.withAlpha(20),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: AppColors.error.withAlpha(60)),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.error_outline,
+                                  color: AppColors.error, size: 18),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(_error!,
+                                    style: const TextStyle(
+                                        color: AppColors.error, fontSize: 13)),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+
+                      const SizedBox(height: 24),
+                      LoadingButton(
+                        isLoading: _isLoading,
+                        onPressed: _saveProfile,
+                        label: 'Guardar Cambios',
+                        icon: Icons.save_outlined,
+                      ),
+
+                      const SizedBox(height: 24),
+                      const Divider(color: AppColors.border),
+                      const SizedBox(height: 16),
+
+                      // Botón cambiar contraseña
+                      OutlinedButton.icon(
+                        onPressed: () => context.push(AppRoutes.changePassword),
+                        icon: const Icon(Icons.lock_outline),
+                        label: const Text('Cambiar Contraseña'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.primary,
+                          side: BorderSide(color: AppColors.primary.withAlpha(100)),
+                          minimumSize: const Size(double.infinity, 48),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _defaultAvatar() {
+    return Container(
+      color: AppColors.primary.withAlpha(40),
+      child: const Icon(Icons.person, size: 48, color: AppColors.primary),
+    );
+  }
+}

@@ -76,14 +76,27 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                     // Avatar
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        gradient: AppColors.primaryGradient,
-                        borderRadius: BorderRadius.circular(14),
+                    GestureDetector(
+                      onTap: () => context.push(AppRoutes.profile),
+                      child: Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withAlpha(40),
+                          borderRadius: BorderRadius.circular(22),
+                          border: Border.all(color: AppColors.primary, width: 2),
+                        ),
+                        child: ClipOval(
+                          child: (user?.photo != null && user!.photo!.isNotEmpty)
+                              ? Image.network(
+                                  user.photo!,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) => const Icon(
+                                      Icons.person, color: AppColors.primary),
+                                )
+                              : const Icon(Icons.person, color: AppColors.primary),
+                        ),
                       ),
-                      child: const Icon(Icons.person, color: Colors.white, size: 24),
                     ),
                   ],
                 ),

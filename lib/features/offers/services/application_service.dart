@@ -2,8 +2,9 @@ import '../../../core/constants/api_constants.dart';
 import '../../../core/http/api_client.dart';
 import '../models/application_model.dart';
 
-/// Servicio de aplicaciones (postulaciones) desde la perspectiva del publicante.
-/// Consume PATCH /applications/{id}.
+/// Servicio de aplicaciones (postulaciones).
+/// - Perspectiva del publicante: PATCH /applications/{id}.
+/// - Perspectiva del aplicante: POST /offers/{id}/apply.
 class ApplicationService {
   final ApiClient _client;
 
@@ -37,5 +38,35 @@ class ApplicationService {
     }
 
     throw Exception('Respuesta inesperada al actualizar la aplicación.');
+  }
+
+  /// POST /offers/{id}/apply – aplicar a una oferta como candidato.
+  /// [comment]: Por qué te consideras apto (requerido).
+  /// [answers]: Respuestas a las preguntas adicionales de la oferta (opcional).
+  Future<ApplicationModel> applyToOffer(
+    String offerId, {
+    required String comment,
+    List<Map<String, dynamic>>? answers,
+  }) async {
+    final body = <String, dynamic>{
+      'comment': comment,
+      if (answers != null && answers.isNotEmpty) 'answers': answers,
+    };
+
+    final response = await _client.post(
+      '${ApiConstants.offers}/$offerId/apply',
+      body: body,
+    );
+
+    final data = response['data'];
+    if (data is Map<String, dynamic>) {
+      final inner = data['application'];
+      if (inner is Map<String, dynamic>) {
+        return ApplicationModel.fromJson(inner);
+      }
+      return ApplicationModel.fromJson(data);
+    }
+
+    throw Exception('Respuesta inesperada al aplicar a la oferta.');
   }
 }

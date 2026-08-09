@@ -3,6 +3,7 @@
 class ApplicationModel {
   final String id;
   final String offerId;
+  final String? offerTitle;
   final String status; // applied, discarded, finalist, winner
   final int? rating;
   final String? comment;
@@ -13,6 +14,7 @@ class ApplicationModel {
   const ApplicationModel({
     required this.id,
     required this.offerId,
+    this.offerTitle,
     required this.status,
     this.rating,
     this.comment,
@@ -47,9 +49,19 @@ class ApplicationModel {
 
     final rawAnswers = json['answers'] as List<dynamic>?;
 
+    // Intentar extraer el título de la oferta desde distintos campos anidados
+    String? offerTitle;
+    final rawOffer = json['offer'];
+    if (rawOffer is Map<String, dynamic>) {
+      offerTitle = rawOffer['title'] as String? ??
+          rawOffer['description'] as String?;
+    }
+    offerTitle ??= json['offerTitle'] as String?;
+
     return ApplicationModel(
       id: json['id']?.toString() ?? json['_id']?.toString() ?? '',
       offerId: json['offerId']?.toString() ?? '',
+      offerTitle: offerTitle,
       status: json['status'] as String? ?? 'applied',
       rating: json['rating'] as int?,
       comment: json['comment'] as String?,

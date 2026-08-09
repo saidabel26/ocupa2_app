@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_initializing_formals
 import 'package:flutter/foundation.dart';
 import '../../../core/errors/app_error.dart';
 import '../models/offer_model.dart';
@@ -28,8 +29,6 @@ class MyOffersProvider extends ChangeNotifier {
   String? _createError;
   String? _applicationsError;
   String? _patchError;
-
-  // ignore: prefer_initializing_formals
   MyOffersProvider({
     required OfferService offerService,
     required ApplicationService applicationService,

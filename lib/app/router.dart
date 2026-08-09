@@ -5,6 +5,7 @@ import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/register_screen.dart';
 import '../features/auth/screens/forgot_password_screen.dart';
 import '../features/profile/screens/complete_profile_screen.dart';
+import '../features/profile/screens/experiences_screen.dart';
 import '../features/home/screens/home_screen.dart';
 import '../features/news/screens/news_list_screen.dart';
 import '../features/news/screens/news_detail_screen.dart';
@@ -16,8 +17,13 @@ import '../features/offers/screens/offers_map_screen.dart';
 import '../features/offers/screens/my_offers_screen.dart';
 import '../features/offers/screens/create_offer_screen.dart';
 import '../features/offers/screens/offer_applicants_screen.dart';
+import '../features/offers/screens/my_applications_screen.dart';
+import '../features/payments/screens/my_payments_screen.dart';
+import '../features/auth/screens/change_password_screen.dart';
+import '../features/about/screens/about_screen.dart';
+import '../features/profile/screens/profile_screen.dart';
 import '../shared/screens/main_shell_screen.dart';
-import '../shared/screens/placeholder_screen.dart';
+
 
 /// Rutas de la aplicación
 class AppRoutes {
@@ -45,6 +51,7 @@ class AppRoutes {
   static const String videoPlayer = '/video-player';
   static const String about = '/about';
   static const String changePassword = '/change-password';
+  static const String profile = '/profile';
 }
 
 GoRouter buildRouter(AuthProvider authProvider) {
@@ -125,7 +132,7 @@ GoRouter buildRouter(AuthProvider authProvider) {
         },
       ),
 
-      // ── Detalle de oferta (sin shell) ───────────────────────────────
+      // ── Detalle de oferta (sin shell) ──────────────────────────────────────
       GoRoute(
         path: AppRoutes.offerDetail,
         builder: (context, state) {
@@ -171,27 +178,15 @@ GoRouter buildRouter(AuthProvider authProvider) {
           ),
           GoRoute(
             path: AppRoutes.applications,
-            builder: (context, state) => const PlaceholderScreen(
-              title: 'Mis Aplicaciones',
-              icon: Icons.assignment_outlined,
-              description: 'Estado de mis postulaciones. Parte 6.',
-            ),
+            builder: (context, state) => const MyApplicationsScreen(),
           ),
           GoRoute(
             path: AppRoutes.experiences,
-            builder: (context, state) => const PlaceholderScreen(
-              title: 'Mi Perfil / Experiencias',
-              icon: Icons.school_outlined,
-              description: 'Perfil y experiencias laborales. Parte 5.',
-            ),
+            builder: (context, state) => const ExperiencesScreen(),
           ),
           GoRoute(
             path: AppRoutes.payments,
-            builder: (context, state) => const PlaceholderScreen(
-              title: 'Mis Pagos',
-              icon: Icons.receipt_long_outlined,
-              description: 'Historial de pagos. Parte 6.',
-            ),
+            builder: (context, state) => const MyPaymentsScreen(),
           ),
           GoRoute(
             path: AppRoutes.news,
@@ -203,19 +198,15 @@ GoRouter buildRouter(AuthProvider authProvider) {
           ),
           GoRoute(
             path: AppRoutes.about,
-            builder: (context, state) => const PlaceholderScreen(
-              title: 'Acerca de',
-              icon: Icons.info_outline,
-              description: 'Equipo de desarrollo. Parte 6.',
-            ),
+            builder: (context, state) => const AboutScreen(),
           ),
           GoRoute(
             path: AppRoutes.changePassword,
-            builder: (context, state) => const PlaceholderScreen(
-              title: 'Cambiar Contraseña',
-              icon: Icons.lock_outline,
-              description: 'Cambio de contraseña. Parte 6.',
-            ),
+            builder: (context, state) => const ChangePasswordScreen(),
+          ),
+          GoRoute(
+            path: AppRoutes.profile,
+            builder: (context, state) => const ProfileScreen(),
           ),
         ],
       ),
