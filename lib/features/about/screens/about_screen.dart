@@ -5,7 +5,6 @@ import '../../../app/theme.dart';
 /// Modelo de datos para un miembro del equipo de desarrollo.
 class TeamMember {
   final String name;
-  final String role;
   final String matricula;
   final String phone;
   final String? telegramUsername;
@@ -15,7 +14,6 @@ class TeamMember {
 
   const TeamMember({
     required this.name,
-    required this.role,
     required this.matricula,
     required this.phone,
     this.telegramUsername,
@@ -42,34 +40,31 @@ class _AboutScreenState extends State<AboutScreen>
   // Datos del equipo de desarrollo del proyecto Ocupa2
   static const List<TeamMember> _team = [
     TeamMember(
-      name: 'Said Abel',
-      role: 'Arquitectura, Auth & Servicios Base',
-      matricula: '2023-0001',
-      phone: '+18097000001',
+      name: 'Said Abel De Oleo Reyes',
+      matricula: '2024-1789',
+      phone: '+18098699144',
       telegramUsername: 'said_abel',
       telegramUrl: 'https://t.me/said_abel',
       avatarIcon: Icons.code,
       avatarColor: Color(0xFF4F46E5),
     ),
     TeamMember(
-      name: 'David',
-      role: 'Ofertas, Mapas & Publicación',
-      matricula: '2023-0002',
-      phone: '+18097000002',
-      telegramUsername: 'david_dev',
-      telegramUrl: 'https://t.me/david_dev',
-      avatarIcon: Icons.map_outlined,
-      avatarColor: Color(0xFF06B6D4),
-    ),
-    TeamMember(
-      name: 'Luis',
-      role: 'Aplicaciones, Perfil & Pagos',
-      matricula: '2023-0003',
-      phone: '+18097000003',
+      name: 'Luis David Morillo Luciano',
+      matricula: '2024-0004',
+      phone: '+18299155254',
       telegramUsername: 'luis_dev',
       telegramUrl: 'https://t.me/luis_dev',
       avatarIcon: Icons.person_outline,
       avatarColor: Color(0xFF10B981),
+    ),
+    TeamMember(
+      name: 'José David Castillo Castillo',
+      matricula: '2024-1546',
+      phone: '+18098492337',
+      telegramUsername: 'david_dev',
+      telegramUrl: 'https://t.me/david_dev',
+      avatarIcon: Icons.map_outlined,
+      avatarColor: Color(0xFF06B6D4),
     ),
   ];
 
@@ -353,9 +348,12 @@ class _AboutScreenState extends State<AboutScreen>
   Widget _buildTechStack() {
     final techs = [
       ('Flutter', Icons.flutter_dash, AppColors.accent),
+      ('Dart', Icons.code, const Color(0xFF0175C2)),
       ('Provider', Icons.hub_outlined, AppColors.primary),
       ('Go Router', Icons.route_outlined, const Color(0xFF10B981)),
-      ('REST API', Icons.cloud_outlined, const Color(0xFFF59E0B)),
+      ('REST API (Http)', Icons.cloud_outlined, const Color(0xFFF59E0B)),
+      ('Shared Prefs', Icons.storage_outlined, const Color(0xFF8B5CF6)),
+      ('MinIO/S3', Icons.folder_shared_outlined, const Color(0xFFEF4444)),
     ];
 
     return Column(
@@ -519,18 +517,8 @@ class _TeamMemberCardState extends State<_TeamMemberCard>
                             widget.member.name,
                             style: const TextStyle(
                               color: AppColors.textPrimary,
-                              fontSize: 17,
+                              fontSize: 16,
                               fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          const SizedBox(height: 3),
-                          Text(
-                            widget.member.role,
-                            style: TextStyle(
-                              color:
-                                  widget.member.avatarColor.withAlpha(220),
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ],

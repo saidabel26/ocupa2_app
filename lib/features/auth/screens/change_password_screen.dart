@@ -77,7 +77,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => AlertDialog(
+      builder: (dialogCtx) => AlertDialog(
         backgroundColor: AppColors.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         content: Column(
@@ -120,11 +120,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  Navigator.of(dialogCtx).pop();
                   // Limpiar campos
                   _newPassCtrl.clear();
                   _confirmCtrl.clear();
-                  context.read<ChangePasswordProvider>().reset();
+                  if (mounted) {
+                    context.read<ChangePasswordProvider>().reset();
+                  }
                 },
                 child: const Text('Aceptar'),
               ),
@@ -208,17 +210,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                     label: 'Nueva contraseña',
                     hint: 'Mínimo 6 caracteres',
                     prefixIcon: Icons.lock_outline,
-                    obscureText: _obscureNew,
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscureNew
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
-                        color: AppColors.textHint,
-                      ),
-                      onPressed: () =>
-                          setState(() => _obscureNew = !_obscureNew),
-                    ),
+                    isPassword: true,
                     validator: (v) {
                       if (v == null || v.trim().isEmpty) {
                         return 'Ingresa una contraseña.';
@@ -237,17 +229,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                     label: 'Confirmar contraseña',
                     hint: 'Repite la nueva contraseña',
                     prefixIcon: Icons.lock_outline,
-                    obscureText: _obscureConfirm,
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscureConfirm
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
-                        color: AppColors.textHint,
-                      ),
-                      onPressed: () =>
-                          setState(() => _obscureConfirm = !_obscureConfirm),
-                    ),
+                    isPassword: true,
                     validator: (v) {
                       if (v == null || v.trim().isEmpty) {
                         return 'Confirma tu contraseña.';

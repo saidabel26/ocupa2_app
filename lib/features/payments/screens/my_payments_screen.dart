@@ -30,6 +30,12 @@ class _MyPaymentsScreenState extends State<MyPaymentsScreen> {
         title: const Text('Mis Pagos'),
         backgroundColor: AppColors.background,
         foregroundColor: AppColors.textPrimary,
+        leading: Builder(
+          builder: (ctx) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => Scaffold.of(ctx).openDrawer(),
+          ),
+        ),
       ),
       body: Consumer<MyPaymentsProvider>(
         builder: (context, provider, _) {
@@ -47,8 +53,12 @@ class _MyPaymentsScreenState extends State<MyPaymentsScreen> {
             return _buildEmptyState();
           }
 
-          // Calcular totales para el banner resumen
-          final total = provider.payments
+          // Calcular totales para el banner resumen (solo aprobados)
+          final approvedPayments = provider.payments.where((p) {
+            return p.status == null || p.status!.toLowerCase() == 'approved';
+          }).toList();
+
+          final total = approvedPayments
               .fold<double>(0.0, (sum, p) => sum + (p.amount ?? 0.0));
 
           return RefreshIndicator(
@@ -60,7 +70,7 @@ class _MyPaymentsScreenState extends State<MyPaymentsScreen> {
               children: [
                 // Banner resumen de gasto total
                 _SummaryBanner(
-                  totalPayments: provider.payments.length,
+                  totalPayments: approvedPayments.length,
                   totalAmount: total,
                 ),
                 const SizedBox(height: 16),

@@ -31,6 +31,12 @@ class _MyApplicationsScreenState extends State<MyApplicationsScreen> {
         title: const Text('Mis Aplicaciones'),
         backgroundColor: AppColors.background,
         foregroundColor: AppColors.textPrimary,
+        leading: Builder(
+          builder: (ctx) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () => Scaffold.of(ctx).openDrawer(),
+          ),
+        ),
       ),
       body: Consumer<MyApplicationsProvider>(
         builder: (context, provider, _) {
