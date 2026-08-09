@@ -16,7 +16,15 @@ class DrawerMenuButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Scaffold.of(context).openDrawer(),
+      onTap: () {
+        ScaffoldState? scaffold = Scaffold.maybeOf(context);
+        // Si el Scaffold más cercano no tiene Drawer (ej. Scaffold interno de la vista),
+        // buscamos el Scaffold raíz (el del ShellRoute).
+        if (scaffold != null && !scaffold.hasDrawer) {
+          scaffold = context.findRootAncestorStateOfType<ScaffoldState>();
+        }
+        scaffold?.openDrawer();
+      },
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(

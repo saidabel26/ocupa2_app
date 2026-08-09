@@ -135,25 +135,6 @@ class _ProfileScreenState extends State<ProfileScreen>
                 ),
                 child: Column(
                   children: [
-                    // Avatar circular con botón de edición
-                    // Avatar circular
-                    Container(
-                      width: 100,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(color: AppColors.primary, width: 3),
-                      ),
-                      child: ClipOval(
-                        child: (user?.photo != null && user!.photo!.isNotEmpty)
-                            ? Image.network(
-                                user.photo!,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => _defaultAvatar(),
-                              )
-                            : _defaultAvatar(),
-                      ),
-                    ),
                     const SizedBox(height: 12),
                     Text(
                       displayName.isNotEmpty ? displayName : 'Estudiante',
