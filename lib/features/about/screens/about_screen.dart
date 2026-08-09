@@ -105,13 +105,10 @@ class _AboutScreenState extends State<AboutScreen>
     try {
       final launched = await launchUrl(
         uri,
-        mode: LaunchMode.externalNonBrowserApplication,
+        mode: LaunchMode.externalApplication,
       );
       if (!launched) {
-        await launchUrl(
-          uri,
-          mode: LaunchMode.externalApplication,
-        );
+        await launchUrl(uri);
       }
     } catch (e) {
       if (mounted) {
@@ -137,19 +134,17 @@ class _AboutScreenState extends State<AboutScreen>
               expandedHeight: 220,
               pinned: true,
               backgroundColor: AppColors.background,
-              leading: Builder(
-                builder: (ctx) => Padding(
-                  padding: const EdgeInsets.only(left: 16, top: 8, bottom: 8),
-                  child: GestureDetector(
-                    onTap: () => Scaffold.of(ctx).openDrawer(),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.black26,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.white24),
-                      ),
-                      child: const Icon(Icons.menu, color: Colors.white, size: 22),
+              leading: Padding(
+                padding: const EdgeInsets.only(left: 16, top: 8, bottom: 8),
+                child: GestureDetector(
+                  onTap: () => Scaffold.of(context).openDrawer(),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black26,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.white24),
                     ),
+                    child: const Icon(Icons.menu, color: Colors.white, size: 22),
                   ),
                 ),
               ),
@@ -385,70 +380,70 @@ class _AboutScreenState extends State<AboutScreen>
         'Lenguaje de programación base que impulsa toda la lógica y reactividad de la aplicación.'
       ),
       (
-        'provider ^6.1.2',
+        'provider',
         Icons.hub_outlined,
         AppColors.primary,
-        'Gestor de estado elegido por su simplicidad y eficiencia en la propagación de cambios a la UI.'
+        'Gestor de estado elegido por su simplicidad y eficiencia en la propagación de cambios a la UI. (v6.1.2)'
       ),
       (
-        'go_router ^14.2.0',
+        'go_router',
         Icons.route_outlined,
         const Color(0xFF10B981),
-        'Manejo de navegación declarativa y profunda, vital para el ruteo basado en shells y autenticación.'
+        'Manejo de navegación declarativa y profunda, vital para el ruteo basado en shells y autenticación. (v14.2.0)'
       ),
       (
-        'http ^1.2.0',
+        'http',
         Icons.cloud_outlined,
         const Color(0xFFF59E0B),
-        'Consumo de servicios REST del backend de Ocupa2 mediante peticiones HTTP con autenticación JWT.'
+        'Consumo de servicios REST del backend de Ocupa2 mediante peticiones HTTP con autenticación JWT. (v1.2.0)'
       ),
       (
-        'shared_preferences ^2.3.2',
+        'shared_preferences',
         Icons.storage_outlined,
         const Color(0xFF8B5CF6),
-        'Almacenamiento persistente ligero utilizado para guardar el token de sesión entre arranques de la app.'
+        'Almacenamiento persistente ligero utilizado para guardar el token de sesión entre arranques de la app. (v2.3.2)'
       ),
       (
-        'google_fonts ^6.2.1',
+        'google_fonts',
         Icons.text_fields_outlined,
         const Color(0xFFEC4899),
-        'Tipografías premium de Google Fonts para una interfaz moderna y legible.'
+        'Tipografías premium de Google Fonts para una interfaz moderna y legible. (v6.2.1)'
       ),
       (
-        'image_picker ^1.1.2',
+        'image_picker',
         Icons.photo_camera_outlined,
         const Color(0xFFEF4444),
-        'Selección de imágenes desde la galería del dispositivo para actualizar la foto de perfil.'
+        'Selección de imágenes desde la galería del dispositivo para actualizar la foto de perfil. (v1.1.2)'
       ),
       (
-        'url_launcher ^6.3.0',
+        'url_launcher',
         Icons.open_in_new_outlined,
         const Color(0xFF06B6D4),
-        'Apertura de URLs, llamadas telefónicas y enlaces a Telegram desde dentro de la app.'
+        'Apertura de URLs, llamadas telefónicas y enlaces a Telegram desde dentro de la app. (v6.3.0)'
       ),
       (
-        'youtube_player_flutter ^10.0.1',
+        'youtube_player_flutter',
         Icons.play_circle_outline,
         const Color(0xFFFF0000),
-        'Reproducción de videos de YouTube embebidos directamente en la pantalla de videos.'
+        'Reproducción de videos de YouTube embebidos directamente en la pantalla de videos. (v10.0.1)'
       ),
       (
-        'flutter_map ^7.0.2',
+        'flutter_map',
         Icons.map_outlined,
         const Color(0xFF16A34A),
-        'Mapas interactivos basados en OpenStreetMap para visualizar las ofertas de trabajo por ubicación.'
+        'Mapas interactivos basados en OpenStreetMap para visualizar las ofertas de trabajo por ubicación. (v7.0.2)'
       ),
       (
-        'latlong2 ^0.9.1',
+        'latlong2',
         Icons.my_location_outlined,
         const Color(0xFF0891B2),
-        'Cálculos de coordenadas geográficas (latitud/longitud) usados junto con flutter_map.'
+        'Cálculos de coordenadas geográficas (latitud/longitud) usados junto con flutter_map. (v0.9.1)'
       ),
       (
-        'geolocator ^13.0.3',
+        'geolocator',
         Icons.gps_fixed_outlined,
         const Color(0xFFF97316),
-        'Acceso al GPS del dispositivo para centrar el mapa en la posición actual del usuario.'
+        'Acceso al GPS del dispositivo para centrar el mapa en la posición actual del usuario. (v13.0.3)'
       ),
     ];
 

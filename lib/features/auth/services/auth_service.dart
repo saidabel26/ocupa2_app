@@ -79,12 +79,18 @@ class AuthService {
     String? lastName,
     String? email,
     String? photoUrl,
+    String? cedula,
+    String? gender,
+    DateTime? birthDate,
   }) async {
     final body = <String, dynamic>{};
     if (firstName != null) body['firstName'] = firstName;
     if (lastName != null) body['lastName'] = lastName;
     if (email != null) body['email'] = email;
     if (photoUrl != null) body['photo'] = photoUrl;
+    if (cedula != null) body['cedula'] = cedula;
+    if (gender != null) body['gender'] = gender;
+    if (birthDate != null) body['birthDate'] = birthDate.toIso8601String().split('T').first;
 
     final response = await _client.put(ApiConstants.meProfile, body: body);
 

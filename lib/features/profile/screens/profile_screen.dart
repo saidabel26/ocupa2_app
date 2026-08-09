@@ -96,6 +96,9 @@ class _ProfileScreenState extends State<ProfileScreen>
         lastName: currentUser?.lastName,
         email: currentUser?.email,
         photoUrl: url,
+        cedula: currentUser?.cedula,
+        gender: currentUser?.gender,
+        birthDate: currentUser?.birthDate,
       );
       authProvider.updateUser(updatedUser);
 
@@ -141,6 +144,9 @@ class _ProfileScreenState extends State<ProfileScreen>
         lastName: _lastNameCtrl.text.trim(),
         email: _emailCtrl.text.trim(),
         photoUrl: currentUser?.photo,
+        cedula: currentUser?.cedula,
+        gender: currentUser?.gender,
+        birthDate: currentUser?.birthDate,
       );
       authProvider.updateUser(updatedUser);
 
