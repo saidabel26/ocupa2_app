@@ -6,6 +6,8 @@ import '../errors/app_error.dart';
 /// Cliente HTTP centralizado.
 /// Agrega el token JWT en cada petición autenticada y maneja errores globales.
 class ApiClient {
+  static const Duration _requestTimeout = Duration(seconds: 20);
+
   final String baseUrl;
   String? _token;
 
@@ -51,7 +53,7 @@ class ApiClient {
       final response = await http.get(
         _uri(path, queryParams),
         headers: _headers(requiresAuth: requiresAuth),
-      );
+      ).timeout(_requestTimeout);
       return _handleResponse(response);
     } on AppError {
       rethrow;
@@ -70,7 +72,7 @@ class ApiClient {
         _uri(path),
         headers: _headers(requiresAuth: requiresAuth),
         body: body != null ? jsonEncode(body) : null,
-      );
+      ).timeout(_requestTimeout);
       return _handleResponse(response);
     } on AppError {
       rethrow;
@@ -89,7 +91,7 @@ class ApiClient {
         _uri(path),
         headers: _headers(requiresAuth: requiresAuth),
         body: body != null ? jsonEncode(body) : null,
-      );
+      ).timeout(_requestTimeout);
       return _handleResponse(response);
     } on AppError {
       rethrow;
@@ -108,7 +110,7 @@ class ApiClient {
         _uri(path),
         headers: _headers(requiresAuth: requiresAuth),
         body: body != null ? jsonEncode(body) : null,
-      );
+      ).timeout(_requestTimeout);
       return _handleResponse(response);
     } on AppError {
       rethrow;
@@ -125,7 +127,7 @@ class ApiClient {
       final response = await http.delete(
         _uri(path),
         headers: _headers(requiresAuth: requiresAuth),
-      );
+      ).timeout(_requestTimeout);
       return _handleResponse(response);
     } on AppError {
       rethrow;

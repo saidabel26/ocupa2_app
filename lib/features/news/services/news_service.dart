@@ -3,7 +3,7 @@ import '../../../core/http/api_client.dart';
 import '../models/news_model.dart';
 
 /// Servicio de noticias.
-/// Consume GET /news y GET /news/{id}.
+/// Consume GET /news.
 class NewsService {
   final ApiClient _client;
 
@@ -29,12 +29,5 @@ class NewsService {
           .toList();
     }
     return [];
-  }
-
-  /// GET /news/{id} – detalle de una noticia.
-  Future<NewsModel> getNewsDetail(String id) async {
-    final response = await _client.get('${ApiConstants.news}/$id');
-    final data = response['data'] as Map<String, dynamic>;
-    return NewsModel.fromJson(data);
   }
 }

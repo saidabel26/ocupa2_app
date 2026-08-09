@@ -30,7 +30,7 @@ class _MyPaymentsScreenState extends State<MyPaymentsScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: const DrawerMenuButton(),
+        leading: const Center(child: DrawerMenuButton()),
         title: const Text(
           'Mis Pagos',
           style: TextStyle(

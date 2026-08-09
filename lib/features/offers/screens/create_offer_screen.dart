@@ -23,7 +23,7 @@ class CreateOfferScreen extends StatefulWidget {
 class _CreateOfferScreenState extends State<CreateOfferScreen> {
   int _step = 0; // 0 = pago, 1 = datos
 
-  // ── Formulario de pago ───────────────────────────────────────────────────
+  // Formulario de pago.
   final _payFormKey = GlobalKey<FormState>();
   final _cardNumberCtrl = TextEditingController();
   final _cvvCtrl = TextEditingController();
@@ -31,7 +31,7 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
   final _expYearCtrl = TextEditingController();
   final _cardholderCtrl = TextEditingController();
 
-  // ── Formulario de oferta ─────────────────────────────────────────────────
+  // Formulario de oferta.
   final _offerFormKey = GlobalKey<FormState>();
   final _descCtrl = TextEditingController();
   final _addressCtrl = TextEditingController();
@@ -80,7 +80,7 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
     super.dispose();
   }
 
-  // ── PASO 1: Pago ─────────────────────────────────────────────────────────
+  // Procesamiento de pago.
 
   Future<void> _processPay() async {
     if (!_payFormKey.currentState!.validate()) return;
@@ -105,7 +105,7 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
     }
   }
 
-  // ── PASO 2: Publicar oferta ───────────────────────────────────────────────
+  // Publicación de oferta.
 
   Future<void> _pickAndUploadPhoto() async {
     final picker = ImagePicker();
@@ -134,6 +134,7 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
 
   Future<void> _publishOffer() async {
     if (!_offerFormKey.currentState!.validate()) return;
+    if (!_validateDynamicFields()) return;
 
     if (_uploadedPhotoUrl == null) {
       _showError('La foto de la oferta es obligatoria.');
@@ -141,6 +142,25 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
     }
     if (_selectedJobTypeKey == null) {
       _showError('Selecciona el tipo de empleo.');
+      return;
+    }
+
+    final deadline = _deadlineCtrl.text.trim();
+    if (deadline.isNotEmpty &&
+        (!RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(deadline) ||
+            DateTime.tryParse(deadline) == null)) {
+      _showError('La fecha límite debe tener el formato YYYY-MM-DD.');
+      return;
+    }
+
+    final latitude = double.tryParse(_latCtrl.text.trim());
+    final longitude = double.tryParse(_lngCtrl.text.trim());
+    final hasLatitude = _latCtrl.text.trim().isNotEmpty;
+    final hasLongitude = _lngCtrl.text.trim().isNotEmpty;
+    if (hasLatitude != hasLongitude ||
+        (latitude != null && (latitude < -90 || latitude > 90)) ||
+        (longitude != null && (longitude < -180 || longitude > 180))) {
+      _showError('Ingresa coordenadas válidas de latitud y longitud.');
       return;
     }
 
@@ -152,6 +172,10 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
 
     final payProvider = context.read<PaymentProvider>();
     final myOffersProvider = context.read<MyOffersProvider>();
+    if (payProvider.paymentId == null) {
+      _showError('Primero debes completar el pago de publicación.');
+      return;
+    }
 
     // Construir customAnswers a partir de campos dinámicos
     final Map<String, dynamic> customAnswers = {};
@@ -174,6 +198,10 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
       q['label'] = labelCtrl.text.trim();
       if (q['label'].toString().isEmpty) continue;
       if (q['type'] == 'select' && _qOptions.length > i) {
+        if (_qOptions[i].isEmpty) {
+          _showError('Agrega al menos una opción a cada pregunta de selección.');
+          return;
+        }
         q['options'] = _qOptions[i];
       }
       questions.add(q);
@@ -186,13 +214,11 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
       address: _addressCtrl.text.trim(),
       photo: _uploadedPhotoUrl!,
       paymentId: payProvider.paymentId!,
-      locationLat: double.tryParse(_latCtrl.text.trim()),
-      locationLng: double.tryParse(_lngCtrl.text.trim()),
+      locationLat: latitude,
+      locationLng: longitude,
       paymentAmount: double.tryParse(_amountCtrl.text.trim()),
       paymentCurrency: _currency,
-      deadline: _deadlineCtrl.text.trim().isNotEmpty
-          ? _deadlineCtrl.text.trim()
-          : null,
+      deadline: deadline.isNotEmpty ? deadline : null,
       customAnswers: customAnswers.isNotEmpty ? customAnswers : null,
       questions: questions.isNotEmpty ? questions : null,
     );
@@ -201,7 +227,7 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
     if (ok) {
       payProvider.reset();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('✅ ¡Oferta publicada exitosamente!')),
+        const SnackBar(content: Text('Oferta publicada correctamente.')),
       );
       context.pop();
     } else {
@@ -215,11 +241,14 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
     );
   }
 
-  // ── Campos dinámicos del tipo de empleo ──────────────────────────────────
+  // Campos dinámicos del tipo de empleo.
 
   void _onJobTypeChanged(String? key) {
     setState(() {
       _selectedJobTypeKey = key;
+      for (final controller in _customFieldControllers.values) {
+        controller.dispose();
+      }
       _customFieldControllers.clear();
       _customFieldSelectValues.clear();
       _customFieldCheckValues.clear();
@@ -235,17 +264,20 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
           case 'text':
           case 'date':
           case 'number':
-            _customFieldControllers[field.name] = TextEditingController();
+            _customFieldControllers[field.key] = TextEditingController();
+            break;
           case 'select':
-            _customFieldSelectValues[field.name] = null;
+            _customFieldSelectValues[field.key] = null;
+            break;
           case 'check':
-            _customFieldCheckValues[field.name] = false;
+            _customFieldCheckValues[field.key] = false;
+            break;
         }
       }
     });
   }
 
-  // ── Build ─────────────────────────────────────────────────────────────────
+  // Construcción de la pantalla.
 
   @override
   Widget build(BuildContext context) {
@@ -279,9 +311,7 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
     );
   }
 
-  // ═════════════════════════════════════════════════════════════════════════
-  // PASO 1 – Formulario de Pago
-  // ═════════════════════════════════════════════════════════════════════════
+  // Formulario de pago.
 
   Widget _buildPaymentStep() {
     final payProvider = context.watch<PaymentProvider>();
@@ -423,14 +453,14 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
                   ),
                   const SizedBox(height: 6),
                   const Text(
-                    '✅ Aprobada: 4242 4242 4242 4242',
+                    'Aprobada: 4242 4242 4242 4242',
                     style: TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 12,
                     ),
                   ),
                   const Text(
-                    '❌ Rechazada: 4000 0000 0000 0002',
+                    'Rechazada: 4000 0000 0000 0002',
                     style: TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 12,
@@ -550,9 +580,7 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
     );
   }
 
-  // ═════════════════════════════════════════════════════════════════════════
-  // PASO 2 – Formulario de Oferta
-  // ═════════════════════════════════════════════════════════════════════════
+  // Formulario de oferta.
 
   Widget _buildOfferStep() {
     final jobTypeProvider = context.watch<JobTypeProvider>();
@@ -591,7 +619,7 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      '✅ Pago de 1 USD aprobado. ID: ${payProvider.paymentId ?? ""}',
+                      'Pago de USD 1.00 aprobado. ID: ${payProvider.paymentId ?? ""}',
                       style: const TextStyle(
                         color: AppColors.success,
                         fontSize: 12,
@@ -696,7 +724,7 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
             const SizedBox(height: 16),
 
             // Pago
-            _buildSectionLabel('Pago ofrecido (opcional)'),
+            _buildSectionLabel('Pago ofrecido *'),
             Row(
               children: [
                 Expanded(
@@ -726,7 +754,7 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
             const SizedBox(height: 16),
 
             // Fecha límite
-            _buildSectionLabel('Fecha límite para aplicar (opcional)'),
+            _buildSectionLabel('Fecha límite para aplicar (opcional, YYYY-MM-DD)'),
             _buildField(
               controller: _deadlineCtrl,
               hint: 'YYYY-MM-DD  (ej: 2026-09-30)',
@@ -762,7 +790,7 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
     );
   }
 
-  // ── Campos dinámicos del tipo de empleo ──────────────────────────────────
+  // Campos dinámicos del tipo de empleo.
 
   Widget _buildDynamicFields() {
     final jobTypeProvider = context.watch<JobTypeProvider>();
@@ -810,7 +838,7 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
           child: _buildField(
-            controller: _customFieldControllers[field.name]!,
+            controller: _customFieldControllers[field.key]!,
             hint: field.label,
             keyboardType: field.type == 'number'
                 ? const TextInputType.numberWithOptions(decimal: true)
@@ -827,9 +855,20 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
           child: _buildField(
-            controller: _customFieldControllers[field.name]!,
+            controller: _customFieldControllers[field.key]!,
             hint: '${field.label} (YYYY-MM-DD)',
             keyboardType: TextInputType.datetime,
+            validator: (value) {
+              final date = value?.trim() ?? '';
+              if (date.isEmpty) {
+                return field.required ? '${field.label} requerido' : null;
+              }
+              if (!RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(date) ||
+                  DateTime.tryParse(date) == null) {
+                return 'Usa el formato YYYY-MM-DD';
+              }
+              return null;
+            },
           ),
         );
 
@@ -848,13 +887,16 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
               ),
               const SizedBox(height: 4),
               _buildDropdown(
-                value: _customFieldSelectValues[field.name],
+                value: _customFieldSelectValues[field.key],
                 hint: 'Seleccionar ${field.label}…',
                 items: field.options
                     .map((o) => DropdownMenuItem(value: o, child: Text(o)))
                     .toList(),
                 onChanged: (v) =>
-                    setState(() => _customFieldSelectValues[field.name] = v),
+                    setState(() => _customFieldSelectValues[field.key] = v),
+                validator: field.required
+                    ? (value) => value == null ? '${field.label} requerido' : null
+                    : null,
               ),
             ],
           ),
@@ -862,9 +904,9 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
 
       case 'check':
         return CheckboxListTile(
-          value: _customFieldCheckValues[field.name] ?? false,
+          value: _customFieldCheckValues[field.key] ?? false,
           onChanged: (v) =>
-              setState(() => _customFieldCheckValues[field.name] = v ?? false),
+              setState(() => _customFieldCheckValues[field.key] = v ?? false),
           title: Text(
             field.label,
             style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
@@ -878,7 +920,7 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
     }
   }
 
-  // ── Foto ─────────────────────────────────────────────────────────────────
+  // Foto de la oferta.
 
   Widget _buildPhotoSelector() {
     return GestureDetector(
@@ -973,7 +1015,7 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
     );
   }
 
-  // ── Preguntas adicionales ─────────────────────────────────────────────────
+  // Preguntas adicionales.
 
   Widget _buildQuestionsSection() {
     return Column(
@@ -1093,6 +1135,17 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
               ),
             ],
           ),
+          CheckboxListTile(
+            value: q['required'] as bool? ?? false,
+            onChanged: (value) =>
+                setState(() => _questions[i]['required'] = value ?? false),
+            title: const Text(
+              'Respuesta obligatoria',
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+            ),
+            activeColor: AppColors.primary,
+            contentPadding: EdgeInsets.zero,
+          ),
           if (q['type'] == 'select' && _qOptions.length > i)
             _buildSelectOptions(i),
         ],
@@ -1163,6 +1216,24 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
     });
   }
 
+  bool _validateDynamicFields() {
+    final key = _selectedJobTypeKey;
+    if (key == null) return true;
+
+    final jobType = context.read<JobTypeProvider>().findByKey(key);
+    if (jobType == null) return true;
+
+    for (final field in jobType.customFields) {
+      if (field.type == 'check' &&
+          field.required &&
+          !(_customFieldCheckValues[field.key] ?? false)) {
+        _showError('Debes confirmar: ${field.label}.');
+        return false;
+      }
+    }
+    return true;
+  }
+
   void _removeQuestion(int i) {
     setState(() {
       _questions.removeAt(i);
@@ -1206,7 +1277,7 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
     }
   }
 
-  // ── Helpers de UI ─────────────────────────────────────────────────────────
+  // Helpers de UI.
 
   String _formatCardDisplay(String input) {
     final clean = input.replaceAll(' ', '');
@@ -1294,27 +1365,16 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
     required String hint,
     required List<DropdownMenuItem<T>> items,
     required void Function(T?)? onChanged,
+    String? Function(T?)? validator,
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: DropdownButton<T>(
-        value: value,
-        hint: Text(
-          hint,
-          style: const TextStyle(color: AppColors.textHint, fontSize: 13),
-        ),
-        isExpanded: true,
-        underline: const SizedBox.shrink(),
-        dropdownColor: AppColors.surface,
-        style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
-        items: items,
-        onChanged: onChanged,
-      ),
+    return DropdownButtonFormField<T>(
+      initialValue: value,
+      decoration: InputDecoration(hintText: hint),
+      dropdownColor: AppColors.surface,
+      style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
+      items: items,
+      onChanged: onChanged,
+      validator: validator,
     );
   }
 

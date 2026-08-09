@@ -60,7 +60,7 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
       SnackBar(
         content: Text(
           ok
-              ? '✅ Oferta desactivada correctamente.'
+              ? 'Oferta desactivada correctamente.'
               : context.read<MyOffersProvider>().offersError ??
                     'Error al desactivar.',
         ),

@@ -32,12 +32,6 @@ class _NewsDetailScreenState extends State<NewsDetailScreen> {
         child: SafeArea(
           child: Builder(
             builder: (context) {
-              if (provider.isLoadingDetail) {
-                return const Center(
-                  child: CircularProgressIndicator(color: AppColors.primary),
-                );
-              }
-
               if (provider.error != null && provider.selectedNews == null) {
                 return Center(
                   child: Padding(

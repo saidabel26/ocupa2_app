@@ -46,49 +46,49 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        // Exponer el ApiClient a toda la app (partes futuras lo pueden usar)
+        // Cliente HTTP compartido.
         Provider<ApiClient>.value(value: apiClient),
 
-        // Exponer AuthService
+        // Servicio de autenticación.
         Provider<AuthService>.value(value: authService),
 
-        // Exponer el UploadService a toda la app
+        // Servicio de carga de imágenes.
         Provider<UploadService>(create: (_) => UploadService(apiClient)),
 
         // Estado de autenticación
         ChangeNotifierProvider<AuthProvider>.value(value: authProvider),
 
-        // Parte 2 – Completar perfil
+        // Perfil.
         ChangeNotifierProvider<ProfileProvider>(
           create: (_) => ProfileProvider(ProfileService(apiClient)),
         ),
 
-        // Parte 2 – Catálogo de tipos de empleo (compartido con partes 3 y 4)
+        // Catálogo de tipos de empleo.
         ChangeNotifierProvider<JobTypeProvider>(
           create: (_) => JobTypeProvider(JobTypeService(apiClient)),
         ),
 
-        // Parte 2 – Noticias
+        // Noticias.
         ChangeNotifierProvider<NewsProvider>(
           create: (_) => NewsProvider(NewsService(apiClient)),
         ),
 
-        // Parte 2 – Videos
+        // Videos.
         ChangeNotifierProvider<VideoProvider>(
           create: (_) => VideoProvider(VideoService(apiClient)),
         ),
 
-        // Parte 3 – Ofertas
+        // Ofertas.
         ChangeNotifierProvider<OfferProvider>(
           create: (_) => OfferProvider(OfferService(apiClient)),
         ),
 
-        // Parte 4 – Pago de publicación
+        // Pagos de publicación.
         ChangeNotifierProvider<PaymentProvider>(
           create: (_) => PaymentProvider(PaymentService(apiClient)),
         ),
 
-        // Parte 4 – Mis ofertas publicadas + aplicantes
+        // Ofertas propias y aplicantes.
         ChangeNotifierProvider<MyOffersProvider>(
           create: (_) => MyOffersProvider(
             offerService: OfferService(apiClient),
@@ -96,28 +96,28 @@ void main() async {
           ),
         ),
 
-        // Parte 5 – Experiencias del usuario
+        // Experiencias del usuario.
         ChangeNotifierProvider<ExperienceProvider>(
           create: (_) => ExperienceProvider(ExperienceService(apiClient)),
         ),
 
-        // Parte 5 – Aplicar a oferta (se resetea en cada apertura del detalle)
+        // Aplicaciones a ofertas.
         ChangeNotifierProvider<ApplyProvider>(
           create: (_) => ApplyProvider(ApplicationService(apiClient)),
         ),
 
-        // Parte 6 – Mis aplicaciones (estado de postulaciones propias)
+        // Historial de aplicaciones.
         ChangeNotifierProvider<MyApplicationsProvider>(
           create: (_) =>
               MyApplicationsProvider(MyApplicationsService(apiClient)),
         ),
 
-        // Parte 6 – Historial de pagos propios
+        // Historial de pagos.
         ChangeNotifierProvider<MyPaymentsProvider>(
           create: (_) => MyPaymentsProvider(MyPaymentsService(apiClient)),
         ),
 
-        // Parte 6 – Cambiar contraseña
+        // Cambio de contraseña.
         ChangeNotifierProvider<ChangePasswordProvider>(
           create: (_) => ChangePasswordProvider(PasswordService(apiClient)),
         ),

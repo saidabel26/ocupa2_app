@@ -200,7 +200,7 @@ class _OffersListScreenState extends State<OffersListScreen> {
   }
 }
 
-// ── Chip de filtro ──────────────────────────────────────────────────────────
+// Chip de filtro.
 
 class _FilterChip extends StatelessWidget {
   final String label;
@@ -241,7 +241,7 @@ class _FilterChip extends StatelessWidget {
   }
 }
 
-// ── Card de oferta ──────────────────────────────────────────────────────────
+// Tarjeta de oferta.
 
 class _OfferCard extends StatelessWidget {
   final OfferModel offer;

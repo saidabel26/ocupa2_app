@@ -10,7 +10,7 @@ class TeamMember {
   final String phone;
   final String? telegramUsername;
   final String? telegramUrl;
-  final IconData avatarIcon;
+  final String photoAsset;
   final Color avatarColor;
 
   const TeamMember({
@@ -19,7 +19,7 @@ class TeamMember {
     required this.phone,
     this.telegramUsername,
     this.telegramUrl,
-    required this.avatarIcon,
+    required this.photoAsset,
     required this.avatarColor,
   });
 }
@@ -46,7 +46,7 @@ class _AboutScreenState extends State<AboutScreen>
       phone: '+18098699144',
       telegramUsername: 'bOBo_2606',
       telegramUrl: 'https://t.me/bOBo_2606',
-      avatarIcon: Icons.code,
+      photoAsset: 'assets/images/saiddeoleo_perfil.jpeg',
       avatarColor: Color(0xFF4F46E5),
     ),
     TeamMember(
@@ -55,7 +55,7 @@ class _AboutScreenState extends State<AboutScreen>
       phone: '+18299155254',
       telegramUsername: 'lobomentor',
       telegramUrl: 'https://t.me/lobomentor',
-      avatarIcon: Icons.person_outline,
+      photoAsset: 'assets/images/luismorillo_perfil.jpeg',
       avatarColor: Color(0xFF10B981),
     ),
     TeamMember(
@@ -64,7 +64,7 @@ class _AboutScreenState extends State<AboutScreen>
       phone: '+18098492337',
       telegramUsername: 'jdcastilloc',
       telegramUrl: 'https://t.me/jdcastilloc',
-      avatarIcon: Icons.map_outlined,
+      photoAsset: 'assets/images/josecastillo_perfil.jpeg',
       avatarColor: Color(0xFF06B6D4),
     ),
   ];
@@ -133,7 +133,7 @@ class _AboutScreenState extends State<AboutScreen>
               expandedHeight: 220,
               pinned: true,
               backgroundColor: AppColors.background,
-              leading: const DrawerMenuButton(),
+              leading: const Center(child: DrawerMenuButton()),
               flexibleSpace: FlexibleSpaceBar(
                 background: Container(
                   decoration: const BoxDecoration(
@@ -261,26 +261,6 @@ class _AboutScreenState extends State<AboutScreen>
         children: [
           Row(
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 5,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withAlpha(30),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.primary.withAlpha(60)),
-                ),
-                child: const Text(
-                  'v1.0.0',
-                  style: TextStyle(
-                    color: AppColors.primary,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,
@@ -658,10 +638,16 @@ class _TeamMemberCardState extends State<_TeamMemberCard>
                           ),
                         ],
                       ),
-                      child: Icon(
-                        widget.member.avatarIcon,
-                        size: 28,
-                        color: Colors.white,
+                      child: ClipOval(
+                        child: Image.asset(
+                          widget.member.photoAsset,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => const Icon(
+                            Icons.person_outline,
+                            size: 28,
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 14),

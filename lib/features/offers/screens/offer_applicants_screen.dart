@@ -6,7 +6,7 @@ import '../models/application_model.dart';
 import '../providers/my_offers_provider.dart';
 
 /// Pantalla de aplicantes de una oferta propia.
-/// El publicante puede calificar (1–5 ⭐), descartar, marcar como finalista
+/// El publicante puede calificar de 1 a 5, descartar, marcar como finalista
 /// o elegir al ganador.
 class OfferApplicantsScreen extends StatefulWidget {
   final String offerId;
@@ -25,7 +25,7 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
     });
   }
 
-  // ── Acciones ─────────────────────────────────────────────────────────────
+  // Acciones.
 
   Future<void> _setStatus(ApplicationModel app, String status) async {
     if (status == 'winner') {
@@ -51,7 +51,7 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
       SnackBar(
         content: Text(
           ok
-              ? '✅ Aplicante ${labels[status] ?? status}'
+              ? 'Aplicante ${labels[status] ?? status}'
               : context.read<MyOffersProvider>().patchError ??
                     'Error al actualizar.',
         ),
@@ -118,7 +118,7 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
     );
   }
 
-  // ── Build ─────────────────────────────────────────────────────────────────
+  // Construcción de la pantalla.
 
   @override
   Widget build(BuildContext context) {
@@ -255,13 +255,13 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
           const SizedBox(height: 16),
 
           if (winners.isNotEmpty) ...[
-            _buildGroupHeader('🏆 Ganador', AppColors.warning, winners.length),
+            _buildGroupHeader('Ganador', AppColors.warning, winners.length),
             ...winners.map((a) => _buildApplicantCard(a, hasWinner: hasWinner)),
             const SizedBox(height: 8),
           ],
           if (finalists.isNotEmpty) ...[
             _buildGroupHeader(
-              '⭐ Finalistas',
+              'Finalistas',
               AppColors.primary,
               finalists.length,
             ),
@@ -272,7 +272,7 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
           ],
           if (inReview.isNotEmpty) ...[
             _buildGroupHeader(
-              '👁️ En revisión',
+              'En revisión',
               AppColors.accent,
               inReview.length,
             ),
@@ -283,7 +283,7 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
           ],
           if (discarded.isNotEmpty) ...[
             _buildGroupHeader(
-              '❌ Descartados',
+              'Descartados',
               AppColors.textSecondary,
               discarded.length,
             ),
@@ -573,7 +573,7 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
           ),
         if (isFinalist && !hasWinner)
           _actionButton(
-            label: 'Ganador 🏆',
+            label: 'Ganador',
             icon: Icons.emoji_events,
             color: AppColors.warning,
             isLoading: isBusy,
@@ -633,7 +633,7 @@ class _OfferApplicantsScreenState extends State<OfferApplicantsScreen> {
               foregroundColor: Colors.white,
             ),
             onPressed: () => Navigator.pop(ctx, 'winner'),
-            child: const Text('Elegir Ganador 🏆'),
+            child: const Text('Elegir ganador'),
           ),
         ],
       ),

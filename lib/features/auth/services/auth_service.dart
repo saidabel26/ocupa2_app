@@ -90,22 +90,4 @@ class AuthService {
     return getMe();
   }
 
-  /// POST /uploads — sube una imagen en base64 (o data URI) y retorna la URL pública.
-  /// Según el API, el campo 'image' acepta base64 puro o data URI (data:image/...;base64,...).
-  Future<String> uploadImage({
-    required String base64Image,
-    required String filename,
-  }) async {
-    final response = await _client.post(
-      ApiConstants.uploads,
-      body: {'image': base64Image, 'filename': filename},
-    );
-    // Manejo robusto: el API devuelve { ok, data: { key, url, mime, size } }
-    final rawData = response['data'];
-    if (rawData is Map<String, dynamic>) {
-      final url = rawData['url'];
-      if (url is String && url.isNotEmpty) return url;
-    }
-    throw Exception('La respuesta del servidor no incluyó una URL válida.');
-  }
 }

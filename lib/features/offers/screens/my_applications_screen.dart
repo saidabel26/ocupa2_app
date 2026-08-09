@@ -31,7 +31,7 @@ class _MyApplicationsScreenState extends State<MyApplicationsScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: const DrawerMenuButton(),
+        leading: const Center(child: DrawerMenuButton()),
         title: const Text(
           'Mis Aplicaciones',
           style: TextStyle(

@@ -107,7 +107,7 @@ class _ProfileScreenState extends State<ProfileScreen>
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: const DrawerMenuButton(),
+        leading: const Center(child: DrawerMenuButton()),
         title: const Text(
           'Mi Perfil',
           style: TextStyle(

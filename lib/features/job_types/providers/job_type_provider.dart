@@ -42,10 +42,10 @@ class JobTypeProvider extends ChangeNotifier {
     }
   }
 
-  /// Retorna un tipo de empleo por id, o null si no está cargado.
-  JobTypeModel? findById(String id) {
+  /// Retorna un tipo de empleo por su clave pública, o null si no está cargado.
+  JobTypeModel? findByKey(String key) {
     try {
-      return _jobTypes.firstWhere((jt) => jt.id == id);
+      return _jobTypes.firstWhere((jt) => jt.key == key);
     } catch (_) {
       return null;
     }

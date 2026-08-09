@@ -10,7 +10,7 @@ import 'apply_bottom_sheet.dart';
 
 /// Pantalla de detalle de una oferta.
 /// Muestra toda la información de la oferta sin el formulario de aplicación
-/// (ese se agrega en la Parte 5 – Luis).
+/// Incluye el formulario de aplicación cuando corresponde.
 class OfferDetailScreen extends StatefulWidget {
   final String offerId;
 
@@ -152,7 +152,7 @@ class _OfferDetailScreenState extends State<OfferDetailScreen> {
 
   Widget _buildOfferDetails(OfferModel offer) {
     final jobTypeProvider = context.read<JobTypeProvider>();
-    final jobType = jobTypeProvider.findById(offer.jobTypeKey);
+    final jobType = jobTypeProvider.findByKey(offer.jobTypeKey);
     final jobTypeName = offer.jobTypeName ?? jobType?.name ?? offer.jobTypeKey;
 
     return Padding(
@@ -225,7 +225,7 @@ class _OfferDetailScreenState extends State<OfferDetailScreen> {
             const SizedBox(height: 24),
           ],
 
-          // Botón para aplicar a la oferta (Parte 5)
+          // Botón para aplicar a la oferta.
           Consumer<ApplyProvider>(
             builder: (consumerContext, applyProvider, child) {
               final alreadyApplied =
@@ -517,7 +517,7 @@ class _OfferDetailScreenState extends State<OfferDetailScreen> {
     );
   }
 
-  // ── Helpers ──────────────────────────────────────────────────────────────
+  // Helpers de presentación.
 
   Widget _badge(String text, Color bg, Color fg) {
     return Container(

@@ -35,7 +35,7 @@ class MyOffersProvider extends ChangeNotifier {
   }) : _offerService = offerService,
        _applicationService = applicationService;
 
-  // ── Getters ──────────────────────────────────────────────────────────────
+  // Getters.
 
   List<OfferModel> get myOffers => _myOffers;
   List<ApplicationModel> get selectedApplications => _selectedApplications;
@@ -51,7 +51,7 @@ class MyOffersProvider extends ChangeNotifier {
   String? get applicationsError => _applicationsError;
   String? get patchError => _patchError;
 
-  // ── Acciones ─────────────────────────────────────────────────────────────
+  // Acciones.
 
   /// Carga las ofertas propias desde el API.
   Future<void> loadMyOffers() async {

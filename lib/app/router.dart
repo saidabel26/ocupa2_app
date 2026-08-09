@@ -91,7 +91,7 @@ GoRouter buildRouter(AuthProvider authProvider) {
       return null;
     },
     routes: [
-      // ── Rutas públicas ──────────────────────────────────────────────
+      // Rutas públicas.
       GoRoute(
         path: AppRoutes.login,
         builder: (context, state) => const LoginScreen(),
@@ -105,13 +105,13 @@ GoRouter buildRouter(AuthProvider authProvider) {
         builder: (context, state) => const ForgotPasswordScreen(),
       ),
 
-      // ── Completar perfil (parte 2) ───────────────────────────────────
+      // Completar perfil.
       GoRoute(
         path: AppRoutes.completeProfile,
         builder: (context, state) => const CompleteProfileScreen(),
       ),
 
-      // ── Detalle de noticia (sin shell) ──────────────────────────────
+      // Detalle de noticia sin shell.
       GoRoute(
         path: AppRoutes.newsDetail,
         builder: (context, state) {
@@ -120,7 +120,7 @@ GoRouter buildRouter(AuthProvider authProvider) {
         },
       ),
 
-      // ── Reproductor de Video (sin shell) ────────────────────────────
+      // Reproductor de video sin shell.
       GoRoute(
         path: AppRoutes.videoPlayer,
         builder: (context, state) {
@@ -132,7 +132,7 @@ GoRouter buildRouter(AuthProvider authProvider) {
         },
       ),
 
-      // ── Detalle de oferta (sin shell) ──────────────────────────────────────
+      // Detalle de oferta sin shell.
       GoRoute(
         path: AppRoutes.offerDetail,
         builder: (context, state) {
@@ -141,13 +141,13 @@ GoRouter buildRouter(AuthProvider authProvider) {
         },
       ),
 
-      // ── Publicar oferta (sin shell) ─────────────────────────────────────
+      // Publicación de oferta sin shell.
       GoRoute(
         path: AppRoutes.createOffer,
         builder: (context, state) => const CreateOfferScreen(),
       ),
 
-      // ── Aplicantes de mi oferta (sin shell) ────────────────────────────
+      // Aplicantes de una oferta sin shell.
       GoRoute(
         path: AppRoutes.offerApplicants,
         builder: (context, state) {
@@ -156,7 +156,7 @@ GoRouter buildRouter(AuthProvider authProvider) {
         },
       ),
 
-      // ── Shell con navegación inferior ───────────────────────────────
+      // Shell con navegación inferior.
       ShellRoute(
         builder: (context, state, child) => MainShellScreen(child: child),
         routes: [

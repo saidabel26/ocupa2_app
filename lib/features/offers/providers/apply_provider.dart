@@ -5,7 +5,7 @@ import '../services/application_service.dart';
 /// Estado del formulario de aplicación a una oferta.
 enum ApplyStatus { idle, submitting, success, error }
 
-/// Provider para el formulario de aplicación (Parte 5 – Luis).
+/// Provider para el formulario de aplicación.
 /// Gestiona el envío de POST /offers/{id}/apply.
 class ApplyProvider extends ChangeNotifier {
   final ApplicationService _service;

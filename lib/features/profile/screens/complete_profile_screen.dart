@@ -36,6 +36,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen>
   static const List<Map<String, String>> _genderOptions = [
     {'value': 'masculino', 'label': 'Masculino'},
     {'value': 'femenino', 'label': 'Femenino'},
+    {'value': 'otro', 'label': 'Otro'},
   ];
 
   @override

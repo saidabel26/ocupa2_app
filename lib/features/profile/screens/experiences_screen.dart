@@ -43,7 +43,7 @@ class _ExperiencesScreenState extends State<ExperiencesScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: const DrawerMenuButton(),
+        leading: const Center(child: DrawerMenuButton()),
         title: const Text(
           'Experiencias',
           style: TextStyle(
@@ -151,9 +151,7 @@ class _ExperiencesScreenState extends State<ExperiencesScreen> {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Card de una experiencia
-// ─────────────────────────────────────────────────────────────────────────────
+// Tarjeta de una experiencia.
 class _ExperienceCard extends StatelessWidget {
   final ExperienceModel experience;
   final VoidCallback onDelete;
@@ -164,7 +162,7 @@ class _ExperienceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final jobTypeProvider = context.watch<JobTypeProvider>();
     final jobType = experience.jobTypeKey != null
-        ? jobTypeProvider.findById(experience.jobTypeKey!)
+        ? jobTypeProvider.findByKey(experience.jobTypeKey!)
         : null;
 
     return Container(
@@ -334,9 +332,7 @@ class _ExperienceCard extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Bottom sheet para agregar experiencia
-// ─────────────────────────────────────────────────────────────────────────────
+// Formulario para agregar experiencia.
 class _AddExperienceSheet extends StatefulWidget {
   const _AddExperienceSheet();
 
@@ -727,9 +723,7 @@ class _AddExperienceSheetState extends State<_AddExperienceSheet> {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Vistas auxiliares
-// ─────────────────────────────────────────────────────────────────────────────
+// Vistas auxiliares.
 class _EmptyView extends StatelessWidget {
   final VoidCallback onAdd;
   const _EmptyView({required this.onAdd});
