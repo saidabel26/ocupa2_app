@@ -72,7 +72,8 @@ class AuthService {
     return UserModel.fromJson(data);
   }
 
-  /// PUT /me/profile — actualiza nombre o email del usuario autenticado.
+  /// PUT /me/profile — actualiza nombre, email o foto del usuario autenticado.
+  /// El endpoint puede devolver { ok, data: {...} } o la data directamente.
   Future<UserModel> updateProfile({
     String? firstName,
     String? lastName,
@@ -86,11 +87,19 @@ class AuthService {
     if (photoUrl != null) body['photo'] = photoUrl;
 
     final response = await _client.put(ApiConstants.meProfile, body: body);
-    final data = response['data'] as Map<String, dynamic>;
-    return UserModel.fromJson(data);
+
+    // El API puede responder con wrapper { data: {...} } o directo
+    final rawData = response['data'];
+    if (rawData is Map<String, dynamic>) {
+      return UserModel.fromJson(rawData);
+    }
+    // Si no hay wrapper 'data', intentar parsear la respuesta completa como usuario
+    // o refrescar desde /me
+    return await getMe();
   }
 
-  /// POST /uploads — sube una imagen en base64 y retorna la URL pública.
+  /// POST /uploads — sube una imagen en base64 (o data URI) y retorna la URL pública.
+  /// Según el API, el campo 'image' acepta base64 puro o data URI (data:image/...;base64,...).
   Future<String> uploadImage({
     required String base64Image,
     required String filename,
@@ -102,7 +111,12 @@ class AuthService {
         'filename': filename,
       },
     );
-    final data = response['data'] as Map<String, dynamic>;
-    return data['url'] as String;
+    // Manejo robusto: el API devuelve { ok, data: { key, url, mime, size } }
+    final rawData = response['data'];
+    if (rawData is Map<String, dynamic>) {
+      final url = rawData['url'];
+      if (url is String && url.isNotEmpty) return url;
+    }
+    throw Exception('La respuesta del servidor no incluyó una URL válida.');
   }
 }

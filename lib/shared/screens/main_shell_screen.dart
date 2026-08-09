@@ -56,7 +56,6 @@ class MainShellScreen extends StatelessWidget {
 
   Widget _buildDrawer(BuildContext context) {
     final authProvider = context.read<AuthProvider>();
-    final user = authProvider.user;
 
     return Drawer(
       backgroundColor: AppColors.surface,

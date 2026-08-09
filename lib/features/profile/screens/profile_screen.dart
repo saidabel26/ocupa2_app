@@ -69,6 +69,10 @@ class _ProfileScreenState extends State<ProfileScreen>
     if (picked == null) return;
     if (!mounted) return;
 
+    // Capturar providers antes de cualquier await posterior
+    final authProvider = context.read<AuthProvider>();
+    final authService = context.read<AuthService>();
+
     setState(() => _isUploadingPhoto = true);
 
     try {
@@ -76,17 +80,23 @@ class _ProfileScreenState extends State<ProfileScreen>
       final base64Str = base64Encode(bytes);
       final ext = picked.path.split('.').last.toLowerCase();
       final filename = 'profile_${DateTime.now().millisecondsSinceEpoch}.$ext';
+      // El API acepta data URI: data:image/<ext>;base64,<data>
+      final dataUri = 'data:image/$ext;base64,$base64Str';
+      final currentUser = authProvider.user;
 
-      final authProvider = context.read<AuthProvider>();
-      final authService = context.read<AuthService>();
-
+      // 1. Subir imagen al bucket
       final url = await authService.uploadImage(
-        base64Image: 'data:image/$ext;base64,$base64Str',
+        base64Image: dataUri,
         filename: filename,
       );
 
-      // Actualizar foto en el perfil
-      final updatedUser = await authService.updateProfile(photoUrl: url);
+      // 2. Actualizar perfil con la nueva foto (y los campos requeridos existentes)
+      final updatedUser = await authService.updateProfile(
+        firstName: currentUser?.firstName,
+        lastName: currentUser?.lastName,
+        email: currentUser?.email,
+        photoUrl: url,
+      );
       authProvider.updateUser(updatedUser);
 
       if (mounted) {
@@ -122,11 +132,15 @@ class _ProfileScreenState extends State<ProfileScreen>
     try {
       final authService = context.read<AuthService>();
       final authProvider = context.read<AuthProvider>();
+      final currentUser = authProvider.user;
 
+      // El API requiere firstName, lastName (y opcionalmente email/photo).
+      // Pasamos los campos existentes junto con los editados.
       final updatedUser = await authService.updateProfile(
         firstName: _firstNameCtrl.text.trim(),
         lastName: _lastNameCtrl.text.trim(),
         email: _emailCtrl.text.trim(),
+        photoUrl: currentUser?.photo,
       );
       authProvider.updateUser(updatedUser);
 

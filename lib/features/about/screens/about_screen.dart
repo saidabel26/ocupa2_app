@@ -43,8 +43,8 @@ class _AboutScreenState extends State<AboutScreen>
       name: 'Said Abel De Oleo Reyes',
       matricula: '2024-1789',
       phone: '+18098699144',
-      telegramUsername: 'said_abel',
-      telegramUrl: 'https://t.me/said_abel',
+      telegramUsername: 'bOBo_2606',
+      telegramUrl: 'https://t.me/bOBo_2606',
       avatarIcon: Icons.code,
       avatarColor: Color(0xFF4F46E5),
     ),
@@ -52,8 +52,8 @@ class _AboutScreenState extends State<AboutScreen>
       name: 'Luis David Morillo Luciano',
       matricula: '2024-0004',
       phone: '+18299155254',
-      telegramUsername: 'luis_dev',
-      telegramUrl: 'https://t.me/luis_dev',
+      telegramUsername: 'lobomentor',
+      telegramUrl: 'https://t.me/lobomentor',
       avatarIcon: Icons.person_outline,
       avatarColor: Color(0xFF10B981),
     ),
@@ -61,8 +61,8 @@ class _AboutScreenState extends State<AboutScreen>
       name: 'José David Castillo Castillo',
       matricula: '2024-1546',
       phone: '+18098492337',
-      telegramUsername: 'david_dev',
-      telegramUrl: 'https://t.me/david_dev',
+      telegramUsername: 'jdcastilloc',
+      telegramUrl: 'https://t.me/jdcastilloc',
       avatarIcon: Icons.map_outlined,
       avatarColor: Color(0xFF06B6D4),
     ),
@@ -132,11 +132,27 @@ class _AboutScreenState extends State<AboutScreen>
         opacity: _fadeAnim,
         child: CustomScrollView(
           slivers: [
-            // App Bar con gradiente y logo
+            // App Bar con gradiente, logo y botón de menú
             SliverAppBar(
               expandedHeight: 220,
               pinned: true,
               backgroundColor: AppColors.background,
+              leading: Builder(
+                builder: (ctx) => Padding(
+                  padding: const EdgeInsets.only(left: 16, top: 8, bottom: 8),
+                  child: GestureDetector(
+                    onTap: () => Scaffold.of(ctx).openDrawer(),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.black26,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.white24),
+                      ),
+                      child: const Icon(Icons.menu, color: Colors.white, size: 22),
+                    ),
+                  ),
+                ),
+              ),
               flexibleSpace: FlexibleSpaceBar(
                 background: Container(
                   decoration: const BoxDecoration(
@@ -360,7 +376,7 @@ class _AboutScreenState extends State<AboutScreen>
         'Flutter',
         Icons.flutter_dash,
         AppColors.accent,
-        'Framework principal utilizado para el desarrollo multiplataforma, permitiendo una experiencia nativa fluida.'
+        'Framework principal para desarrollo multiplataforma, permitiendo una experiencia nativa fluida en Android.'
       ),
       (
         'Dart',
@@ -369,34 +385,70 @@ class _AboutScreenState extends State<AboutScreen>
         'Lenguaje de programación base que impulsa toda la lógica y reactividad de la aplicación.'
       ),
       (
-        'Provider',
+        'provider ^6.1.2',
         Icons.hub_outlined,
         AppColors.primary,
         'Gestor de estado elegido por su simplicidad y eficiencia en la propagación de cambios a la UI.'
       ),
       (
-        'Go Router',
+        'go_router ^14.2.0',
         Icons.route_outlined,
         const Color(0xFF10B981),
         'Manejo de navegación declarativa y profunda, vital para el ruteo basado en shells y autenticación.'
       ),
       (
-        'REST API (Http)',
+        'http ^1.2.0',
         Icons.cloud_outlined,
         const Color(0xFFF59E0B),
-        'Consumo de servicios backend centralizados que conectan la app con la base de datos principal de Ocupa2.'
+        'Consumo de servicios REST del backend de Ocupa2 mediante peticiones HTTP con autenticación JWT.'
       ),
       (
-        'Shared Prefs',
+        'shared_preferences ^2.3.2',
         Icons.storage_outlined,
         const Color(0xFF8B5CF6),
-        'Almacenamiento persistente ligero usado para guardar el token de sesión y preferencias del usuario.'
+        'Almacenamiento persistente ligero utilizado para guardar el token de sesión entre arranques de la app.'
       ),
       (
-        'MinIO/S3',
-        Icons.folder_shared_outlined,
+        'google_fonts ^6.2.1',
+        Icons.text_fields_outlined,
+        const Color(0xFFEC4899),
+        'Tipografías premium de Google Fonts para una interfaz moderna y legible.'
+      ),
+      (
+        'image_picker ^1.1.2',
+        Icons.photo_camera_outlined,
         const Color(0xFFEF4444),
-        'Servicio de almacenamiento en la nube compatible con S3, empleado para gestionar las fotos de perfil y adjuntos.'
+        'Selección de imágenes desde la galería del dispositivo para actualizar la foto de perfil.'
+      ),
+      (
+        'url_launcher ^6.3.0',
+        Icons.open_in_new_outlined,
+        const Color(0xFF06B6D4),
+        'Apertura de URLs, llamadas telefónicas y enlaces a Telegram desde dentro de la app.'
+      ),
+      (
+        'youtube_player_flutter ^10.0.1',
+        Icons.play_circle_outline,
+        const Color(0xFFFF0000),
+        'Reproducción de videos de YouTube embebidos directamente en la pantalla de videos.'
+      ),
+      (
+        'flutter_map ^7.0.2',
+        Icons.map_outlined,
+        const Color(0xFF16A34A),
+        'Mapas interactivos basados en OpenStreetMap para visualizar las ofertas de trabajo por ubicación.'
+      ),
+      (
+        'latlong2 ^0.9.1',
+        Icons.my_location_outlined,
+        const Color(0xFF0891B2),
+        'Cálculos de coordenadas geográficas (latitud/longitud) usados junto con flutter_map.'
+      ),
+      (
+        'geolocator ^13.0.3',
+        Icons.gps_fixed_outlined,
+        const Color(0xFFF97316),
+        'Acceso al GPS del dispositivo para centrar el mapa en la posición actual del usuario.'
       ),
     ];
 
@@ -404,7 +456,7 @@ class _AboutScreenState extends State<AboutScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Tecnologías',
+          'Tecnologías y Paquetes',
           style: TextStyle(
             color: AppColors.textPrimary,
             fontSize: 16,
