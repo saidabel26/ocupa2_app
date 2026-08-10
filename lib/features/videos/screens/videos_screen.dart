@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app/router.dart';
 import '../../../app/theme.dart';
+import '../../../shared/widgets/drawer_menu_button.dart';
 import '../models/video_model.dart';
 import '../providers/video_provider.dart';
 
@@ -29,13 +30,10 @@ class _VideosScreenState extends State<VideosScreen> {
     if (!finalUrl.startsWith('http')) {
       finalUrl = 'https://$finalUrl';
     }
-    
+
     context.push(
       AppRoutes.videoPlayer,
-      extra: {
-        'url': finalUrl,
-        'title': video.title,
-      },
+      extra: {'url': finalUrl, 'title': video.title},
     );
   }
 
@@ -67,19 +65,7 @@ class _VideosScreenState extends State<VideosScreen> {
         children: [
           Row(
             children: [
-              GestureDetector(
-                onTap: () => Scaffold.of(context).openDrawer(),
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: AppColors.border),
-                  ),
-                  child: const Icon(Icons.menu,
-                      color: AppColors.textPrimary, size: 22),
-                ),
-              ),
+              const DrawerMenuButton(),
               const SizedBox(width: 12),
               ShaderMask(
                 shaderCallback: (b) =>
@@ -120,8 +106,11 @@ class _VideosScreenState extends State<VideosScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.cloud_off_outlined,
-                  color: AppColors.textSecondary, size: 56),
+              const Icon(
+                Icons.cloud_off_outlined,
+                color: AppColors.textSecondary,
+                size: 56,
+              ),
               const SizedBox(height: 16),
               Text(
                 provider.error!,
@@ -145,8 +134,11 @@ class _VideosScreenState extends State<VideosScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.play_circle_outline,
-                color: AppColors.textSecondary, size: 56),
+            Icon(
+              Icons.play_circle_outline,
+              color: AppColors.textSecondary,
+              size: 56,
+            ),
             SizedBox(height: 12),
             Text(
               'No hay videos disponibles',
@@ -212,7 +204,8 @@ class _VideoCard extends StatelessWidget {
                     Image.network(
                       thumbnail,
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => _placeholderThumb(),
+                      errorBuilder: (context, error, stackTrace) =>
+                          _placeholderThumb(),
                     )
                   else
                     _placeholderThumb(),
@@ -232,8 +225,11 @@ class _VideoCard extends StatelessWidget {
                           ),
                         ],
                       ),
-                      child: const Icon(Icons.play_arrow_rounded,
-                          color: Colors.white, size: 26),
+                      child: const Icon(
+                        Icons.play_arrow_rounded,
+                        color: Colors.white,
+                        size: 26,
+                      ),
                     ),
                   ),
                 ],
@@ -282,8 +278,11 @@ class _VideoCard extends StatelessWidget {
     return Container(
       color: AppColors.surfaceVariant,
       child: const Center(
-        child: Icon(Icons.play_circle_outline,
-            color: AppColors.textHint, size: 40),
+        child: Icon(
+          Icons.play_circle_outline,
+          color: AppColors.textHint,
+          size: 40,
+        ),
       ),
     );
   }

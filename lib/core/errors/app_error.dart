@@ -18,11 +18,7 @@ class AppError implements Exception {
   final String message;
   final int? statusCode;
 
-  const AppError({
-    required this.type,
-    required this.message,
-    this.statusCode,
-  });
+  const AppError({required this.type, required this.message, this.statusCode});
 
   /// Construye un AppError a partir del código de status HTTP
   factory AppError.fromStatusCode(int statusCode, {String? body}) {
@@ -31,7 +27,9 @@ class AppError implements Exception {
       case 401:
         return AppError(
           type: AppErrorType.unauthorized,
-          message: msg ?? 'Credenciales inválidas. Por favor inicia sesión de nuevo.',
+          message:
+              msg ??
+              'Credenciales inválidas. Por favor inicia sesión de nuevo.',
           statusCode: statusCode,
         );
       case 403:
@@ -81,14 +79,14 @@ class AppError implements Exception {
   }
 
   factory AppError.network() => const AppError(
-        type: AppErrorType.network,
-        message: 'No se pudo conectar con el servidor. Verifica tu conexión.',
-      );
+    type: AppErrorType.network,
+    message: 'No se pudo conectar con el servidor. Verifica tu conexión.',
+  );
 
   factory AppError.unknown([String? msg]) => AppError(
-        type: AppErrorType.unknown,
-        message: msg ?? 'Ocurrió un error inesperado.',
-      );
+    type: AppErrorType.unknown,
+    message: msg ?? 'Ocurrió un error inesperado.',
+  );
 
   static String? _parseMessage(String? body) {
     if (body == null || body.isEmpty) return null;

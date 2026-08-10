@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../app/theme.dart';
+import '../../../shared/widgets/drawer_menu_button.dart';
 
 /// Modelo de datos para un miembro del equipo de desarrollo.
 class TeamMember {
@@ -9,7 +10,7 @@ class TeamMember {
   final String phone;
   final String? telegramUsername;
   final String? telegramUrl;
-  final IconData avatarIcon;
+  final String photoAsset;
   final Color avatarColor;
 
   const TeamMember({
@@ -18,7 +19,7 @@ class TeamMember {
     required this.phone,
     this.telegramUsername,
     this.telegramUrl,
-    required this.avatarIcon,
+    required this.photoAsset,
     required this.avatarColor,
   });
 }
@@ -43,27 +44,27 @@ class _AboutScreenState extends State<AboutScreen>
       name: 'Said Abel De Oleo Reyes',
       matricula: '2024-1789',
       phone: '+18098699144',
-      telegramUsername: 'said_abel',
-      telegramUrl: 'https://t.me/said_abel',
-      avatarIcon: Icons.code,
+      telegramUsername: 'bOBo_2606',
+      telegramUrl: 'https://t.me/bOBo_2606',
+      photoAsset: 'assets/images/saiddeoleo_perfil.jpeg',
       avatarColor: Color(0xFF4F46E5),
     ),
     TeamMember(
       name: 'Luis David Morillo Luciano',
       matricula: '2024-0004',
       phone: '+18299155254',
-      telegramUsername: 'luis_dev',
-      telegramUrl: 'https://t.me/luis_dev',
-      avatarIcon: Icons.person_outline,
+      telegramUsername: 'lobomentor',
+      telegramUrl: 'https://t.me/lobomentor',
+      photoAsset: 'assets/images/luismorillo_perfil.jpeg',
       avatarColor: Color(0xFF10B981),
     ),
     TeamMember(
       name: 'José David Castillo Castillo',
       matricula: '2024-1546',
       phone: '+18098492337',
-      telegramUsername: 'david_dev',
-      telegramUrl: 'https://t.me/david_dev',
-      avatarIcon: Icons.map_outlined,
+      telegramUsername: 'jdcastilloc',
+      telegramUrl: 'https://t.me/jdcastilloc',
+      photoAsset: 'assets/images/josecastillo_perfil.jpeg',
       avatarColor: Color(0xFF06B6D4),
     ),
   ];
@@ -105,20 +106,15 @@ class _AboutScreenState extends State<AboutScreen>
     try {
       final launched = await launchUrl(
         uri,
-        mode: LaunchMode.externalNonBrowserApplication,
+        mode: LaunchMode.externalApplication,
       );
       if (!launched) {
-        await launchUrl(
-          uri,
-          mode: LaunchMode.externalApplication,
-        );
+        await launchUrl(uri);
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('No se pudo abrir Telegram.'),
-          ),
+          const SnackBar(content: Text('No se pudo abrir Telegram.')),
         );
       }
     }
@@ -132,11 +128,12 @@ class _AboutScreenState extends State<AboutScreen>
         opacity: _fadeAnim,
         child: CustomScrollView(
           slivers: [
-            // App Bar con gradiente y logo
+            // App Bar con gradiente, logo y botón de menú
             SliverAppBar(
               expandedHeight: 220,
               pinned: true,
               backgroundColor: AppColors.background,
+              leading: const Center(child: DrawerMenuButton()),
               flexibleSpace: FlexibleSpaceBar(
                 background: Container(
                   decoration: const BoxDecoration(
@@ -188,10 +185,7 @@ class _AboutScreenState extends State<AboutScreen>
                       const SizedBox(height: 4),
                       const Text(
                         'Plataforma de Empleos Temporales · ITLA',
-                        style: TextStyle(
-                          color: Colors.white60,
-                          fontSize: 12,
-                        ),
+                        style: TextStyle(color: Colors.white60, fontSize: 12),
                       ),
                     ],
                   ),
@@ -268,24 +262,10 @@ class _AboutScreenState extends State<AboutScreen>
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withAlpha(30),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.primary.withAlpha(60)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 5,
                 ),
-                child: const Text(
-                  'v1.0.0',
-                  style: TextStyle(
-                    color: AppColors.primary,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                 decoration: BoxDecoration(
                   color: AppColors.success.withAlpha(30),
                   borderRadius: BorderRadius.circular(20),
@@ -316,11 +296,23 @@ class _AboutScreenState extends State<AboutScreen>
           const SizedBox(height: 14),
           const Divider(color: AppColors.border),
           const SizedBox(height: 12),
-          _infoRow(Icons.school_outlined, 'Instituto', 'ITLA - Instituto Tecnológico de Las Américas'),
+          _infoRow(
+            Icons.school_outlined,
+            'Instituto',
+            'ITLA - Instituto Tecnológico de Las Américas',
+          ),
           const SizedBox(height: 8),
-          _infoRow(Icons.api_outlined, 'Backend', 'https://ocupa2.ia3x.com/apix'),
+          _infoRow(
+            Icons.api_outlined,
+            'Backend',
+            'https://ocupa2.ia3x.com/apix',
+          ),
           const SizedBox(height: 8),
-          _infoRow(Icons.smartphone_outlined, 'Plataforma', 'Android (Flutter)'),
+          _infoRow(
+            Icons.smartphone_outlined,
+            'Plataforma',
+            'Android (Flutter)',
+          ),
         ],
       ),
     );
@@ -343,10 +335,7 @@ class _AboutScreenState extends State<AboutScreen>
         Expanded(
           child: Text(
             value,
-            style: const TextStyle(
-              color: AppColors.textHint,
-              fontSize: 13,
-            ),
+            style: const TextStyle(color: AppColors.textHint, fontSize: 13),
             overflow: TextOverflow.ellipsis,
           ),
         ),
@@ -360,43 +349,79 @@ class _AboutScreenState extends State<AboutScreen>
         'Flutter',
         Icons.flutter_dash,
         AppColors.accent,
-        'Framework principal utilizado para el desarrollo multiplataforma, permitiendo una experiencia nativa fluida.'
+        'Framework principal para desarrollo multiplataforma, permitiendo una experiencia nativa fluida en Android.',
       ),
       (
         'Dart',
         Icons.code,
         const Color(0xFF0175C2),
-        'Lenguaje de programación base que impulsa toda la lógica y reactividad de la aplicación.'
+        'Lenguaje de programación base que impulsa toda la lógica y reactividad de la aplicación.',
       ),
       (
-        'Provider',
+        'provider',
         Icons.hub_outlined,
         AppColors.primary,
-        'Gestor de estado elegido por su simplicidad y eficiencia en la propagación de cambios a la UI.'
+        'Gestor de estado elegido por su simplicidad y eficiencia en la propagación de cambios a la UI. (v6.1.2)',
       ),
       (
-        'Go Router',
+        'go_router',
         Icons.route_outlined,
         const Color(0xFF10B981),
-        'Manejo de navegación declarativa y profunda, vital para el ruteo basado en shells y autenticación.'
+        'Manejo de navegación declarativa y profunda, vital para el ruteo basado en shells y autenticación. (v14.2.0)',
       ),
       (
-        'REST API (Http)',
+        'http',
         Icons.cloud_outlined,
         const Color(0xFFF59E0B),
-        'Consumo de servicios backend centralizados que conectan la app con la base de datos principal de Ocupa2.'
+        'Consumo de servicios REST del backend de Ocupa2 mediante peticiones HTTP con autenticación JWT. (v1.2.0)',
       ),
       (
-        'Shared Prefs',
+        'shared_preferences',
         Icons.storage_outlined,
         const Color(0xFF8B5CF6),
-        'Almacenamiento persistente ligero usado para guardar el token de sesión y preferencias del usuario.'
+        'Almacenamiento persistente ligero utilizado para guardar el token de sesión entre arranques de la app. (v2.3.2)',
       ),
       (
-        'MinIO/S3',
-        Icons.folder_shared_outlined,
+        'google_fonts',
+        Icons.text_fields_outlined,
+        const Color(0xFFEC4899),
+        'Tipografías premium de Google Fonts para una interfaz moderna y legible. (v6.2.1)',
+      ),
+      (
+        'image_picker',
+        Icons.photo_camera_outlined,
         const Color(0xFFEF4444),
-        'Servicio de almacenamiento en la nube compatible con S3, empleado para gestionar las fotos de perfil y adjuntos.'
+        'Selección de imágenes desde la galería del dispositivo para actualizar la foto de perfil. (v1.1.2)',
+      ),
+      (
+        'url_launcher',
+        Icons.open_in_new_outlined,
+        const Color(0xFF06B6D4),
+        'Apertura de URLs, llamadas telefónicas y enlaces a Telegram desde dentro de la app. (v6.3.0)',
+      ),
+      (
+        'youtube_player_flutter',
+        Icons.play_circle_outline,
+        const Color(0xFFFF0000),
+        'Reproducción de videos de YouTube embebidos directamente en la pantalla de videos. (v10.0.1)',
+      ),
+      (
+        'flutter_map',
+        Icons.map_outlined,
+        const Color(0xFF16A34A),
+        'Mapas interactivos basados en OpenStreetMap para visualizar las ofertas de trabajo por ubicación. (v7.0.2)',
+      ),
+      (
+        'latlong2',
+        Icons.my_location_outlined,
+        const Color(0xFF0891B2),
+        'Cálculos de coordenadas geográficas (latitud/longitud) usados junto con flutter_map. (v0.9.1)',
+      ),
+      (
+        'geolocator',
+        Icons.gps_fixed_outlined,
+        const Color(0xFFF97316),
+        'Acceso al GPS del dispositivo para centrar el mapa en la posición actual del usuario. (v13.0.3)',
       ),
     ];
 
@@ -404,7 +429,7 @@ class _AboutScreenState extends State<AboutScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Tecnologías',
+          'Tecnologías y Paquetes',
           style: TextStyle(
             color: AppColors.textPrimary,
             fontSize: 16,
@@ -413,12 +438,16 @@ class _AboutScreenState extends State<AboutScreen>
         ),
         const SizedBox(height: 12),
         Column(
-          children: techs.map((t) => _TechItem(
-                name: t.$1,
-                icon: t.$2,
-                color: t.$3,
-                description: t.$4,
-              )).toList(),
+          children: techs
+              .map(
+                (t) => _TechItem(
+                  name: t.$1,
+                  icon: t.$2,
+                  color: t.$3,
+                  description: t.$4,
+                ),
+              )
+              .toList(),
         ),
       ],
     );
@@ -479,7 +508,9 @@ class _TechItemState extends State<_TechItem> {
                       ),
                     ),
                     Icon(
-                      _isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                      _isExpanded
+                          ? Icons.keyboard_arrow_up
+                          : Icons.keyboard_arrow_down,
                       color: widget.color,
                     ),
                   ],
@@ -563,9 +594,7 @@ class _TeamMemberCardState extends State<_TeamMemberCard>
           decoration: BoxDecoration(
             color: AppColors.surface,
             borderRadius: BorderRadius.circular(18),
-            border: Border.all(
-              color: widget.member.avatarColor.withAlpha(60),
-            ),
+            border: Border.all(color: widget.member.avatarColor.withAlpha(60)),
             boxShadow: [
               BoxShadow(
                 color: widget.member.avatarColor.withAlpha(20),
@@ -581,8 +610,9 @@ class _TeamMemberCardState extends State<_TeamMemberCard>
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: widget.member.avatarColor.withAlpha(15),
-                  borderRadius:
-                      const BorderRadius.vertical(top: Radius.circular(18)),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(18),
+                  ),
                 ),
                 child: Row(
                   children: [
@@ -608,10 +638,16 @@ class _TeamMemberCardState extends State<_TeamMemberCard>
                           ),
                         ],
                       ),
-                      child: Icon(
-                        widget.member.avatarIcon,
-                        size: 28,
-                        color: Colors.white,
+                      child: ClipOval(
+                        child: Image.asset(
+                          widget.member.photoAsset,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => const Icon(
+                            Icons.person_outline,
+                            size: 28,
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 14),
@@ -669,7 +705,8 @@ class _TeamMemberCardState extends State<_TeamMemberCard>
                             style: OutlinedButton.styleFrom(
                               foregroundColor: AppColors.success,
                               side: BorderSide(
-                                  color: AppColors.success.withAlpha(100)),
+                                color: AppColors.success.withAlpha(100),
+                              ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -693,7 +730,9 @@ class _TeamMemberCardState extends State<_TeamMemberCard>
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                ),
                               ),
                             ),
                           ),
@@ -724,10 +763,7 @@ class _TeamMemberCardState extends State<_TeamMemberCard>
         ),
         Text(
           value,
-          style: const TextStyle(
-            color: AppColors.textPrimary,
-            fontSize: 13,
-          ),
+          style: const TextStyle(color: AppColors.textPrimary, fontSize: 13),
         ),
       ],
     );

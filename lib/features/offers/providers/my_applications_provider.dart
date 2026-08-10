@@ -17,8 +17,7 @@ class MyApplicationsProvider extends ChangeNotifier {
   MyApplicationsStatus _status = MyApplicationsStatus.idle;
   String? _error;
 
-  List<ApplicationModel> get applications =>
-      List.unmodifiable(_applications);
+  List<ApplicationModel> get applications => List.unmodifiable(_applications);
   MyApplicationsStatus get status => _status;
   String? get error => _error;
   bool get isLoading => _status == MyApplicationsStatus.loading;

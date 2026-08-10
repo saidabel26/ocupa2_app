@@ -21,11 +21,9 @@ class AuthProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _error;
 
-  AuthProvider({
-    required ApiClient apiClient,
-    required AuthService authService,
-  })  : _apiClient = apiClient,
-        _authService = authService;
+  AuthProvider({required ApiClient apiClient, required AuthService authService})
+    : _apiClient = apiClient,
+      _authService = authService;
 
   AuthStatus get status => _status;
   UserModel? get user => _user;
@@ -86,10 +84,7 @@ class AuthProvider extends ChangeNotifier {
   }
 
   /// Inicia sesión con email y contraseña.
-  Future<void> login({
-    required String email,
-    required String password,
-  }) async {
+  Future<void> login({required String email, required String password}) async {
     _setLoading(true);
     try {
       final authResponse = await _authService.login(

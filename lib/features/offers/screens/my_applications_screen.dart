@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../app/theme.dart';
+import '../../../shared/widgets/drawer_menu_button.dart';
 import '../../offers/providers/my_applications_provider.dart';
 import '../../offers/models/application_model.dart';
 
@@ -30,21 +31,7 @@ class _MyApplicationsScreenState extends State<MyApplicationsScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 16, top: 8, bottom: 8),
-          child: GestureDetector(
-            onTap: () => Scaffold.of(context).openDrawer(),
-            child: Container(
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppColors.border),
-              ),
-              child: const Icon(Icons.menu,
-                  color: AppColors.textPrimary, size: 22),
-            ),
-          ),
-        ),
+        leading: const Center(child: DrawerMenuButton()),
         title: const Text(
           'Mis Aplicaciones',
           style: TextStyle(
@@ -78,7 +65,9 @@ class _MyApplicationsScreenState extends State<MyApplicationsScreen> {
               padding: const EdgeInsets.all(16),
               itemCount: provider.applications.length,
               itemBuilder: (context, index) {
-                return _ApplicationCard(application: provider.applications[index]);
+                return _ApplicationCard(
+                  application: provider.applications[index],
+                );
               },
             ),
           );
@@ -118,10 +107,7 @@ class _MyApplicationsScreenState extends State<MyApplicationsScreen> {
           const Text(
             'Cuando apliques a una oferta,\naparecerá aquí con su estado.',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 14,
-            ),
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
           ),
         ],
       ),
@@ -140,7 +126,10 @@ class _MyApplicationsScreenState extends State<MyApplicationsScreen> {
             Text(
               provider.error ?? 'Error desconocido',
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 14,
+              ),
             ),
             const SizedBox(height: 20),
             ElevatedButton.icon(
@@ -162,7 +151,9 @@ class _ApplicationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (statusColor, statusIcon, statusBg) = _statusTheme(application.status);
+    final (statusColor, statusIcon, statusBg) = _statusTheme(
+      application.status,
+    );
 
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
@@ -179,7 +170,9 @@ class _ApplicationCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
               color: statusBg,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(16),
+              ),
             ),
             child: Row(
               children: [
@@ -214,7 +207,11 @@ class _ApplicationCard extends StatelessWidget {
                 // Oferta ID o titulo
                 Row(
                   children: [
-                    const Icon(Icons.work_outline, size: 16, color: AppColors.primary),
+                    const Icon(
+                      Icons.work_outline,
+                      size: 16,
+                      color: AppColors.primary,
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -236,7 +233,11 @@ class _ApplicationCard extends StatelessWidget {
                   const SizedBox(height: 10),
                   Row(
                     children: [
-                      const Icon(Icons.star, size: 16, color: AppColors.warning),
+                      const Icon(
+                        Icons.star,
+                        size: 16,
+                        color: AppColors.warning,
+                      ),
                       const SizedBox(width: 6),
                       Text(
                         'Calificación: ${application.rating}/5',
@@ -263,8 +264,11 @@ class _ApplicationCard extends StatelessWidget {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.format_quote,
-                            size: 16, color: AppColors.textHint),
+                        const Icon(
+                          Icons.format_quote,
+                          size: 16,
+                          color: AppColors.textHint,
+                        ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -287,8 +291,10 @@ class _ApplicationCard extends StatelessWidget {
                 if (application.status == 'winner') ...[
                   const SizedBox(height: 12),
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
                         colors: [Color(0xFFF59E0B), Color(0xFFEF4444)],
@@ -319,17 +325,25 @@ class _ApplicationCard extends StatelessWidget {
                 if (application.status == 'finalist') ...[
                   const SizedBox(height: 12),
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.primary.withAlpha(30),
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: AppColors.primary.withAlpha(80)),
+                      border: Border.all(
+                        color: AppColors.primary.withAlpha(80),
+                      ),
                     ),
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.military_tech, size: 16, color: AppColors.primary),
+                        Icon(
+                          Icons.military_tech,
+                          size: 16,
+                          color: AppColors.primary,
+                        ),
                         SizedBox(width: 6),
                         Text(
                           'Estás entre los finalistas',

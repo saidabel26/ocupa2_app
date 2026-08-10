@@ -23,7 +23,7 @@ class CreateOfferScreen extends StatefulWidget {
 class _CreateOfferScreenState extends State<CreateOfferScreen> {
   int _step = 0; // 0 = pago, 1 = datos
 
-  // ── Formulario de pago ───────────────────────────────────────────────────
+  // Formulario de pago.
   final _payFormKey = GlobalKey<FormState>();
   final _cardNumberCtrl = TextEditingController();
   final _cvvCtrl = TextEditingController();
@@ -31,7 +31,7 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
   final _expYearCtrl = TextEditingController();
   final _cardholderCtrl = TextEditingController();
 
-  // ── Formulario de oferta ─────────────────────────────────────────────────
+  // Formulario de oferta.
   final _offerFormKey = GlobalKey<FormState>();
   final _descCtrl = TextEditingController();
   final _addressCtrl = TextEditingController();
@@ -80,7 +80,7 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
     super.dispose();
   }
 
-  // ── PASO 1: Pago ─────────────────────────────────────────────────────────
+  // Procesamiento de pago.
 
   Future<void> _processPay() async {
     if (!_payFormKey.currentState!.validate()) return;
@@ -105,7 +105,7 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
     }
   }
 
-  // ── PASO 2: Publicar oferta ───────────────────────────────────────────────
+  // Publicación de oferta.
 
   Future<void> _pickAndUploadPhoto() async {
     final picker = ImagePicker();
@@ -134,6 +134,7 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
 
   Future<void> _publishOffer() async {
     if (!_offerFormKey.currentState!.validate()) return;
+    if (!_validateDynamicFields()) return;
 
     if (_uploadedPhotoUrl == null) {
       _showError('La foto de la oferta es obligatoria.');
@@ -143,7 +144,26 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
       _showError('Selecciona el tipo de empleo.');
       return;
     }
-    
+
+    final deadline = _deadlineCtrl.text.trim();
+    if (deadline.isNotEmpty &&
+        (!RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(deadline) ||
+            DateTime.tryParse(deadline) == null)) {
+      _showError('La fecha límite debe tener el formato YYYY-MM-DD.');
+      return;
+    }
+
+    final latitude = double.tryParse(_latCtrl.text.trim());
+    final longitude = double.tryParse(_lngCtrl.text.trim());
+    final hasLatitude = _latCtrl.text.trim().isNotEmpty;
+    final hasLongitude = _lngCtrl.text.trim().isNotEmpty;
+    if (hasLatitude != hasLongitude ||
+        (latitude != null && (latitude < -90 || latitude > 90)) ||
+        (longitude != null && (longitude < -180 || longitude > 180))) {
+      _showError('Ingresa coordenadas válidas de latitud y longitud.');
+      return;
+    }
+
     final amount = double.tryParse(_amountCtrl.text.trim());
     if (amount == null || amount <= 0) {
       _showError('La paga de la oferta debe ser mayor a 0.');
@@ -152,6 +172,10 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
 
     final payProvider = context.read<PaymentProvider>();
     final myOffersProvider = context.read<MyOffersProvider>();
+    if (payProvider.paymentId == null) {
+      _showError('Primero debes completar el pago de publicación.');
+      return;
+    }
 
     // Construir customAnswers a partir de campos dinámicos
     final Map<String, dynamic> customAnswers = {};
@@ -174,6 +198,10 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
       q['label'] = labelCtrl.text.trim();
       if (q['label'].toString().isEmpty) continue;
       if (q['type'] == 'select' && _qOptions.length > i) {
+        if (_qOptions[i].isEmpty) {
+          _showError('Agrega al menos una opción a cada pregunta de selección.');
+          return;
+        }
         q['options'] = _qOptions[i];
       }
       questions.add(q);
@@ -186,13 +214,11 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
       address: _addressCtrl.text.trim(),
       photo: _uploadedPhotoUrl!,
       paymentId: payProvider.paymentId!,
-      locationLat: double.tryParse(_latCtrl.text.trim()),
-      locationLng: double.tryParse(_lngCtrl.text.trim()),
+      locationLat: latitude,
+      locationLng: longitude,
       paymentAmount: double.tryParse(_amountCtrl.text.trim()),
       paymentCurrency: _currency,
-      deadline: _deadlineCtrl.text.trim().isNotEmpty
-          ? _deadlineCtrl.text.trim()
-          : null,
+      deadline: deadline.isNotEmpty ? deadline : null,
       customAnswers: customAnswers.isNotEmpty ? customAnswers : null,
       questions: questions.isNotEmpty ? questions : null,
     );
@@ -201,7 +227,7 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
     if (ok) {
       payProvider.reset();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('✅ ¡Oferta publicada exitosamente!')),
+        const SnackBar(content: Text('Oferta publicada correctamente.')),
       );
       context.pop();
     } else {
@@ -211,18 +237,18 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
 
   void _showError(String msg) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(msg),
-        backgroundColor: AppColors.error,
-      ),
+      SnackBar(content: Text(msg), backgroundColor: AppColors.error),
     );
   }
 
-  // ── Campos dinámicos del tipo de empleo ──────────────────────────────────
+  // Campos dinámicos del tipo de empleo.
 
   void _onJobTypeChanged(String? key) {
     setState(() {
       _selectedJobTypeKey = key;
+      for (final controller in _customFieldControllers.values) {
+        controller.dispose();
+      }
       _customFieldControllers.clear();
       _customFieldSelectValues.clear();
       _customFieldCheckValues.clear();
@@ -238,17 +264,20 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
           case 'text':
           case 'date':
           case 'number':
-            _customFieldControllers[field.name] = TextEditingController();
+            _customFieldControllers[field.key] = TextEditingController();
+            break;
           case 'select':
-            _customFieldSelectValues[field.name] = null;
+            _customFieldSelectValues[field.key] = null;
+            break;
           case 'check':
-            _customFieldCheckValues[field.name] = false;
+            _customFieldCheckValues[field.key] = false;
+            break;
         }
       }
     });
   }
 
-  // ── Build ─────────────────────────────────────────────────────────────────
+  // Construcción de la pantalla.
 
   @override
   Widget build(BuildContext context) {
@@ -257,7 +286,10 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
       appBar: AppBar(
         backgroundColor: AppColors.background,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: AppColors.textPrimary,
+          ),
           onPressed: () => context.pop(),
         ),
         title: ShaderMask(
@@ -279,9 +311,7 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
     );
   }
 
-  // ═════════════════════════════════════════════════════════════════════════
-  // PASO 1 – Formulario de Pago
-  // ═════════════════════════════════════════════════════════════════════════
+  // Formulario de pago.
 
   Widget _buildPaymentStep() {
     final payProvider = context.watch<PaymentProvider>();
@@ -344,36 +374,44 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('TITULAR',
-                              style: TextStyle(
-                                  color: Colors.white54,
-                                  fontSize: 10,
-                                  letterSpacing: 1)),
+                          const Text(
+                            'TITULAR',
+                            style: TextStyle(
+                              color: Colors.white54,
+                              fontSize: 10,
+                              letterSpacing: 1,
+                            ),
+                          ),
                           Text(
                             _cardholderCtrl.text.isEmpty
                                 ? 'NOMBRE DEL TITULAR'
                                 : _cardholderCtrl.text.toUpperCase(),
                             style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600),
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ],
                       ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          const Text('EXP',
-                              style: TextStyle(
-                                  color: Colors.white54,
-                                  fontSize: 10,
-                                  letterSpacing: 1)),
+                          const Text(
+                            'EXP',
+                            style: TextStyle(
+                              color: Colors.white54,
+                              fontSize: 10,
+                              letterSpacing: 1,
+                            ),
+                          ),
                           Text(
                             '${_expMonthCtrl.text.isEmpty ? 'MM' : _expMonthCtrl.text}/${_expYearCtrl.text.isEmpty ? 'YYYY' : _expYearCtrl.text}',
                             style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600),
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ],
                       ),
@@ -397,23 +435,37 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
                 children: [
                   Row(
                     children: const [
-                      Icon(Icons.info_outline,
-                          color: AppColors.accent, size: 16),
+                      Icon(
+                        Icons.info_outline,
+                        color: AppColors.accent,
+                        size: 16,
+                      ),
                       SizedBox(width: 8),
-                      Text('Tarjetas de prueba',
-                          style: TextStyle(
-                              color: AppColors.accent,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13)),
+                      Text(
+                        'Tarjetas de prueba',
+                        style: TextStyle(
+                          color: AppColors.accent,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 6),
-                  const Text('✅ Aprobada: 4242 4242 4242 4242',
-                      style: TextStyle(
-                          color: AppColors.textSecondary, fontSize: 12)),
-                  const Text('❌ Rechazada: 4000 0000 0000 0002',
-                      style: TextStyle(
-                          color: AppColors.textSecondary, fontSize: 12)),
+                  const Text(
+                    'Aprobada: 4242 4242 4242 4242',
+                    style: TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 12,
+                    ),
+                  ),
+                  const Text(
+                    'Rechazada: 4000 0000 0000 0002',
+                    style: TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 12,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -528,9 +580,7 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
     );
   }
 
-  // ═════════════════════════════════════════════════════════════════════════
-  // PASO 2 – Formulario de Oferta
-  // ═════════════════════════════════════════════════════════════════════════
+  // Formulario de oferta.
 
   Widget _buildOfferStep() {
     final jobTypeProvider = context.watch<JobTypeProvider>();
@@ -561,16 +611,20 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.check_circle,
-                      color: AppColors.success, size: 18),
+                  const Icon(
+                    Icons.check_circle,
+                    color: AppColors.success,
+                    size: 18,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      '✅ Pago de 1 USD aprobado. ID: ${payProvider.paymentId ?? ""}',
+                      'Pago de USD 1.00 aprobado. ID: ${payProvider.paymentId ?? ""}',
                       style: const TextStyle(
-                          color: AppColors.success,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500),
+                        color: AppColors.success,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                 ],
@@ -583,17 +637,20 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
             jobTypeProvider.isLoading
                 ? const Center(
                     child: Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: CircularProgressIndicator(),
-                  ))
+                      padding: EdgeInsets.all(8.0),
+                      child: CircularProgressIndicator(),
+                    ),
+                  )
                 : _buildDropdown(
                     value: _selectedJobTypeKey,
                     hint: 'Seleccionar tipo…',
                     items: jobTypeProvider.jobTypes
-                        .map((jt) => DropdownMenuItem(
-                              value: jt.key,
-                              child: Text(jt.name),
-                            ))
+                        .map(
+                          (jt) => DropdownMenuItem(
+                            value: jt.key,
+                            child: Text(jt.name),
+                          ),
+                        )
                         .toList(),
                     onChanged: _onJobTypeChanged,
                   ),
@@ -645,8 +702,10 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
                   child: _buildField(
                     controller: _latCtrl,
                     hint: 'Latitud',
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true, signed: true),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                      signed: true,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -654,8 +713,10 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
                   child: _buildField(
                     controller: _lngCtrl,
                     hint: 'Longitud',
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true, signed: true),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                      signed: true,
+                    ),
                   ),
                 ),
               ],
@@ -663,7 +724,7 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
             const SizedBox(height: 16),
 
             // Pago
-            _buildSectionLabel('Pago ofrecido (opcional)'),
+            _buildSectionLabel('Pago ofrecido *'),
             Row(
               children: [
                 Expanded(
@@ -671,8 +732,9 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
                   child: _buildField(
                     controller: _amountCtrl,
                     hint: '25000',
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -692,7 +754,7 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
             const SizedBox(height: 16),
 
             // Fecha límite
-            _buildSectionLabel('Fecha límite para aplicar (opcional)'),
+            _buildSectionLabel('Fecha límite para aplicar (opcional, YYYY-MM-DD)'),
             _buildField(
               controller: _deadlineCtrl,
               hint: 'YYYY-MM-DD  (ej: 2026-09-30)',
@@ -714,7 +776,9 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
               _buildErrorBanner(myOffersProvider.createError!),
 
             _buildGradientButton(
-              label: myOffersProvider.isCreating ? 'Publicando…' : 'Publicar Oferta',
+              label: myOffersProvider.isCreating
+                  ? 'Publicando…'
+                  : 'Publicar Oferta',
               icon: Icons.publish_outlined,
               isLoading: myOffersProvider.isCreating,
               onPressed: myOffersProvider.isCreating ? null : _publishOffer,
@@ -726,12 +790,15 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
     );
   }
 
-  // ── Campos dinámicos del tipo de empleo ──────────────────────────────────
+  // Campos dinámicos del tipo de empleo.
 
   Widget _buildDynamicFields() {
     final jobTypeProvider = context.watch<JobTypeProvider>();
-    final jt = jobTypeProvider.jobTypes.where((j) => j.key == _selectedJobTypeKey).toList();
-    if (jt.isEmpty || jt.first.customFields.isEmpty) return const SizedBox.shrink();
+    final jt = jobTypeProvider.jobTypes
+        .where((j) => j.key == _selectedJobTypeKey)
+        .toList();
+    if (jt.isEmpty || jt.first.customFields.isEmpty)
+      return const SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -771,13 +838,15 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
           child: _buildField(
-            controller: _customFieldControllers[field.name]!,
+            controller: _customFieldControllers[field.key]!,
             hint: field.label,
             keyboardType: field.type == 'number'
                 ? const TextInputType.numberWithOptions(decimal: true)
                 : TextInputType.text,
             validator: field.required
-                ? (v) => (v?.trim().isEmpty ?? true) ? '${field.label} requerido' : null
+                ? (v) => (v?.trim().isEmpty ?? true)
+                      ? '${field.label} requerido'
+                      : null
                 : null,
           ),
         );
@@ -786,9 +855,20 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
           child: _buildField(
-            controller: _customFieldControllers[field.name]!,
+            controller: _customFieldControllers[field.key]!,
             hint: '${field.label} (YYYY-MM-DD)',
             keyboardType: TextInputType.datetime,
+            validator: (value) {
+              final date = value?.trim() ?? '';
+              if (date.isEmpty) {
+                return field.required ? '${field.label} requerido' : null;
+              }
+              if (!RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(date) ||
+                  DateTime.tryParse(date) == null) {
+                return 'Usa el formato YYYY-MM-DD';
+              }
+              return null;
+            },
           ),
         );
 
@@ -798,18 +878,25 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(field.label,
-                  style: const TextStyle(
-                      color: AppColors.textSecondary, fontSize: 12)),
+              Text(
+                field.label,
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 12,
+                ),
+              ),
               const SizedBox(height: 4),
               _buildDropdown(
-                value: _customFieldSelectValues[field.name],
+                value: _customFieldSelectValues[field.key],
                 hint: 'Seleccionar ${field.label}…',
                 items: field.options
                     .map((o) => DropdownMenuItem(value: o, child: Text(o)))
                     .toList(),
                 onChanged: (v) =>
-                    setState(() => _customFieldSelectValues[field.name] = v),
+                    setState(() => _customFieldSelectValues[field.key] = v),
+                validator: field.required
+                    ? (value) => value == null ? '${field.label} requerido' : null
+                    : null,
               ),
             ],
           ),
@@ -817,11 +904,13 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
 
       case 'check':
         return CheckboxListTile(
-          value: _customFieldCheckValues[field.name] ?? false,
+          value: _customFieldCheckValues[field.key] ?? false,
           onChanged: (v) =>
-              setState(() => _customFieldCheckValues[field.name] = v ?? false),
-          title: Text(field.label,
-              style: const TextStyle(color: AppColors.textPrimary, fontSize: 14)),
+              setState(() => _customFieldCheckValues[field.key] = v ?? false),
+          title: Text(
+            field.label,
+            style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
+          ),
           activeColor: AppColors.primary,
           contentPadding: EdgeInsets.zero,
         );
@@ -831,7 +920,7 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
     }
   }
 
-  // ── Foto ─────────────────────────────────────────────────────────────────
+  // Foto de la oferta.
 
   Widget _buildPhotoSelector() {
     return GestureDetector(
@@ -855,81 +944,92 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
                   children: [
                     CircularProgressIndicator(),
                     SizedBox(height: 10),
-                    Text('Subiendo imagen…',
-                        style: TextStyle(color: AppColors.textSecondary)),
+                    Text(
+                      'Subiendo imagen…',
+                      style: TextStyle(color: AppColors.textSecondary),
+                    ),
                   ],
                 ),
               )
             : _uploadedPhotoUrl != null
-                ? Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child: Image.network(
-                          _uploadedPhotoUrl!,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => const Icon(
-                            Icons.image,
-                            color: AppColors.textSecondary,
-                            size: 48,
-                          ),
-                        ),
+            ? Stack(
+                fit: StackFit.expand,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: Image.network(
+                      _uploadedPhotoUrl!,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => const Icon(
+                        Icons.image,
+                        color: AppColors.textSecondary,
+                        size: 48,
                       ),
-                      Positioned(
-                        top: 8,
-                        right: 8,
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: AppColors.success,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: const Icon(Icons.check,
-                              color: Colors.white, size: 16),
-                        ),
-                      ),
-                    ],
-                  )
-                : Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          gradient: AppColors.primaryGradient,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.add_photo_alternate_outlined,
-                            color: Colors.white, size: 28),
-                      ),
-                      const SizedBox(height: 8),
-                      const Text('Tocar para seleccionar foto',
-                          style: TextStyle(color: AppColors.textSecondary)),
-                      const Text('(obligatoria)',
-                          style: TextStyle(
-                              color: AppColors.textHint, fontSize: 12)),
-                    ],
+                    ),
                   ),
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: AppColors.success,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Icon(
+                        Icons.check,
+                        color: Colors.white,
+                        size: 16,
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      gradient: AppColors.primaryGradient,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.add_photo_alternate_outlined,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Tocar para seleccionar foto',
+                    style: TextStyle(color: AppColors.textSecondary),
+                  ),
+                  const Text(
+                    '(obligatoria)',
+                    style: TextStyle(color: AppColors.textHint, fontSize: 12),
+                  ),
+                ],
+              ),
       ),
     );
   }
 
-  // ── Preguntas adicionales ─────────────────────────────────────────────────
+  // Preguntas adicionales.
 
   Widget _buildQuestionsSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        for (int i = 0; i < _questions.length; i++)
-          _buildQuestionItem(i),
+        for (int i = 0; i < _questions.length; i++) _buildQuestionItem(i),
         const SizedBox(height: 12),
         OutlinedButton.icon(
           style: OutlinedButton.styleFrom(
             foregroundColor: AppColors.accent,
             side: const BorderSide(color: AppColors.accent),
             shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10)),
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
           icon: const Icon(Icons.add_circle_outline),
           label: const Text('Agregar pregunta'),
@@ -958,14 +1058,18 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
                 child: Text(
                   'Pregunta ${i + 1}',
                   style: const TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600),
+                    color: AppColors.textSecondary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.delete_outline,
-                    color: AppColors.error, size: 20),
+                icon: const Icon(
+                  Icons.delete_outline,
+                  color: AppColors.error,
+                  size: 20,
+                ),
                 onPressed: () => _removeQuestion(i),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
@@ -978,8 +1082,10 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
             style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
             decoration: InputDecoration(
               hintText: 'Escribe la pregunta…',
-              hintStyle:
-                  const TextStyle(color: AppColors.textHint, fontSize: 13),
+              hintStyle: const TextStyle(
+                color: AppColors.textHint,
+                fontSize: 13,
+              ),
               filled: true,
               fillColor: AppColors.background,
               border: OutlineInputBorder(
@@ -990,22 +1096,27 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
                 borderRadius: BorderRadius.circular(10),
                 borderSide: const BorderSide(color: AppColors.border),
               ),
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 12,
+              ),
             ),
           ),
           const SizedBox(height: 8),
           Row(
             children: [
-              const Text('Tipo: ',
-                  style: TextStyle(
-                      color: AppColors.textSecondary, fontSize: 12)),
+              const Text(
+                'Tipo: ',
+                style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+              ),
               const SizedBox(width: 8),
               DropdownButton<String>(
                 value: q['type'] as String,
                 dropdownColor: AppColors.surface,
                 style: const TextStyle(
-                    color: AppColors.textPrimary, fontSize: 13),
+                  color: AppColors.textPrimary,
+                  fontSize: 13,
+                ),
                 underline: const SizedBox.shrink(),
                 items: const [
                   DropdownMenuItem(value: 'text', child: Text('Texto')),
@@ -1024,6 +1135,17 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
               ),
             ],
           ),
+          CheckboxListTile(
+            value: q['required'] as bool? ?? false,
+            onChanged: (value) =>
+                setState(() => _questions[i]['required'] = value ?? false),
+            title: const Text(
+              'Respuesta obligatoria',
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+            ),
+            activeColor: AppColors.primary,
+            contentPadding: EdgeInsets.zero,
+          ),
           if (q['type'] == 'select' && _qOptions.length > i)
             _buildSelectOptions(i),
         ],
@@ -1036,33 +1158,48 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 8),
-        const Text('Opciones:',
-            style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+        const Text(
+          'Opciones:',
+          style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+        ),
         const SizedBox(height: 4),
-        ..._qOptions[i].asMap().entries.map((entry) => Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: Row(
-                children: [
-                  const Icon(Icons.fiber_manual_record,
-                      size: 8, color: AppColors.accent),
-                  const SizedBox(width: 6),
-                  Expanded(
-                      child: Text(entry.value,
-                          style: const TextStyle(
-                              color: AppColors.textPrimary, fontSize: 13))),
-                  GestureDetector(
-                    onTap: () =>
-                        setState(() => _qOptions[i].removeAt(entry.key)),
-                    child: const Icon(Icons.close,
-                        size: 14, color: AppColors.textSecondary),
+        ..._qOptions[i].asMap().entries.map(
+          (entry) => Padding(
+            padding: const EdgeInsets.only(bottom: 4),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.fiber_manual_record,
+                  size: 8,
+                  color: AppColors.accent,
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    entry.value,
+                    style: const TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 13,
+                    ),
                   ),
-                ],
-              ),
-            )),
+                ),
+                GestureDetector(
+                  onTap: () => setState(() => _qOptions[i].removeAt(entry.key)),
+                  child: const Icon(
+                    Icons.close,
+                    size: 14,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
         TextButton.icon(
           style: TextButton.styleFrom(
-              foregroundColor: AppColors.accent,
-              padding: EdgeInsets.zero),
+            foregroundColor: AppColors.accent,
+            padding: EdgeInsets.zero,
+          ),
           icon: const Icon(Icons.add, size: 16),
           label: const Text('Agregar opción', style: TextStyle(fontSize: 12)),
           onPressed: () => _addSelectOption(i),
@@ -1077,6 +1214,24 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
       _qLabelControllers.add(TextEditingController());
       _qOptions.add([]);
     });
+  }
+
+  bool _validateDynamicFields() {
+    final key = _selectedJobTypeKey;
+    if (key == null) return true;
+
+    final jobType = context.read<JobTypeProvider>().findByKey(key);
+    if (jobType == null) return true;
+
+    for (final field in jobType.customFields) {
+      if (field.type == 'check' &&
+          field.required &&
+          !(_customFieldCheckValues[field.key] ?? false)) {
+        _showError('Debes confirmar: ${field.label}.');
+        return false;
+      }
+    }
+    return true;
   }
 
   void _removeQuestion(int i) {
@@ -1094,8 +1249,10 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: AppColors.surface,
-        title: const Text('Nueva opción',
-            style: TextStyle(color: AppColors.textPrimary)),
+        title: const Text(
+          'Nueva opción',
+          style: TextStyle(color: AppColors.textPrimary),
+        ),
         content: TextField(
           controller: ctrl,
           autofocus: true,
@@ -1104,11 +1261,13 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancelar')),
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
           ElevatedButton(
-              onPressed: () => Navigator.pop(context, ctrl.text.trim()),
-              child: const Text('Agregar')),
+            onPressed: () => Navigator.pop(context, ctrl.text.trim()),
+            child: const Text('Agregar'),
+          ),
         ],
       ),
     );
@@ -1118,7 +1277,7 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
     }
   }
 
-  // ── Helpers de UI ─────────────────────────────────────────────────────────
+  // Helpers de UI.
 
   String _formatCardDisplay(String input) {
     final clean = input.replaceAll(' ', '');
@@ -1174,8 +1333,7 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
       decoration: InputDecoration(
         hintText: hint,
         counterText: '',
-        hintStyle:
-            const TextStyle(color: AppColors.textHint, fontSize: 13),
+        hintStyle: const TextStyle(color: AppColors.textHint, fontSize: 13),
         filled: true,
         fillColor: AppColors.surface,
         border: OutlineInputBorder(
@@ -1188,15 +1346,16 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide:
-              const BorderSide(color: AppColors.borderFocus, width: 2),
+          borderSide: const BorderSide(color: AppColors.borderFocus, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.error),
         ),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
       ),
     );
   }
@@ -1206,25 +1365,16 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
     required String hint,
     required List<DropdownMenuItem<T>> items,
     required void Function(T?)? onChanged,
+    String? Function(T?)? validator,
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: DropdownButton<T>(
-        value: value,
-        hint: Text(hint,
-            style: const TextStyle(color: AppColors.textHint, fontSize: 13)),
-        isExpanded: true,
-        underline: const SizedBox.shrink(),
-        dropdownColor: AppColors.surface,
-        style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
-        items: items,
-        onChanged: onChanged,
-      ),
+    return DropdownButtonFormField<T>(
+      initialValue: value,
+      decoration: InputDecoration(hintText: hint),
+      dropdownColor: AppColors.surface,
+      style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
+      items: items,
+      onChanged: onChanged,
+      validator: validator,
     );
   }
 
@@ -1240,7 +1390,8 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
         gradient: onPressed != null
             ? AppColors.primaryGradient
             : const LinearGradient(
-                colors: [AppColors.surfaceVariant, AppColors.surfaceVariant]),
+                colors: [AppColors.surfaceVariant, AppColors.surfaceVariant],
+              ),
         borderRadius: BorderRadius.circular(14),
         boxShadow: onPressed != null
             ? [
@@ -1257,7 +1408,8 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
           shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14)),
+            borderRadius: BorderRadius.circular(14),
+          ),
         ),
         onPressed: onPressed,
         icon: isLoading
@@ -1265,15 +1417,18 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
                 width: 20,
                 height: 20,
                 child: CircularProgressIndicator(
-                    strokeWidth: 2, color: Colors.white),
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
               )
             : Icon(icon, color: Colors.white),
         label: Text(
           label,
           style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w700,
-              fontSize: 15),
+            color: Colors.white,
+            fontWeight: FontWeight.w700,
+            fontSize: 15,
+          ),
         ),
       ),
     );

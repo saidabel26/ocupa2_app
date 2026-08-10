@@ -10,7 +10,7 @@ import 'apply_bottom_sheet.dart';
 
 /// Pantalla de detalle de una oferta.
 /// Muestra toda la información de la oferta sin el formulario de aplicación
-/// (ese se agrega en la Parte 5 – Luis).
+/// Incluye el formulario de aplicación cuando corresponde.
 class OfferDetailScreen extends StatefulWidget {
   final String offerId;
 
@@ -57,8 +57,11 @@ class _OfferDetailScreenState extends State<OfferDetailScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.error_outline,
-                    color: AppColors.textSecondary, size: 56),
+                const Icon(
+                  Icons.error_outline,
+                  color: AppColors.textSecondary,
+                  size: 56,
+                ),
                 const SizedBox(height: 16),
                 Text(
                   provider.error!,
@@ -67,8 +70,7 @@ class _OfferDetailScreenState extends State<OfferDetailScreen> {
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton.icon(
-                  onPressed: () =>
-                      provider.loadOfferDetail(widget.offerId),
+                  onPressed: () => provider.loadOfferDetail(widget.offerId),
                   icon: const Icon(Icons.refresh),
                   label: const Text('Reintentar'),
                 ),
@@ -93,9 +95,7 @@ class _OfferDetailScreenState extends State<OfferDetailScreen> {
     return CustomScrollView(
       slivers: [
         _buildSliverAppBar(offer),
-        SliverToBoxAdapter(
-          child: _buildOfferDetails(offer),
-        ),
+        SliverToBoxAdapter(child: _buildOfferDetails(offer)),
       ],
     );
   }
@@ -116,8 +116,11 @@ class _OfferDetailScreenState extends State<OfferDetailScreen> {
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) => Container(
                       color: AppColors.surfaceVariant,
-                      child: const Icon(Icons.image_not_supported_outlined,
-                          color: AppColors.textHint, size: 56),
+                      child: const Icon(
+                        Icons.image_not_supported_outlined,
+                        color: AppColors.textHint,
+                        size: 56,
+                      ),
                     ),
                   ),
                   // Gradiente oscuro en la parte inferior
@@ -137,8 +140,11 @@ class _OfferDetailScreenState extends State<OfferDetailScreen> {
                 decoration: const BoxDecoration(
                   gradient: AppColors.primaryGradient,
                 ),
-                child: const Icon(Icons.work_rounded,
-                    size: 64, color: Colors.white38),
+                child: const Icon(
+                  Icons.work_rounded,
+                  size: 64,
+                  color: Colors.white38,
+                ),
               ),
       ),
     );
@@ -146,7 +152,7 @@ class _OfferDetailScreenState extends State<OfferDetailScreen> {
 
   Widget _buildOfferDetails(OfferModel offer) {
     final jobTypeProvider = context.read<JobTypeProvider>();
-    final jobType = jobTypeProvider.findById(offer.jobTypeKey);
+    final jobType = jobTypeProvider.findByKey(offer.jobTypeKey);
     final jobTypeName = offer.jobTypeName ?? jobType?.name ?? offer.jobTypeKey;
 
     return Padding(
@@ -159,10 +165,16 @@ class _OfferDetailScreenState extends State<OfferDetailScreen> {
             spacing: 8,
             runSpacing: 8,
             children: [
-              _badge(jobTypeName, AppColors.primary.withValues(alpha: 0.15),
-                  AppColors.primaryLight),
-              _badge(offer.contractTypeLabel,
-                  AppColors.accent.withValues(alpha: 0.15), AppColors.accent),
+              _badge(
+                jobTypeName,
+                AppColors.primary.withValues(alpha: 0.15),
+                AppColors.primaryLight,
+              ),
+              _badge(
+                offer.contractTypeLabel,
+                AppColors.accent.withValues(alpha: 0.15),
+                AppColors.accent,
+              ),
               if (offer.status != null)
                 _badge(
                   offer.status == 'active' ? 'Activa' : offer.status!,
@@ -213,15 +225,16 @@ class _OfferDetailScreenState extends State<OfferDetailScreen> {
             const SizedBox(height: 24),
           ],
 
-          // Botón para aplicar a la oferta (Parte 5)
+          // Botón para aplicar a la oferta.
           Consumer<ApplyProvider>(
             builder: (consumerContext, applyProvider, child) {
               final alreadyApplied =
                   applyProvider.status == ApplyStatus.success;
 
               final now = DateTime.now();
-              final isExpired = offer.deadline != null && offer.deadline!.isBefore(now);
-              
+              final isExpired =
+                  offer.deadline != null && offer.deadline!.isBefore(now);
+
               // Verificar si es la propia oferta usando MyOffersProvider
               final myOffers = context.read<MyOffersProvider>().myOffers;
               final isOwnOffer = myOffers.any((o) => o.id == offer.id);
@@ -233,7 +246,9 @@ class _OfferDetailScreenState extends State<OfferDetailScreen> {
                       ? null
                       : () async {
                           final sent = await ApplyBottomSheet.show(
-                              consumerContext, offer);
+                            consumerContext,
+                            offer,
+                          );
                           if (!consumerContext.mounted) return;
                           if (sent == true) {
                             ScaffoldMessenger.of(consumerContext).showSnackBar(
@@ -250,18 +265,22 @@ class _OfferDetailScreenState extends State<OfferDetailScreen> {
                             );
                           }
                         },
-                  icon: Icon(alreadyApplied
-                      ? Icons.check_circle_rounded
-                      : isExpired
-                          ? Icons.timer_off_outlined
-                          : Icons.send_rounded),
-                  label: Text(isOwnOffer
-                      ? 'No puedes aplicar a tu propia oferta'
-                      : alreadyApplied
-                          ? 'Aplicación enviada'
-                          : isExpired
-                              ? 'Fecha límite alcanzada'
-                              : 'Aplicar a esta oferta'),
+                  icon: Icon(
+                    alreadyApplied
+                        ? Icons.check_circle_rounded
+                        : isExpired
+                        ? Icons.timer_off_outlined
+                        : Icons.send_rounded,
+                  ),
+                  label: Text(
+                    isOwnOffer
+                        ? 'No puedes aplicar a tu propia oferta'
+                        : alreadyApplied
+                        ? 'Aplicación enviada'
+                        : isExpired
+                        ? 'Fecha límite alcanzada'
+                        : 'Aplicar a esta oferta',
+                  ),
                   style: alreadyApplied
                       ? ElevatedButton.styleFrom(
                           backgroundColor: AppColors.success,
@@ -291,8 +310,11 @@ class _OfferDetailScreenState extends State<OfferDetailScreen> {
       ),
       child: Column(
         children: [
-          _infoRow(Icons.location_on_outlined, 'Dirección',
-              offer.address.isNotEmpty ? offer.address : 'No especificada'),
+          _infoRow(
+            Icons.location_on_outlined,
+            'Dirección',
+            offer.address.isNotEmpty ? offer.address : 'No especificada',
+          ),
           if (offer.paymentAmount != null) ...[
             const Divider(color: AppColors.border, height: 20),
             _infoRow(
@@ -303,13 +325,19 @@ class _OfferDetailScreenState extends State<OfferDetailScreen> {
           ],
           if (offer.deadline != null) ...[
             const Divider(color: AppColors.border, height: 20),
-            _infoRow(Icons.calendar_today_outlined, 'Fecha límite',
-                _formatDate(offer.deadline!)),
+            _infoRow(
+              Icons.calendar_today_outlined,
+              'Fecha límite',
+              _formatDate(offer.deadline!),
+            ),
           ],
           if (offer.createdAt != null) ...[
             const Divider(color: AppColors.border, height: 20),
-            _infoRow(Icons.access_time_outlined, 'Publicada',
-                _formatDate(offer.createdAt!)),
+            _infoRow(
+              Icons.access_time_outlined,
+              'Publicada',
+              _formatDate(offer.createdAt!),
+            ),
           ],
           if (offer.hasLocation) ...[
             const Divider(color: AppColors.border, height: 20),
@@ -351,8 +379,11 @@ class _OfferDetailScreenState extends State<OfferDetailScreen> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.label_outline,
-                        size: 16, color: AppColors.primaryLight),
+                    const Icon(
+                      Icons.label_outline,
+                      size: 16,
+                      color: AppColors.primaryLight,
+                    ),
                     const SizedBox(width: 8),
                     Text(
                       '${_humanizeKey(entry.key)}: ',
@@ -453,21 +484,25 @@ class _OfferDetailScreenState extends State<OfferDetailScreen> {
                           spacing: 6,
                           runSpacing: 4,
                           children: q.options
-                              .map((opt) => Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.surfaceVariant,
-                                      borderRadius: BorderRadius.circular(6),
+                              .map(
+                                (opt) => Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.surfaceVariant,
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    opt,
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      color: AppColors.textSecondary,
                                     ),
-                                    child: Text(
-                                      opt,
-                                      style: const TextStyle(
-                                        fontSize: 11,
-                                        color: AppColors.textSecondary,
-                                      ),
-                                    ),
-                                  ))
+                                  ),
+                                ),
+                              )
                               .toList(),
                         ),
                       ],
@@ -482,7 +517,7 @@ class _OfferDetailScreenState extends State<OfferDetailScreen> {
     );
   }
 
-  // ── Helpers ──────────────────────────────────────────────────────────────
+  // Helpers de presentación.
 
   Widget _badge(String text, Color bg, Color fg) {
     return Container(
@@ -493,11 +528,7 @@ class _OfferDetailScreenState extends State<OfferDetailScreen> {
       ),
       child: Text(
         text,
-        style: TextStyle(
-          color: fg,
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-        ),
+        style: TextStyle(color: fg, fontSize: 12, fontWeight: FontWeight.w600),
       ),
     );
   }
@@ -535,8 +566,18 @@ class _OfferDetailScreenState extends State<OfferDetailScreen> {
 
   String _formatDate(DateTime date) {
     const months = [
-      'ene', 'feb', 'mar', 'abr', 'may', 'jun',
-      'jul', 'ago', 'sep', 'oct', 'nov', 'dic',
+      'ene',
+      'feb',
+      'mar',
+      'abr',
+      'may',
+      'jun',
+      'jul',
+      'ago',
+      'sep',
+      'oct',
+      'nov',
+      'dic',
     ];
     return '${date.day} ${months[date.month - 1]} ${date.year}';
   }
@@ -551,12 +592,13 @@ class _OfferDetailScreenState extends State<OfferDetailScreen> {
   String _humanizeKey(String key) {
     return key
         .replaceAllMapped(RegExp(r'[_-]'), (m) => ' ')
-        .replaceAllMapped(
-            RegExp(r'([a-z])([A-Z])'), (m) => '${m[1]} ${m[2]}')
+        .replaceAllMapped(RegExp(r'([a-z])([A-Z])'), (m) => '${m[1]} ${m[2]}')
         .split(' ')
-        .map((w) => w.isNotEmpty
-            ? '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}'
-            : '')
+        .map(
+          (w) => w.isNotEmpty
+              ? '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}'
+              : '',
+        )
         .join(' ');
   }
 }

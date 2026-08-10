@@ -32,10 +32,10 @@ class MyOffersProvider extends ChangeNotifier {
   MyOffersProvider({
     required OfferService offerService,
     required ApplicationService applicationService,
-  })  : _offerService = offerService,
-        _applicationService = applicationService;
+  }) : _offerService = offerService,
+       _applicationService = applicationService;
 
-  // ── Getters ──────────────────────────────────────────────────────────────
+  // Getters.
 
   List<OfferModel> get myOffers => _myOffers;
   List<ApplicationModel> get selectedApplications => _selectedApplications;
@@ -51,7 +51,7 @@ class MyOffersProvider extends ChangeNotifier {
   String? get applicationsError => _applicationsError;
   String? get patchError => _patchError;
 
-  // ── Acciones ─────────────────────────────────────────────────────────────
+  // Acciones.
 
   /// Carga las ofertas propias desde el API.
   Future<void> loadMyOffers() async {
@@ -158,7 +158,9 @@ class MyOffersProvider extends ChangeNotifier {
         rating: rating,
       );
       // Actualizar en la lista local
-      final idx = _selectedApplications.indexWhere((a) => a.id == applicationId);
+      final idx = _selectedApplications.indexWhere(
+        (a) => a.id == applicationId,
+      );
       if (idx != -1) {
         _selectedApplications = List.from(_selectedApplications)
           ..[idx] = updated;

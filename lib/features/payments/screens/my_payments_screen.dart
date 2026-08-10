@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../app/theme.dart';
+import '../../../shared/widgets/drawer_menu_button.dart';
 import '../providers/my_payments_provider.dart';
 import '../models/payment_model.dart';
 
@@ -29,21 +30,7 @@ class _MyPaymentsScreenState extends State<MyPaymentsScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 16, top: 8, bottom: 8),
-          child: GestureDetector(
-            onTap: () => Scaffold.of(context).openDrawer(),
-            child: Container(
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppColors.border),
-              ),
-              child: const Icon(Icons.menu,
-                  color: AppColors.textPrimary, size: 22),
-            ),
-          ),
-        ),
+        leading: const Center(child: DrawerMenuButton()),
         title: const Text(
           'Mis Pagos',
           style: TextStyle(
@@ -74,8 +61,10 @@ class _MyPaymentsScreenState extends State<MyPaymentsScreen> {
             return p.status == null || p.status!.toLowerCase() == 'approved';
           }).toList();
 
-          final total = approvedPayments
-              .fold<double>(0.0, (sum, p) => sum + (p.amount ?? 0.0));
+          final total = approvedPayments.fold<double>(
+            0.0,
+            (sum, p) => sum + (p.amount ?? 0.0),
+          );
 
           return RefreshIndicator(
             color: AppColors.primary,
@@ -92,9 +81,7 @@ class _MyPaymentsScreenState extends State<MyPaymentsScreen> {
                 const SizedBox(height: 16),
 
                 // Lista de pagos
-                ...provider.payments.map(
-                  (p) => _PaymentCard(payment: p),
-                ),
+                ...provider.payments.map((p) => _PaymentCard(payment: p)),
               ],
             ),
           );
@@ -134,10 +121,7 @@ class _MyPaymentsScreenState extends State<MyPaymentsScreen> {
           const Text(
             'Cuando publiques una oferta,\nel pago aparecerá aquí.',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 14,
-            ),
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
           ),
         ],
       ),
@@ -157,7 +141,9 @@ class _MyPaymentsScreenState extends State<MyPaymentsScreen> {
               provider.error ?? 'Error desconocido',
               textAlign: TextAlign.center,
               style: const TextStyle(
-                  color: AppColors.textSecondary, fontSize: 14),
+                color: AppColors.textSecondary,
+                fontSize: 14,
+              ),
             ),
             const SizedBox(height: 20),
             ElevatedButton.icon(
@@ -202,10 +188,7 @@ class _SummaryBanner extends StatelessWidget {
               children: [
                 const Text(
                   'Total invertido',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 13,
-                  ),
+                  style: TextStyle(color: Colors.white70, fontSize: 13),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -257,7 +240,9 @@ class _PaymentCard extends StatelessWidget {
     final isApproved =
         payment.status == null || payment.status!.toLowerCase() == 'approved';
     final statusColor = isApproved ? AppColors.success : AppColors.error;
-    final statusLabel = isApproved ? 'Aprobado' : (payment.status ?? 'Desconocido');
+    final statusLabel = isApproved
+        ? 'Aprobado'
+        : (payment.status ?? 'Desconocido');
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -304,7 +289,9 @@ class _PaymentCard extends StatelessWidget {
                     // Badge de estado
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: statusColor.withAlpha(25),
                         borderRadius: BorderRadius.circular(20),
@@ -326,8 +313,11 @@ class _PaymentCard extends StatelessWidget {
                 if (payment.cardLast4 != null)
                   Row(
                     children: [
-                      const Icon(Icons.lock_outline,
-                          size: 13, color: AppColors.textHint),
+                      const Icon(
+                        Icons.lock_outline,
+                        size: 13,
+                        color: AppColors.textHint,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         '•••• ${payment.cardLast4}',
@@ -363,8 +353,11 @@ class _PaymentCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      const Icon(Icons.calendar_today_outlined,
-                          size: 13, color: AppColors.textHint),
+                      const Icon(
+                        Icons.calendar_today_outlined,
+                        size: 13,
+                        color: AppColors.textHint,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         _formatDate(payment.createdAt!),
@@ -396,8 +389,19 @@ class _PaymentCard extends StatelessWidget {
 
   String _formatDate(DateTime dt) {
     const months = [
-      '', 'ene', 'feb', 'mar', 'abr', 'may', 'jun',
-      'jul', 'ago', 'sep', 'oct', 'nov', 'dic'
+      '',
+      'ene',
+      'feb',
+      'mar',
+      'abr',
+      'may',
+      'jun',
+      'jul',
+      'ago',
+      'sep',
+      'oct',
+      'nov',
+      'dic',
     ];
     return '${dt.day} ${months[dt.month]} ${dt.year} - '
         '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';

@@ -12,9 +12,6 @@ class PasswordService {
   /// Actualiza la contraseña del usuario autenticado.
   /// [newPassword] debe tener al menos 6 caracteres.
   Future<void> changePassword(String newPassword) async {
-    await _client.put(
-      ApiConstants.mePassword,
-      body: {'password': newPassword},
-    );
+    await _client.put(ApiConstants.mePassword, body: {'password': newPassword});
   }
 }

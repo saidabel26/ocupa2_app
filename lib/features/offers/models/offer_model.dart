@@ -44,7 +44,11 @@ class OfferModel {
   });
 
   /// Indica si la oferta tiene coordenadas válidas para mostrar en mapa.
-  bool get hasLocation =>\n      locationLat != null &&\n      locationLng != null &&\n      locationLat != 0.0 &&\n      locationLng != 0.0;
+  bool get hasLocation =>
+      locationLat != null &&
+      locationLng != null &&
+      locationLat != 0.0 &&
+      locationLng != 0.0;
 
   /// Texto legible del tipo de contrato.
   String get contractTypeLabel {
@@ -69,9 +73,11 @@ class OfferModel {
       lat = (loc['lat'] as num?)?.toDouble();
       lng = (loc['lng'] as num?)?.toDouble();
     } else {
-      lat = (json['lat'] as num?)?.toDouble() ??
+      lat =
+          (json['lat'] as num?)?.toDouble() ??
           (json['locationLat'] as num?)?.toDouble();
-      lng = (json['lng'] as num?)?.toDouble() ??
+      lng =
+          (json['lng'] as num?)?.toDouble() ??
           (json['locationLng'] as num?)?.toDouble();
     }
 
@@ -83,11 +89,12 @@ class OfferModel {
       payAmount = (pay['amount'] as num?)?.toDouble();
       payCurrency = pay['currency'] as String?;
     } else {
-      payAmount = (json['paymentAmount'] as num?)?.toDouble() ??
+      payAmount =
+          (json['paymentAmount'] as num?)?.toDouble() ??
           (json['salary'] as num?)?.toDouble() ??
           (json['amount'] as num?)?.toDouble();
-      payCurrency = json['paymentCurrency'] as String? ??
-          json['currency'] as String?;
+      payCurrency =
+          json['paymentCurrency'] as String? ?? json['currency'] as String?;
     }
 
     // Extraer preguntas adicionales
@@ -95,8 +102,9 @@ class OfferModel {
 
     // Extraer custom answers
     final rawCustom = json['customAnswers'];
-    final Map<String, dynamic> customMap =
-        rawCustom is Map<String, dynamic> ? rawCustom : {};
+    final Map<String, dynamic> customMap = rawCustom is Map<String, dynamic>
+        ? rawCustom
+        : {};
 
     return OfferModel(
       id: json['id']?.toString() ?? json['_id']?.toString() ?? '',
@@ -120,9 +128,11 @@ class OfferModel {
       likesCount: json['likesCount'] as int? ?? 0,
       liked: json['liked'] as bool? ?? false,
       customAnswers: customMap,
-      questions: rawQuestions
+      questions:
+          rawQuestions
               ?.map(
-                  (e) => OfferQuestionModel.fromJson(e as Map<String, dynamic>))
+                (e) => OfferQuestionModel.fromJson(e as Map<String, dynamic>),
+              )
               .toList() ??
           [],
     );

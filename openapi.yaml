@@ -1,0 +1,844 @@
+openapi: 3.0.3
+info:
+  title: Ocupa2 API
+  version: 1.0.0
+  description: >
+    API de trabajos temporales. Los usuarios se registran con su correo y un
+    número de referencia (matrícula de estudiante válido), inician sesión con un
+    código OTP enviado por correo, completan su perfil, y pueden publicar ofertas
+    de empleo (pagando 1 USD) o aplicar a ellas.
+
+
+    **Autenticación:** la mayoría de endpoints requieren un JWT en el header
+    `Authorization: Bearer <token>` obtenido en `/auth/verify-code`.
+servers:
+  - url: https://ocupa2.ia3x.com/apix
+    description: Producción
+tags:
+  - name: Auth
+    description: Registro e inicio de sesión (OTP por correo)
+  - name: Perfil
+    description: Datos y perfil del usuario
+  - name: Catálogo
+    description: Tipos de trabajo / profesiones
+  - name: Experiencias
+    description: Experiencias del aplicante
+  - name: Ofertas
+    description: Publicar y explorar ofertas de empleo
+  - name: Aplicaciones
+    description: Aplicar y gestionar aplicantes
+  - name: Me gusta
+    description: Dar/quitar me gusta a ofertas (independiente de aplicar)
+  - name: Foro
+    description: Temas de discusión y comentarios
+  - name: Contratos
+    description: Contratos entre contratante y contratado (se crean al elegir ganador)
+  - name: Pagos
+    description: Pasarela de pago simulada
+  - name: Noticias
+    description: Noticias de empleo (fuente externa remolacha.net)
+  - name: Videos
+    description: Videos de YouTube sobre empleo (curados por el admin)
+paths:
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Crear cuenta
+      description: >
+        Crea una cuenta con correo, nombre, apellido, clave y una matrícula de
+        referido (código de referido de un estudiante del padrón). La cuenta
+        queda relacionada con esa matrícula. Devuelve un JWT (queda autenticado).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, firstName, lastName, password, referralMatricula]
+              properties:
+                email: { type: string, format: email, example: persona@correo.com }
+                firstName: { type: string, example: Juan }
+                lastName: { type: string, example: Pérez }
+                password: { type: string, format: password, minLength: 6 }
+                referralMatricula: { type: string, example: "99999999", description: Matrícula de referido (estudiante válido) }
+      responses:
+        "201":
+          description: Cuenta creada (con token)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  data:
+                    type: object
+                    properties:
+                      token: { type: string }
+                      tokenType: { type: string, example: Bearer }
+                      user: { $ref: "#/components/schemas/User" }
+        "409": { description: Correo ya registrado }
+        "422": { description: Matrícula de referido no válida }
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Iniciar sesión (correo + clave)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, format: password }
+      responses:
+        "200":
+          description: Token de sesión
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  data:
+                    type: object
+                    properties:
+                      token: { type: string }
+                      tokenType: { type: string, example: Bearer }
+                      user: { $ref: "#/components/schemas/User" }
+        "401": { description: Correo o clave incorrectos }
+  /auth/forgot-password:
+    post:
+      tags: [Auth]
+      summary: Olvidé mi clave
+      description: >
+        Pide el correo y la matrícula de referido de la cuenta. Si coinciden,
+        envía una clave temporal al correo. (Único endpoint que envía correo.)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, referralMatricula]
+              properties:
+                email: { type: string, format: email }
+                referralMatricula: { type: string, example: "99999999" }
+      responses:
+        "200": { description: Si los datos coinciden, se envía una clave temporal }
+  /me:
+    get:
+      tags: [Perfil]
+      summary: Cuenta autenticada
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Datos de la cuenta }
+  /me/profile:
+    put:
+      tags: [Perfil]
+      summary: Completar / actualizar el perfil (primer inicio de sesión)
+      description: >
+        Completa los datos que se piden en el primer inicio de sesión: cédula,
+        nombre, apellido, género y fecha de nacimiento. Al guardarse con todo
+        válido, la cuenta queda con profileCompleted = true.
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [firstName, lastName, cedula, gender, birthDate]
+              properties:
+                firstName: { type: string, minLength: 2, example: Juan }
+                lastName:  { type: string, minLength: 2, example: Pérez }
+                cedula:    { type: string, description: "11 dígitos (RD); se ignoran guiones/espacios", example: "40212345678" }
+                gender:    { type: string, enum: [masculino, femenino, otro], example: masculino }
+                birthDate: { type: string, format: date, description: Fecha no futura, example: "2004-05-17" }
+      responses:
+        "200": { description: Perfil actualizado (incluye profileCompleted=true) }
+        "422": { description: Datos inválidos (cédula, fecha o género) }
+  /me/password:
+    put:
+      tags: [Perfil]
+      summary: Cambiar la clave
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [password]
+              properties:
+                password: { type: string, format: password, minLength: 6 }
+      responses:
+        "200": { description: Clave actualizada }
+  /job-types:
+    get:
+      tags: [Catálogo]
+      summary: Tipos de trabajo disponibles
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Lista de tipos de trabajo }
+  /me/experiences:
+    get:
+      tags: [Experiencias]
+      summary: Mis experiencias
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Lista de experiencias }
+    post:
+      tags: [Experiencias]
+      summary: Agregar experiencia
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, description]
+              properties:
+                title: { type: string }
+                description: { type: string }
+                jobTypeKey: { type: string, example: chofer }
+                certificateImage: { type: string, description: URL devuelta por /uploads }
+      responses:
+        "201": { description: Experiencia creada }
+  /me/experiences/{id}:
+    delete:
+      tags: [Experiencias]
+      summary: Eliminar experiencia
+      security: [{ bearerAuth: [] }]
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: Eliminada }
+  /uploads:
+    post:
+      tags: [Perfil]
+      summary: Subir imagen (base64)
+      description: >
+        Envía la imagen en base64 (o data URI) en el campo `image`. Se almacena
+        en el bucket de objetos (MinIO) y se devuelve su URL pública. Formatos:
+        JPG, PNG, WEBP, GIF. Máximo 8 MB. También acepta multipart/form-data
+        con el campo `file`.
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [image]
+              properties:
+                image:
+                  type: string
+                  description: Imagen en base64 o data URI (data:image/png;base64,...)
+                filename: { type: string, description: Opcional }
+      responses:
+        "201":
+          description: Imagen subida
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  data:
+                    type: object
+                    properties:
+                      key: { type: string }
+                      url: { type: string, description: URL pública de la imagen }
+                      mime: { type: string }
+                      size: { type: integer }
+        "422": { description: base64 inválido o formato no permitido }
+        "502": { description: No se pudo almacenar la imagen }
+  /payments:
+    post:
+      tags: [Pagos]
+      summary: Cobro simulado (1 USD) para publicar
+      description: >
+        Tarjeta de prueba aprobada `4242424242424242`, rechazada
+        `4000000000000002`. Devuelve un `id` de pago para usar al crear la oferta.
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [cardNumber, cvv, expMonth, expYear]
+              properties:
+                cardNumber: { type: string, example: "4242424242424242" }
+                cvv: { type: string, example: "123" }
+                expMonth: { type: integer, example: 12 }
+                expYear: { type: integer, example: 2030 }
+                cardholder: { type: string }
+      responses:
+        "201": { description: Pago aprobado }
+        "402": { description: Pago rechazado }
+  /me/payments:
+    get:
+      tags: [Pagos]
+      summary: Mis pagos
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Lista de pagos }
+  /offers:
+    get:
+      tags: [Ofertas]
+      summary: Explorar ofertas publicadas
+      description: La identidad del publicante permanece oculta.
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: jobTypeKey, in: query, schema: { type: string } }
+        - { name: contractType, in: query, schema: { type: string, enum: [temporal, fijo, horas] } }
+      responses:
+        "200": { description: Lista de ofertas }
+    post:
+      tags: [Ofertas]
+      summary: Publicar oferta de empleo
+      description: Requiere perfil completo, un paymentId aprobado y una foto obligatoria.
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/OfferInput" }
+      responses:
+        "201": { description: Oferta publicada }
+        "402": { description: Pago requerido o inválido }
+        "422": { description: Datos invlidos (ej. falta foto) }
+  /me/offers:
+    get:
+      tags: [Ofertas]
+      summary: Mis ofertas publicadas
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Lista de mis ofertas }
+  /offers/{id}:
+    get:
+      tags: [Ofertas]
+      summary: Detalle de una oferta
+      security: [{ bearerAuth: [] }]
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: Oferta (identidad del publicante solo visible para el ganador) }
+  /offers/{id}/deactivate:
+    post:
+      tags: [Ofertas]
+      summary: Desactivar una oferta (solo dueño)
+      description: >
+        Marca la oferta como inactiva. Deja de aparecer en el listado público
+        y no admite nuevas aplicaciones. Solo el publicante puede hacerlo.
+      security: [{ bearerAuth: [] }]
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: Oferta desactivada }
+        "403": { description: No eres el publicante }
+        "404": { description: Oferta no encontrada }
+        "409": { description: La oferta ya estaba desactivada }
+  /offers/{id}/apply:
+    post:
+      tags: [Aplicaciones]
+      summary: Aplicar a una oferta
+      security: [{ bearerAuth: [] }]
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [comment]
+              properties:
+                comment: { type: string, description: Por qué te consideras apto }
+                answers:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      questionId: { type: string }
+                      value: {}
+      responses:
+        "201": { description: Aplicación creada }
+        "409": { description: Ya aplicaste }
+  /offers/{id}/applications:
+    get:
+      tags: [Aplicaciones]
+      summary: Aplicantes de una oferta (solo dueño)
+      security: [{ bearerAuth: [] }]
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: Lista de aplicantes con su identidad }
+        "403": { description: No eres el dueño }
+  /offers/{id}/like:
+    post:
+      tags: [Me gusta]
+      summary: Dar me gusta a una oferta
+      description: Idempotente. Es independiente de aplicar. Devuelve el total de likes.
+      security: [{ bearerAuth: [] }]
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200":
+          description: Me gusta registrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  data:
+                    type: object
+                    properties:
+                      liked: { type: boolean, example: true }
+                      likesCount: { type: integer }
+        "404": { description: Oferta no encontrada }
+    delete:
+      tags: [Me gusta]
+      summary: Quitar me gusta
+      security: [{ bearerAuth: [] }]
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200":
+          description: Me gusta retirado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  data:
+                    type: object
+                    properties:
+                      liked: { type: boolean, example: false }
+                      likesCount: { type: integer }
+  /me/likes:
+    get:
+      tags: [Me gusta]
+      summary: Ofertas a las que di me gusta
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Lista de ofertas con me gusta }
+  /forum/topics:
+    get:
+      tags: [Foro]
+      summary: Lista de temas
+      description: Ordenados por última actividad. Incluye autor, fecha de creación y conteo de comentarios.
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Lista de temas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  data: { type: array, items: { $ref: "#/components/schemas/ForumTopic" } }
+    post:
+      tags: [Foro]
+      summary: Crear un tema
+      description: Cualquier usuario puede iniciar un tema con título y descripción.
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, description]
+              properties:
+                title: { type: string, example: "¿Dónde consiguieron su primer empleo?" }
+                description: { type: string, example: "Cuenten su experiencia..." }
+      responses:
+        "201": { description: Tema creado }
+  /forum/topics/{id}:
+    get:
+      tags: [Foro]
+      summary: Detalle del tema con sus comentarios
+      description: Devuelve el tema, su autor y todos los comentarios con su fecha.
+      security: [{ bearerAuth: [] }]
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200":
+          description: Tema con comentarios
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  data: { $ref: "#/components/schemas/ForumTopicDetail" }
+        "404": { description: Tema no encontrado }
+  /forum/topics/{id}/comments:
+    post:
+      tags: [Foro]
+      summary: Comentar en un tema
+      security: [{ bearerAuth: [] }]
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [body]
+              properties:
+                body: { type: string, example: "En una constructora, gracias a un conocido." }
+      responses:
+        "201": { description: Comentario agregado }
+        "404": { description: Tema no encontrado }
+  /me/contracts:
+    get:
+      tags: [Contratos]
+      summary: Mis contratos
+      description: Contratos donde soy contratante o contratado. Filtra por estado.
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: status, in: query, schema: { type: string, enum: [active, inactive] } }
+      responses:
+        "200": { description: Lista de contratos }
+  /contracts/{id}:
+    get:
+      tags: [Contratos]
+      summary: Detalle del contrato (con comentarios y fotos)
+      security: [{ bearerAuth: [] }]
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200":
+          description: Contrato
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  data: { $ref: "#/components/schemas/Contract" }
+        "403": { description: No eres parte del contrato }
+        "404": { description: No encontrado }
+  /contracts/{id}/terms:
+    put:
+      tags: [Contratos]
+      summary: Fijar términos (solo contratante, contrato pendiente)
+      security: [{ bearerAuth: [] }]
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [salary, startDate, duration]
+              properties:
+                salary: { type: number, example: 25000 }
+                currency: { type: string, example: DOP }
+                startDate: { type: string, format: date, example: "2026-08-01" }
+                duration: { type: string, example: "3 meses" }
+      responses:
+        "200": { description: Términos actualizados }
+        "403": { description: Solo el contratante }
+  /contracts/{id}/accept:
+    post:
+      tags: [Contratos]
+      summary: Aceptar contrato (solo contratado)
+      security: [{ bearerAuth: [] }]
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: Contrato activo }
+        "409": { description: No pendiente o sin términos }
+  /contracts/{id}/reject:
+    post:
+      tags: [Contratos]
+      summary: Rechazar contrato (solo contratado)
+      security: [{ bearerAuth: [] }]
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      responses:
+        "200": { description: Contrato rechazado }
+  /contracts/{id}/comments:
+    post:
+      tags: [Contratos]
+      summary: Comentar (cualquiera de las partes, contrato activo)
+      security: [{ bearerAuth: [] }]
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [body]
+              properties:
+                body: { type: string }
+      responses:
+        "200": { description: Comentario agregado }
+        "409": { description: Contrato no activo }
+  /contracts/{id}/photos:
+    post:
+      tags: [Contratos]
+      summary: Subir foto con descripción (contrato activo)
+      description: >
+        El campo `photo` acepta una URL (de /uploads) o directamente base64/data URI.
+        Si es base64, se guarda en el bucket y se usa la URL resultante.
+      security: [{ bearerAuth: [] }]
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [photo, description]
+              properties:
+                photo: { type: string, description: "URL o base64 / data URI de la imagen" }
+                description: { type: string }
+      responses:
+        "200": { description: Foto agregada }
+        "422": { description: base64 inválido o formato no permitido }
+  /contracts/{id}/cancel:
+    post:
+      tags: [Contratos]
+      summary: Cancelar (cualquiera de las partes) con justificación
+      security: [{ bearerAuth: [] }]
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [justification]
+              properties:
+                justification: { type: string }
+      responses:
+        "200": { description: Contrato cancelado }
+        "409": { description: Contrato no activo }
+  /me/applications:
+    get:
+      tags: [Aplicaciones]
+      summary: Ofertas a las que apliqu
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Lista de mis aplicaciones }
+  /applications/{id}:
+    patch:
+      tags: [Aplicaciones]
+      summary: Calificar / descartar / finalista / ganador (solo dueño)
+      description: >
+        Al poner status=winner se crea automáticamente un contrato con el ganador.
+        Opcionalmente puedes enviar los términos (salary, startDate, duration) para
+        que el contrato quede con ellos; si no, se fijan luego con /contracts/{id}/terms.
+      security: [{ bearerAuth: [] }]
+      parameters: [{ name: id, in: path, required: true, schema: { type: string } }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                rating: { type: integer, minimum: 1, maximum: 5 }
+                status: { type: string, enum: [applied, discarded, finalist, winner] }
+                salary: { type: number, description: "Opcional (al elegir ganador)" }
+                currency: { type: string, example: DOP }
+                startDate: { type: string, format: date }
+                duration: { type: string, example: "3 meses" }
+      responses:
+        "200": { description: Aplicación actualizada (contrato creado si ganador) }
+  /news:
+    get:
+      tags: [Noticias]
+      summary: Noticias de empleo
+      description: >
+        Devuelve título, foto y resumen de artículos relacionados con empleo
+        publicados en remolacha.net. Endpoint público (no requiere token).
+        Los resultados se cachean en el servidor.
+      parameters:
+        - { name: limit, in: query, schema: { type: integer, default: 12, maximum: 30 } }
+      responses:
+        "200":
+          description: Lista de noticias de empleo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/NewsItem" }
+  /videos:
+    get:
+      tags: [Videos]
+      summary: Videos de empleo
+      description: >
+        Lista de videos de YouTube sobre empleo. Devuelve el código del video de
+        YouTube (youtubeId), la URL, el título y la descripción. Endpoint público.
+      responses:
+        "200":
+          description: Lista de videos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/Video" }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    ContractParty:
+      type: object
+      properties:
+        id: { type: string }
+        nombre: { type: string }
+        email: { type: string }
+    Contract:
+      type: object
+      properties:
+        id: { type: string }
+        offerId: { type: string }
+        jobTypeName: { type: string }
+        contratante: { $ref: "#/components/schemas/ContractParty" }
+        contratado: { $ref: "#/components/schemas/ContractParty" }
+        myRole: { type: string, enum: [contratante, contratado] }
+        salary: { type: number }
+        currency: { type: string }
+        startDate: { type: string, format: date-time }
+        duration: { type: string }
+        status: { type: string, enum: [pending, active, rejected, cancelled] }
+        createdAt: { type: string, format: date-time }
+        acceptedAt: { type: string, format: date-time }
+        cancelJustification: { type: string }
+        cancelledBy: { $ref: "#/components/schemas/ContractParty" }
+        cancelledAt: { type: string, format: date-time }
+        comments:
+          type: array
+          items:
+            type: object
+            properties:
+              by: { $ref: "#/components/schemas/ContractParty" }
+              body: { type: string }
+              createdAt: { type: string, format: date-time }
+        photos:
+          type: array
+          items:
+            type: object
+            properties:
+              by: { $ref: "#/components/schemas/ContractParty" }
+              url: { type: string }
+              description: { type: string }
+              createdAt: { type: string, format: date-time }
+    ForumAuthor:
+      type: object
+      properties:
+        id: { type: string }
+        nombre: { type: string }
+    ForumComment:
+      type: object
+      properties:
+        id: { type: string }
+        body: { type: string }
+        author: { $ref: "#/components/schemas/ForumAuthor" }
+        createdAt: { type: string, format: date-time }
+    ForumTopic:
+      type: object
+      properties:
+        id: { type: string }
+        title: { type: string }
+        description: { type: string }
+        author: { $ref: "#/components/schemas/ForumAuthor" }
+        commentsCount: { type: integer }
+        createdAt: { type: string, format: date-time }
+        lastActivityAt: { type: string, format: date-time }
+    ForumTopicDetail:
+      allOf:
+        - $ref: "#/components/schemas/ForumTopic"
+        - type: object
+          properties:
+            comments: { type: array, items: { $ref: "#/components/schemas/ForumComment" } }
+    Video:
+      type: object
+      properties:
+        id: { type: string }
+        youtubeId: { type: string, example: "fmeNtmRRwQM", description: Código del video de YouTube }
+        url: { type: string, example: "https://www.youtube.com/watch?v=fmeNtmRRwQM" }
+        title: { type: string }
+        description: { type: string }
+        thumbnail: { type: string, description: URL de la miniatura }
+        order: { type: integer }
+    NewsItem:
+      type: object
+      properties:
+        title: { type: string, example: "Ministerio anuncia nuevas plazas de empleo" }
+        image: { type: string, description: URL de la foto destacada }
+        summary: { type: string, description: Resumen en texto plano }
+        date: { type: string, format: date-time }
+        url: { type: string, description: Enlace al artículo original }
+        source: { type: string, example: remolacha.net }
+    User:
+      type: object
+      properties:
+        id: { type: string }
+        email: { type: string }
+        firstName: { type: string }
+        lastName: { type: string }
+        nombre: { type: string, description: Nombre completo }
+        cedula: { type: string, description: 11 dígitos (se completa en el perfil) }
+        gender: { type: string, enum: [masculino, femenino, otro] }
+        birthDate: { type: string, format: date-time }
+        profileCompleted: { type: boolean, description: true cuando ya completó cédula, género y fecha de nacimiento }
+        referralMatricula: { type: string, description: Matrícula de referido con la que se creó la cuenta }
+        role: { type: string }
+        createdAt: { type: string, format: date-time }
+        lastLoginAt: { type: string, format: date-time }
+    CustomField:
+      type: object
+      properties:
+        key: { type: string }
+        label: { type: string }
+        type: { type: string, enum: [text, number, date, select, check] }
+        required: { type: boolean }
+        options: { type: array, items: { type: string } }
+    OfferInput:
+      type: object
+      required: [jobTypeKey, contractType, description, address, photo, paymentId, payment]
+      properties:
+        jobTypeKey: { type: string, example: chofer }
+        contractType: { type: string, enum: [temporal, fijo, horas] }
+        description: { type: string }
+        address: { type: string }
+        photo: { type: string, description: URL devuelta por /uploads (obligatoria) }
+        paymentId: { type: string, description: id de un pago aprobado en /payments }
+        location:
+          type: object
+          properties:
+            lat: { type: number }
+            lng: { type: number }
+        payment:
+          type: object
+          properties:
+            amount: { type: number, example: 1500 }
+            currency: { type: string, example: DOP }
+        deadline: { type: string, format: date, example: "2026-08-30" }
+        customAnswers:
+          type: object
+          additionalProperties: true
+          example: { categoria_licencia: "03" }
+        questions:
+          type: array
+          items:
+            type: object
+            properties:
+              label: { type: string }
+              type: { type: string, enum: [text, date, select, check] }
+              required: { type: boolean }
+              options: { type: array, items: { type: string } }
+security: []

@@ -19,7 +19,8 @@ class VideoService {
           .toList();
     }
     if (data is Map<String, dynamic>) {
-      final list = data['items'] as List<dynamic>? ??
+      final list =
+          data['items'] as List<dynamic>? ??
           data['results'] as List<dynamic>? ??
           [];
       return list

@@ -18,21 +18,24 @@ class _WelcomeSliderState extends State<WelcomeSlider> {
       icon: Icons.search_rounded,
       gradientColors: [Color(0xFF4F46E5), Color(0xFF818CF8)],
       title: 'Bienvenido a Ocupa2',
-      subtitle: 'La plataforma de empleos temporales\nexclusiva para estudiantes del ITLA.',
+      subtitle:
+          'La plataforma de empleos temporales\nexclusiva para estudiantes del ITLA.',
       accentColor: Color(0xFF818CF8),
     ),
     _SlideData(
       icon: Icons.swap_horiz_rounded,
       gradientColors: [Color(0xFF06B6D4), Color(0xFF4F46E5)],
       title: 'Publica o Aplica',
-      subtitle: 'Tú decides tu rol. Publica una oferta\no encuentra el trabajo perfecto para ti.',
+      subtitle:
+          'Tú decides tu rol. Publica una oferta\no encuentra el trabajo perfecto para ti.',
       accentColor: Color(0xFF06B6D4),
     ),
     _SlideData(
       icon: Icons.school_rounded,
       gradientColors: [Color(0xFF10B981), Color(0xFF06B6D4)],
       title: 'Solo Estudiantes ITLA',
-      subtitle: 'Una comunidad exclusiva y de confianza.\nTu matrícula es tu llave de acceso.',
+      subtitle:
+          'Una comunidad exclusiva y de confianza.\nTu matrícula es tu llave de acceso.',
       accentColor: Color(0xFF10B981),
     ),
   ];

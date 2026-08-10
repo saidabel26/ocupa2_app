@@ -39,10 +39,7 @@ class AuthService {
   }) async {
     final response = await _client.post(
       ApiConstants.login,
-      body: {
-        'email': email,
-        'password': password,
-      },
+      body: {'email': email, 'password': password},
       requiresAuth: false,
     );
     return AuthResponse.fromJson(response);
@@ -56,10 +53,7 @@ class AuthService {
   }) async {
     await _client.post(
       ApiConstants.forgotPassword,
-      body: {
-        'email': email,
-        'referralMatricula': referralMatricula,
-      },
+      body: {'email': email, 'referralMatricula': referralMatricula},
       requiresAuth: false,
     );
     return true;
@@ -72,37 +66,28 @@ class AuthService {
     return UserModel.fromJson(data);
   }
 
-  /// PUT /me/profile — actualiza nombre o email del usuario autenticado.
+  /// PUT /me/profile — actualiza datos del perfil del usuario autenticado.
+  /// Campos aceptados por la API: firstName, lastName, cedula, gender, birthDate.
+  /// Siempre refresca desde GET /me para garantizar consistencia con el servidor.
   Future<UserModel> updateProfile({
     String? firstName,
     String? lastName,
-    String? email,
-    String? photoUrl,
+    String? cedula,
+    String? gender,
+    DateTime? birthDate,
   }) async {
     final body = <String, dynamic>{};
     if (firstName != null) body['firstName'] = firstName;
     if (lastName != null) body['lastName'] = lastName;
-    if (email != null) body['email'] = email;
-    if (photoUrl != null) body['photo'] = photoUrl;
+    if (cedula != null) body['cedula'] = cedula;
+    if (gender != null) body['gender'] = gender;
+    if (birthDate != null)
+      body['birthDate'] = birthDate.toIso8601String().split('T').first;
 
-    final response = await _client.put(ApiConstants.meProfile, body: body);
-    final data = response['data'] as Map<String, dynamic>;
-    return UserModel.fromJson(data);
+    await _client.put(ApiConstants.meProfile, body: body);
+
+    // Siempre refrescamos desde el servidor para que la UI muestre la verdad.
+    return getMe();
   }
 
-  /// POST /uploads — sube una imagen en base64 y retorna la URL pública.
-  Future<String> uploadImage({
-    required String base64Image,
-    required String filename,
-  }) async {
-    final response = await _client.post(
-      ApiConstants.uploads,
-      body: {
-        'image': base64Image,
-        'filename': filename,
-      },
-    );
-    final data = response['data'] as Map<String, dynamic>;
-    return data['url'] as String;
-  }
 }

@@ -64,10 +64,7 @@ class UploadService {
       if (filename != null) 'filename': filename,
     };
 
-    final response = await _client.post(
-      ApiConstants.uploads,
-      body: body,
-    );
+    final response = await _client.post(ApiConstants.uploads, body: body);
 
     final data = response['data'] as Map<String, dynamic>;
     return UploadResult.fromJson(data);

@@ -1,6 +1,6 @@
 /// Modelo de pregunta adicional definida por quien publica una oferta.
-/// Estas preguntas aparecen en el formulario de aplicación (Parte 5) y
-/// en la vista de detalle como informativas.
+/// Estas preguntas aparecen en el formulario de aplicación y en la vista de
+/// detalle como informativas.
 class OfferQuestionModel {
   final String? id;
   final String label;
@@ -22,7 +22,8 @@ class OfferQuestionModel {
       label: json['label'] as String? ?? '',
       type: json['type'] as String? ?? 'text',
       required: json['required'] as bool? ?? false,
-      options: (json['options'] as List<dynamic>?)
+      options:
+          (json['options'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
           [],

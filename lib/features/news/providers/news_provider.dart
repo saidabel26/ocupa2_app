@@ -10,7 +10,6 @@ class NewsProvider extends ChangeNotifier {
   List<NewsModel> _newsList = [];
   NewsModel? _selectedNews;
   bool _isLoading = false;
-  final bool _isLoadingDetail = false;
   String? _error;
 
   NewsProvider(this._service);
@@ -18,7 +17,6 @@ class NewsProvider extends ChangeNotifier {
   List<NewsModel> get newsList => _newsList;
   NewsModel? get selectedNews => _selectedNews;
   bool get isLoading => _isLoading;
-  bool get isLoadingDetail => _isLoadingDetail;
   String? get error => _error;
 
   /// Carga el listado de noticias desde GET /news.
@@ -40,8 +38,8 @@ class NewsProvider extends ChangeNotifier {
   }
 
   /// Carga el detalle de una noticia por id.
-  /// Intenta primero buscarlo en la lista ya cargada; si no lo encuentra
-  /// hace GET /news/{id}.
+  /// El detalle se obtiene desde el listado cargado, que es el único endpoint
+  /// de noticias disponible en el contrato del API.
   Future<void> loadNewsDetail(String id) async {
     final cached = _newsList.where((n) => n.id == id).toList();
     if (cached.isNotEmpty) {

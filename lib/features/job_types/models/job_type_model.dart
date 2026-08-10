@@ -4,7 +4,7 @@ import 'custom_field_model.dart';
 /// Incluye campos personalizados dinámicos que el administrador puede definir.
 class JobTypeModel {
   final String id;
-  final String key;  // Clave string del tipo de empleo (ej: 'tecnologia')
+  final String key; // Clave string del tipo de empleo (ej: 'tecnologia')
   final String name;
   final String? description;
   final String? icon;
@@ -24,11 +24,16 @@ class JobTypeModel {
     return JobTypeModel(
       id: json['id']?.toString() ?? json['_id']?.toString() ?? '',
       // 'key' es el identificador string que coincide con jobTypeKey en las ofertas
-      key: json['key']?.toString() ?? json['id']?.toString() ?? json['_id']?.toString() ?? '',
+      key:
+          json['key']?.toString() ??
+          json['id']?.toString() ??
+          json['_id']?.toString() ??
+          '',
       name: json['name'] as String? ?? '',
       description: json['description'] as String?,
       icon: json['icon'] as String?,
-      customFields: rawFields
+      customFields:
+          rawFields
               ?.map((e) => CustomFieldModel.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],

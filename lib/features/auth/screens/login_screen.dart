@@ -51,10 +51,7 @@ class _LoginScreenState extends State<LoginScreen>
     if (!_formKey.currentState!.validate()) return;
     final auth = context.read<AuthProvider>();
     try {
-      await auth.login(
-        email: _emailCtrl.text.trim(),
-        password: _passCtrl.text,
-      );
+      await auth.login(email: _emailCtrl.text.trim(), password: _passCtrl.text);
     } on AppError catch (e) {
       if (!mounted) return;
       _showError(e.message);
@@ -146,8 +143,9 @@ class _LoginScreenState extends State<LoginScreen>
                                   if (v == null || v.trim().isEmpty) {
                                     return 'Ingresa tu correo';
                                   }
-                                  if (!RegExp(r'^[^@]+@[^@]+\.[^@]+')
-                                      .hasMatch(v.trim())) {
+                                  if (!RegExp(
+                                    r'^[^@]+@[^@]+\.[^@]+',
+                                  ).hasMatch(v.trim())) {
                                     return 'Correo no válido';
                                   }
                                   return null;
@@ -178,7 +176,9 @@ class _LoginScreenState extends State<LoginScreen>
                                 child: TextButton(
                                   onPressed: () =>
                                       context.push(AppRoutes.forgotPassword),
-                                  child: const Text('¿Olvidaste tu contraseña?'),
+                                  child: const Text(
+                                    '¿Olvidaste tu contraseña?',
+                                  ),
                                 ),
                               ),
                               const SizedBox(height: 16),
