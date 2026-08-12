@@ -100,9 +100,8 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
     if (!mounted) return;
     if (ok) {
       setState(() => _step = 1);
-    } else {
-      _showError(payProvider.error ?? 'Pago rechazado. Verifica los datos.');
     }
+    // El error se muestra en el banner encima del botón (payProvider.error)
   }
 
   // Publicación de oferta.
@@ -568,7 +567,7 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
               _buildErrorBanner(payProvider.error!),
 
             _buildGradientButton(
-              label: payProvider.isLoading ? 'Procesando…' : 'Pagar 1 USD',
+              label: payProvider.isLoading ? 'Procesando…' : 'Pagar',
               icon: Icons.lock_outline,
               isLoading: payProvider.isLoading,
               onPressed: payProvider.isLoading ? null : _processPay,
@@ -585,7 +584,6 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
   Widget _buildOfferStep() {
     final jobTypeProvider = context.watch<JobTypeProvider>();
     final myOffersProvider = context.watch<MyOffersProvider>();
-    final payProvider = context.watch<PaymentProvider>();
 
     // Cargar tipos de empleo si no están disponibles
     if (!jobTypeProvider.loaded) {
@@ -619,7 +617,7 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Pago de USD 1.00 aprobado. ID: ${payProvider.paymentId ?? ""}',
+                      'Pago de USD 1.00 aprobado.',
                       style: const TextStyle(
                         color: AppColors.success,
                         fontSize: 12,
@@ -754,11 +752,10 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
             const SizedBox(height: 16),
 
             // Fecha límite
-            _buildSectionLabel('Fecha límite para aplicar (opcional, YYYY-MM-DD)'),
-            _buildField(
+            _buildSectionLabel('Fecha límite para aplicar (opcional)'),
+            _buildDatePickerField(
               controller: _deadlineCtrl,
-              hint: 'YYYY-MM-DD  (ej: 2026-09-30)',
-              keyboardType: TextInputType.datetime,
+              hint: 'Seleccionar fecha…',
             ),
             const SizedBox(height: 20),
 
@@ -797,8 +794,9 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
     final jt = jobTypeProvider.jobTypes
         .where((j) => j.key == _selectedJobTypeKey)
         .toList();
-    if (jt.isEmpty || jt.first.customFields.isEmpty)
+    if (jt.isEmpty || jt.first.customFields.isEmpty) {
       return const SizedBox.shrink();
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1355,6 +1353,76 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 14,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDatePickerField({
+    required TextEditingController controller,
+    String? hint,
+  }) {
+    return GestureDetector(
+      onTap: () async {
+        final now = DateTime.now();
+        final initial = DateTime.tryParse(controller.text.trim()) ?? now;
+        final picked = await showDatePicker(
+          context: context,
+          initialDate: initial.isBefore(now) ? now : initial,
+          firstDate: now,
+          lastDate: DateTime(now.year + 5),
+          builder: (context, child) => Theme(
+            data: Theme.of(context).copyWith(
+              colorScheme: const ColorScheme.dark(
+                primary: AppColors.primary,
+                onPrimary: Colors.white,
+                surface: AppColors.surface,
+                onSurface: AppColors.textPrimary,
+              ),
+            ),
+            child: child!,
+          ),
+        );
+        if (picked != null) {
+          final formatted =
+              '${picked.year.toString().padLeft(4, '0')}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
+          setState(() => controller.text = formatted);
+        }
+      },
+      child: AbsorbPointer(
+        child: TextFormField(
+          controller: controller,
+          readOnly: true,
+          style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle:
+                const TextStyle(color: AppColors.textHint, fontSize: 13),
+            filled: true,
+            fillColor: AppColors.surface,
+            suffixIcon: const Icon(
+              Icons.calendar_today_outlined,
+              color: AppColors.textSecondary,
+              size: 18,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppColors.border),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppColors.border),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide:
+                  const BorderSide(color: AppColors.borderFocus, width: 2),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
+          ),
         ),
       ),
     );
